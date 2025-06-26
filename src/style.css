@@ -1,0 +1,153 @@
+:root {
+  --canvas-height: 40%;
+  --ui-height: 65%;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: black;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 1vh;
+}
+
+/* Contenitore centrale a rapporto 9:16 */
+#viewport {
+  height: 100%;
+  aspect-ratio: 9 / 16;
+  position: relative;
+  background: #D9D9D9;
+  overflow: hidden;
+}
+
+/* Canvas */
+#renderCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--canvas-height);
+  display: block;
+  background: transparent;
+  pointer-events: auto;
+}
+
+#renderCanvas:focus-visible {
+  outline: none;
+}
+
+/* Overlay React */
+#react-root {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* <-- Allinea in basso */
+  pointer-events: none;
+}
+
+#app-container {
+  width: 100%;
+  height: var(--ui-height);
+  display: flex;
+  flex-direction: row;
+  pointer-events: none;
+}
+
+/* === CameraMenu === */
+.menu-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  pointer-events: auto;
+  padding: 2rem;
+}
+
+.menu-btn {
+  padding: 1rem 2rem;
+  background: transparent;
+  color: rgb(24, 24, 24);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: Arial, sans-serif;
+  font-size: 1.5rem;
+}
+
+.menu-btn::before {
+  content: "•";
+  display: inline-block;
+  margin-right: 0.8rem;
+  font-size: 1.5rem;
+  color: rgb(24, 24, 24);
+}
+
+.menu-btn.active {
+  color: #ff8f00;
+}
+
+.menu-submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: transparent;
+  padding: 3rem 3rem 1.5rem 4rem;
+  pointer-events: auto;
+}
+
+.submenu-btn {
+  all: unset;
+  padding: 1.2rem 2rem;
+  color: rgb(24, 24, 24);
+  border-radius: 1rem;
+  cursor: pointer;
+  text-align: left;
+  font-family: Arial, sans-serif;
+  font-size: 1.6rem;
+}
+
+.submenu-btn.active {
+  color: #ff8f00;
+  font-size: 1.8rem;
+}
+
+.submenu-details {
+  padding-left: 3rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  color: rgb(24, 24, 24);
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+}
+
+.detail-checkbox {
+  appearance: none;
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
+  min-height: 2rem;
+  border: 0.3rem solid rgb(24, 24, 24);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+.detail-checkbox:checked {
+  background-color: #ff8f00;
+  border-color: #ff8f00;
+}
