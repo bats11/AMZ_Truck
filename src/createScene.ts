@@ -8,7 +8,7 @@ import { setupLighting } from "./setupLighting";
 import { loadModel } from "./loadModel";
 import { mountUI } from "./react/MainUI";
 import { setupMovementControls } from "./MoveComponent";
-import { enableTouchRotation } from "./TouchRotation"; // ✅ nuovo import
+import { enableTouchRotation } from "./TouchRotation";
 
 export async function createScene() {
   const el = document.getElementById("renderCanvas");
@@ -31,16 +31,19 @@ export async function createScene() {
   loadModel(scene, (meshes, bounding) => {
     const center = bounding.min.add(bounding.max).scale(0.5);
     setupMovementControls(center, scene);
-    
+
     const root = scene.getTransformNodeByName("ModelRoot");
     if (root) {
-     enableTouchRotation(root, canvas); // ✅ abilita rotazione manuale dell'oggetto
+      enableTouchRotation(root, canvas);
     }
   });
 
   mountUI();
 
-  window.addEventListener("resize", () => engine.resize());
+  // ✅ Resize engine when canvas resizes (important for CSS-driven layout)
+  const resizeCanvas = () => engine.resize();
+  new ResizeObserver(resizeCanvas).observe(canvas as unknown as Element);
+  window.addEventListener("resize", resizeCanvas);
   engine.resize();
 
   engine.runRenderLoop(() => scene.render());
