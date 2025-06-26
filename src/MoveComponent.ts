@@ -10,10 +10,10 @@ export function setupMovementControls(center: BABYLON.Vector3, scene: BABYLON.Sc
   modelRoot.position = center;
 
   const presetAngles: Record<string, number> = {
-    "FRONT SIDE": 0,
-    "DRIVER SIDE": Math.PI / 2,
-    "BACK SIDE": Math.PI,
-    "PASSENGER SIDE": 3 * Math.PI / 2,
+    "FRONT SIDE": Math.PI / 2,
+    "DRIVER SIDE":  Math.PI,
+    "BACK SIDE": 3 * Math.PI / 2,
+    "PASSENGER SIDE": 0,
     "IN CAB": 0, // oppure personalizzato
   };
 

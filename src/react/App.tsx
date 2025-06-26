@@ -15,7 +15,7 @@ export default function App() {
       {/* Colonna sinistra */}
       <div
         style={{
-          flex: 7,
+          flex: 6.5,
           pointerEvents: "auto",
           padding: "2rem 2rem 0 4rem",
         }}
@@ -32,9 +32,9 @@ export default function App() {
       {/* Colonna destra */}
       <div
         style={{
-          flex: 3,
+          flex: 3.5,
           pointerEvents: "auto",
-          padding: "2rem 4rem 0 2rem",
+          padding: "2rem 3rem 0 2rem",
         }}
       >
         <CameraMenu
