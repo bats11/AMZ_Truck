@@ -60,17 +60,15 @@ export function loadModel(
 
       boundingInfo = { min, max };
 
-      // === Crea nodo root ===
       const center = min.add(max).scale(0.5);
       const root = new BABYLON.TransformNode("ModelRoot", scene);
       root.position = center;
 
-      // === Imposta root come parent preservando la posizione world ===
       for (const mesh of meshes) {
-        mesh.setParent(root, true); // true = preserve world position
+        mesh.setParent(root, true);
       }
 
-      materialManager.applyAllLightmaps();
+      materialManager.configureGlassMaterial();
 
       modelsLoaded++;
       if (modelsLoaded === totalModels) onAllLoaded();
