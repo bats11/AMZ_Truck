@@ -1,9 +1,9 @@
 // src/setupBackground.ts
 import * as BABYLON from "@babylonjs/core";
-
+import { ShadowOnlyMaterial } from "@babylonjs/materials/shadowOnly/shadowOnlyMaterial";
 
 /**
- * Crea un piano con un materiale PBR quasi bianco e trasformazioni definite internamente.
+ * Crea un piano invisibile che riceve solo ombre (shadow catcher).
  */
 export function setupBackground(scene: BABYLON.Scene): BABYLON.Mesh {
   const groundSize = 30;
@@ -13,18 +13,18 @@ export function setupBackground(scene: BABYLON.Scene): BABYLON.Mesh {
     height: groundSize,
   }, scene);
 
-  const groundMaterial = new BABYLON.PBRMaterial("groundPBR", scene);
-  groundMaterial.albedoColor = new BABYLON.Color3(0.95, 0.95, 0.95); // quasi bianco
-  groundMaterial.metallic = 0;
-  groundMaterial.roughness = 1; // superficie opaca
-  ground.material = groundMaterial;
+  // ✅ ShadowOnlyMaterial corretto
+  const shadowOnlyMat = new ShadowOnlyMaterial("shadowOnlyMat", scene);
+  shadowOnlyMat.alpha = 0.2; // invisibile
+  shadowOnlyMat.shadowColor = new BABYLON.Color3(0, 0, 0);
 
+  ground.material = shadowOnlyMat;
   ground.receiveShadows = true;
 
-  // 🔧 Trasformazioni definite nel file
+  // 🔧 Trasformazioni
   ground.position = new BABYLON.Vector3(0, 0, 3);
   ground.rotation = new BABYLON.Vector3(
-    BABYLON.Tools.ToRadians(-90), // attenzione: in radianti!
+    BABYLON.Tools.ToRadians(-90),
     0,
     0
   );
