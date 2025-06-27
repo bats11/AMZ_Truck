@@ -1,6 +1,6 @@
 :root {
-  --canvas-height: 50%;
-  --ui-height: 45%;
+  --canvas-height: 100%;
+  --ui-height: 55%;
 }
 
 html, body {
