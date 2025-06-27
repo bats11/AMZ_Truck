@@ -1,4 +1,3 @@
-// src/loadModel.ts
 import * as BABYLON from "@babylonjs/core";
 import { MaterialManager } from "./materialManager";
 
@@ -53,20 +52,22 @@ export function loadModel(
       const { minimumWorld, maximumWorld } = meshes[0].getBoundingInfo().boundingBox;
       let min = minimumWorld.clone(), max = maximumWorld.clone();
 
-      const root = new BABYLON.TransformNode("ModelRoot", scene);
-
       for (const mesh of meshes) {
         const bb = mesh.getBoundingInfo().boundingBox;
         min = BABYLON.Vector3.Minimize(min, bb.minimumWorld);
         max = BABYLON.Vector3.Maximize(max, bb.maximumWorld);
+      }
 
-        mesh.receiveShadows = true;
+      boundingInfo = { min, max };
+
+      const center = min.add(max).scale(0.5);
+      const root = new BABYLON.TransformNode("ModelRoot", scene);
+      root.position = center;
+
+      for (const mesh of meshes) {
         mesh.setParent(root, true);
       }
 
-      root.position = min.add(max).scale(0.5).negate(); // centra il modello
-
-      boundingInfo = { min, max };
       materialManager.configureGlassMaterial();
 
       modelsLoaded++;

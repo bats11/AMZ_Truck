@@ -22,7 +22,7 @@ export function setupBackground(scene: BABYLON.Scene): BABYLON.Mesh {
   ground.receiveShadows = true;
 
   // 🔧 Trasformazioni
-  ground.position = new BABYLON.Vector3(0, 0, 4);
+  ground.position = new BABYLON.Vector3(0, 0, 3);
   ground.rotation = new BABYLON.Vector3(
     BABYLON.Tools.ToRadians(-90),
     0,
