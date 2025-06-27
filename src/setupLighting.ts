@@ -1,39 +1,51 @@
+// src/setupLighting.ts
 import * as BABYLON from "@babylonjs/core";
 
 /**
- * Imposta l'illuminazione di base e carica una environment texture HDR (IBL).
+ * Imposta Directional Light + HDR e restituisce un CascadedShadowGenerator.
  */
-export function setupLighting(scene: BABYLON.Scene) {
-  try {
+export function setupLighting(scene: BABYLON.Scene): BABYLON.CascadedShadowGenerator {
+  // === Directional Light === //
+  const directionalLight = new BABYLON.DirectionalLight(
+    "mainDirectionalLight",
+    new BABYLON.Vector3(-0.35, -0.4, 1).normalize(),
+    scene
+  );
+  directionalLight.intensity = 1.2;
+  directionalLight.diffuse = new BABYLON.Color3(1, 1, 1);
+  directionalLight.specular = new BABYLON.Color3(1, 1, 1);
+  directionalLight.shadowEnabled = true;
 
-    
+  // === Cascaded Shadow Generator === //
+  const csm = new BABYLON.CascadedShadowGenerator(2048, directionalLight);
+  csm.numCascades = 4;
+  csm.stabilizeCascades = true;
+  csm.lambda = 0.95; // equilibrio tra dettaglio vicino/lontano
+  csm.shadowMaxZ = 100;
 
-    // Carica una HDR e la usa come environment texture
-    const hdrTexture = new BABYLON.HDRCubeTexture(
-      "/assets/studio_small_08_4k.hdr",
-      scene,
-      512, // dimensione (512 è un buon compromesso, ma puoi usare 256/1024)
-      false, // no mipmaps
-      true,  // generateHarmonics (utile per irradiance ambientale)
-      false, // gammaSpace
-      true   // prefilterOnLoad
-    );
+  csm.depthClamp = true;
+  csm.bias = 0.0005;
+  csm.normalBias = 0.02;
 
-    hdrTexture.onLoadObservable.addOnce(() => {
-      console.log("HDR environment texture caricata.");
-    });
+  // === HDR Environment Texture === //
+  const hdrTexture = new BABYLON.HDRCubeTexture(
+    "/assets/studio_small_08_4k.hdr",
+    scene,
+    512,
+    false,
+    true,
+    false,
+    true
+  );
 
-    // Applica la texture alla scena
-    scene.environmentTexture = hdrTexture;
+  hdrTexture.onLoadObservable.addOnce(() => {
+    console.log("HDR environment texture caricata.");
+  });
 
-    // Imposta l’intensità IBL
-    scene.environmentIntensity = 1;
+  scene.environmentTexture = hdrTexture;
+  scene.environmentIntensity = 0.1;
 
-    scene.clearColor = BABYLON.Color4.FromHexString("#00000000"); // equivalente
+  scene.clearColor = BABYLON.Color4.FromHexString("#00000000");
 
-
-  } catch (err) {
-    console.error("Errore durante il caricamento dell'environment HDR:", err);
-    throw err;
-  }
+  return csm;
 }
