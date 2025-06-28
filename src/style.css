@@ -66,13 +66,12 @@ html, body {
 .menu-main {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  row-gap: 1rem;
+  column-gap: 0rem;
   pointer-events: auto;
-  padding: 0rem;
+  padding: 2rem 0 2rem 0;
   background: #0085b3;
-  border-radius: 20px 0 0 20px;
-  padding-top: 1rem;
-  padding-left: 1rem;
+  border-radius: 15px 0 0 15px;
 }
 
 .menu-btn {
@@ -95,7 +94,8 @@ html, body {
 }
 
 .menu-btn.active {
-  color: #ff8f00;
+ /*color: #ff8f00;*/
+ background-color: #6dcdff;
 }
 
 .menu-submenu {
@@ -103,8 +103,10 @@ html, body {
   flex-direction: column;
   gap: 1.5rem;
   background: transparent;
-  padding: 0rem 3rem 1.5rem 2rem;
+  padding: 3rem 3rem 1.5rem 2rem;
   pointer-events: auto;
+  background: #ffffff;
+  border-radius: 15px;
 }
 
 .submenu-btn {
