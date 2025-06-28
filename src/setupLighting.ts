@@ -8,7 +8,7 @@ export function setupLighting(scene: BABYLON.Scene): BABYLON.CascadedShadowGener
   // === Directional Light === //
   const directionalLight = new BABYLON.DirectionalLight(
     "mainDirectionalLight",
-    new BABYLON.Vector3(-0.35, -0.4, 1).normalize(),
+    new BABYLON.Vector3(-0.2, -0.4, 1).normalize(),
     scene
   );
   directionalLight.intensity = 1.2;
@@ -43,7 +43,7 @@ export function setupLighting(scene: BABYLON.Scene): BABYLON.CascadedShadowGener
   });
 
   scene.environmentTexture = hdrTexture;
-  scene.environmentIntensity = 0.1;
+  scene.environmentIntensity = 0.3;
 
   scene.clearColor = BABYLON.Color4.FromHexString("#00000000");
 

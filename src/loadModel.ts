@@ -1,3 +1,4 @@
+// src/loadModel.ts
 import * as BABYLON from "@babylonjs/core";
 import { MaterialManager } from "./materialManager";
 
@@ -49,8 +50,9 @@ export function loadModel(
       const meshes = container.meshes.filter(m => m.name !== "__root__");
       firstMeshes = meshes;
 
-      const { minimumWorld, maximumWorld } = meshes[0].getBoundingInfo().boundingBox;
-      let min = minimumWorld.clone(), max = maximumWorld.clone();
+      // Calcola bounding box prima del parenting
+      let min = meshes[0].getBoundingInfo().boundingBox.minimumWorld.clone();
+      let max = meshes[0].getBoundingInfo().boundingBox.maximumWorld.clone();
 
       for (const mesh of meshes) {
         const bb = mesh.getBoundingInfo().boundingBox;
@@ -58,14 +60,17 @@ export function loadModel(
         max = BABYLON.Vector3.Maximize(max, bb.maximumWorld);
       }
 
+      const center = min.add(max).scale(0.5);
       boundingInfo = { min, max };
 
-      const center = min.add(max).scale(0.5);
+      // Crea il nodo root e lo posiziona PRIMA del parenting
       const root = new BABYLON.TransformNode("ModelRoot", scene);
       root.position = center;
 
+      // Parent mantenendo la posizione world
       for (const mesh of meshes) {
-        mesh.setParent(root, true);
+        mesh.receiveShadows = true;
+        mesh.setParent(root, true); // true = mantieni world pos
       }
 
       materialManager.configureGlassMaterial();
