@@ -1,6 +1,6 @@
 :root {
   --canvas-height: 100%;
-  --ui-height: 50%;
+  --ui-height: 57%;
 }
 
 html, body {
@@ -90,12 +90,12 @@ html, body {
   display: inline-block;
   margin-right: 0.8rem;
   font-size: 1.5rem;
-  /*color: rgb(24, 24, 24);*/
 }
 
 .menu-btn.active {
  /*color: #ff8f00;*/
  background-color: #6dcdff;
+ margin-right: 1rem;
 }
 
 .menu-submenu {
