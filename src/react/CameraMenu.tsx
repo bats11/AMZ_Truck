@@ -86,6 +86,7 @@ export default function CameraMenu({
 
   function onSubClick(subKey: string) {
     setActiveSubmenu(subKey);
+    moveCameraTo(subKey);
   }
 
   function toggleCheckbox(detail: string) {

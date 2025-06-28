@@ -1,7 +1,8 @@
 // src/moveComponent.ts
 import * as BABYLON from "@babylonjs/core";
-import { animateRotationTo } from "./utils";
+import { animateTransformTo } from "./utils";
 import { setMoveCameraTo } from "./babylonBridge";
+import { transformSettings } from "./transformSettings";
 
 let modelRoot: BABYLON.TransformNode | null = null;
 
@@ -38,20 +39,12 @@ export function setupMovementControls(scene: BABYLON.Scene) {
     }
   });
 
-  // Angoli predefiniti per rotazioni
-  const presetAngles: Record<string, number> = {
-    "FRONT SIDE": Math.PI / 2,
-    "DRIVER SIDE": Math.PI,
-    "BACK SIDE": 3 * Math.PI / 2,
-    "PASSENGER SIDE": 0,
-    "IN CAB": 0,
-  };
 
   setMoveCameraTo((label) => {
     if (!modelRoot) return;
-    const angle = presetAngles[label];
-    if (angle !== undefined) {
-      animateRotationTo(modelRoot, angle);
+      const settings = transformSettings[label];
+    if (settings) {
+      animateTransformTo(modelRoot, settings);
     }
   });
 }
