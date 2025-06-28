@@ -34,7 +34,7 @@ export default function App() {
         style={{
           flex: 3.5,
           pointerEvents: "auto",
-          padding: "2rem 3rem 0 2rem",
+          padding: "2rem 0 0 0",
         }}
       >
         <CameraMenu

@@ -21,7 +21,7 @@ html, body {
   height: 100%;
   aspect-ratio: 9 / 16;
   position: relative;
-  background: #D9D9D9;
+  background: linear-gradient(to bottom, #fff, #b6e3ff);;
   overflow: hidden;
 }
 
@@ -69,12 +69,16 @@ html, body {
   gap: 1rem;
   pointer-events: auto;
   padding: 0rem;
+  background: #0085b3;
+  border-radius: 20px 0 0 20px;
+  padding-top: 1rem;
+  padding-left: 1rem;
 }
 
 .menu-btn {
   padding: 1rem 1rem;
   background: transparent;
-  color: rgb(24, 24, 24);
+  color: #daf0ff;
   border: none;
   cursor: pointer;
   text-align: left;
@@ -87,7 +91,7 @@ html, body {
   display: inline-block;
   margin-right: 0.8rem;
   font-size: 1.5rem;
-  color: rgb(24, 24, 24);
+  /*color: rgb(24, 24, 24);*/
 }
 
 .menu-btn.active {

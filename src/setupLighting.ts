@@ -11,7 +11,7 @@ export function setupLighting(scene: BABYLON.Scene): BABYLON.CascadedShadowGener
     new BABYLON.Vector3(-0.2, -0.4, 1).normalize(),
     scene
   );
-  directionalLight.intensity = 1.2;
+  directionalLight.intensity = 2;
   directionalLight.diffuse = new BABYLON.Color3(1, 1, 1);
   directionalLight.specular = new BABYLON.Color3(1, 1, 1);
   directionalLight.shadowEnabled = true;
