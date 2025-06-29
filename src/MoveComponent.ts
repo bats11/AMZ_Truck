@@ -6,6 +6,12 @@ import { transformSettings } from "./transformSettings";
 
 let modelRoot: BABYLON.TransformNode | null = null;
 
+let initialTransform: {
+  position: BABYLON.Vector3;
+  rotation: BABYLON.Vector3;
+  scaling: BABYLON.Vector3;
+} | null = null;
+
 /**
  * Inizializza il nodo radice del modello e gestisce la logica di rotazione su comandi esterni.
  */
@@ -39,6 +45,12 @@ export function setupMovementControls(scene: BABYLON.Scene) {
     }
   });*/
 
+  initialTransform = {
+    position: modelRoot.position.clone(),
+    rotation: modelRoot.rotation.clone(),
+    scaling: modelRoot.scaling.clone(),
+  };
+
 
   setMoveCameraTo((label) => {
     if (!modelRoot) return;
@@ -46,6 +58,16 @@ export function setupMovementControls(scene: BABYLON.Scene) {
     if (settings) {
       animateTransformTo(modelRoot, settings);
     }
+  });
+}
+
+export function resetModelTransform() {
+  if (!modelRoot || !initialTransform) return;
+
+  animateTransformTo(modelRoot, {
+    position: initialTransform.position,
+    rotation: initialTransform.rotation,
+    scaling: initialTransform.scaling,
   });
 }
 

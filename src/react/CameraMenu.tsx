@@ -24,6 +24,7 @@ interface CameraMenuProps {
   setActiveSubmenu: (value: string | null) => void;
   touchLocked: boolean;
   setTouchLocked: (value: boolean) => void;
+  resetApp: () => void;
 }
 
 export default function CameraMenu({
@@ -34,6 +35,7 @@ export default function CameraMenu({
   setActiveSubmenu,
   touchLocked,
   setTouchLocked,
+  resetApp,
 }: CameraMenuProps) {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
@@ -91,7 +93,10 @@ export default function CameraMenu({
       <div className="menu-main">
         {touchLocked && (
           <button
-            onClick={() => setTouchLocked(false)}
+            onClick={() => {
+              setTouchLocked(false);
+              resetApp();
+            }}
             className="menu-btn unlock-btn"
           >
             🔓 Unlock Touch
