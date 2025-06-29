@@ -20,7 +20,7 @@ export const transformSettings: Record<string, TransformSetting> = {
   "BACK SIDE": {
     position: new BABYLON.Vector3(0, 2, 0),
     rotation: new BABYLON.Vector3(0, -Math.PI / 2, 0),
-    scaling: new BABYLON.Vector3(2.5, 2.5, 2.5),
+    scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
   },
   "PASSENGER SIDE": { 
     position: new BABYLON.Vector3(0, 4, 0),

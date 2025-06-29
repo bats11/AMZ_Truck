@@ -23,7 +23,7 @@ export function setupMovementControls(scene: BABYLON.Scene) {
   modelRoot.scaling = new BABYLON.Vector3(1.1 ,1.1 ,1.1);
 
   // 🔵 Aggiunge una sfera visiva per mostrare la posizione della root
-  const debugSphere = BABYLON.MeshBuilder.CreateSphere("debugSphere", {
+ /* const debugSphere = BABYLON.MeshBuilder.CreateSphere("debugSphere", {
     diameter: 0.2,
   }, scene);
   debugSphere.position = modelRoot.position.clone();
@@ -37,7 +37,7 @@ export function setupMovementControls(scene: BABYLON.Scene) {
     if (modelRoot) {
       debugSphere.position = modelRoot.getAbsolutePosition();
     }
-  });
+  });*/
 
 
   setMoveCameraTo((label) => {
