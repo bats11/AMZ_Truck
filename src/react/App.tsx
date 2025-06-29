@@ -1,10 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CameraMenu from "./CameraMenu";
+import { setTouchLockedGetter } from "../babylonBridge";
 
 export default function App() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [touchLocked, setTouchLocked] = useState<boolean>(false);
+
+  // ✅ Mantieni sincronizzato lo stato touchLocked con Babylon
+  useEffect(() => {
+    setTouchLockedGetter(() => touchLocked);
+  }, [touchLocked]);
 
   return (
     <div

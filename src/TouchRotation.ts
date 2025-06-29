@@ -1,10 +1,11 @@
 // src/TouchRotation.ts
 import * as BABYLON from "@babylonjs/core";
+import { getTouchLocked } from "./babylonBridge";
 
 let rootNode: BABYLON.TransformNode | null = null;
 let isDragging = false;
 let lastX = 0;
-let velocity = 0;
+let velocityY = 0;
 let animationFrame: number | null = null;
 
 const ROTATION_SPEED = 0.005;
@@ -21,12 +22,12 @@ export function enableTouchRotation(node: BABYLON.TransformNode, canvas: HTMLCan
 }
 
 function onPointerDown(e: PointerEvent) {
-  if (!rootNode) return;
+  if (!rootNode || getTouchLocked()) return;
+
   isDragging = true;
   lastX = e.clientX;
-  velocity = 0;
+  velocityY = 0;
 
-  // Ferma eventuale inerzia attiva
   if (animationFrame !== null) {
     cancelAnimationFrame(animationFrame);
     animationFrame = null;
@@ -34,14 +35,16 @@ function onPointerDown(e: PointerEvent) {
 }
 
 function onPointerMove(e: PointerEvent) {
-  if (!isDragging || !rootNode) return;
+  if (!isDragging || !rootNode || getTouchLocked()) return;
 
   const deltaX = e.clientX - lastX;
   lastX = e.clientX;
 
-  const deltaRot = deltaX * ROTATION_SPEED;
-  rootNode.rotation.y -= deltaRot;
-  velocity = deltaRot;
+  const rotY = deltaX * ROTATION_SPEED;
+
+  rootNode.rotation.y -= rotY;
+
+  velocityY = rotY;
 }
 
 function onPointerUp() {
@@ -50,14 +53,13 @@ function onPointerUp() {
 }
 
 function applyInertia() {
-  if (!rootNode || isDragging) return;
+  if (!rootNode || isDragging || getTouchLocked()) return;
 
-  if (Math.abs(velocity) > MIN_VELOCITY) {
-    rootNode.rotation.y -= velocity;
-    velocity *= INERTIA_DECAY;
+  if (Math.abs(velocityY) > MIN_VELOCITY) {
+    rootNode.rotation.y -= velocityY;
+    velocityY *= INERTIA_DECAY;
     animationFrame = requestAnimationFrame(applyInertia);
   } else {
-    velocity = 0;
     animationFrame = null;
   }
 }
