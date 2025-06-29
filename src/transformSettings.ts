@@ -13,8 +13,8 @@ export const transformSettings: Record<string, TransformSetting> = {
     scaling: new BABYLON.Vector3(2.5, 2.5, 2.5),
   },
   "DRIVER SIDE": {
-    position: new BABYLON.Vector3(0, 3, 0),
-    rotation: new BABYLON.Vector3(0, 0, 0),
+    position: new BABYLON.Vector3(0, 4, 0),
+    rotation: new BABYLON.Vector3(0, Math.PI, 0),
     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
   },
   "BACK SIDE": {
@@ -23,7 +23,7 @@ export const transformSettings: Record<string, TransformSetting> = {
     scaling: new BABYLON.Vector3(2.5, 2.5, 2.5),
   },
   "PASSENGER SIDE": { 
-    position: new BABYLON.Vector3(0, 3, 0),
+    position: new BABYLON.Vector3(0, 4, 0),
     rotation: new BABYLON.Vector3(0, 0, 0),
     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
   },

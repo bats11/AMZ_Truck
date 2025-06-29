@@ -4,6 +4,7 @@ import CameraMenu from "./CameraMenu";
 export default function App() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
+  const [touchLocked, setTouchLocked] = useState<boolean>(false);
 
   return (
     <div
@@ -26,6 +27,8 @@ export default function App() {
           activeSubmenu={activeSubmenu}
           setActiveMenu={setActiveMenu}
           setActiveSubmenu={setActiveSubmenu}
+          touchLocked={touchLocked}
+          setTouchLocked={setTouchLocked}
         />
       </div>
 
@@ -43,6 +46,8 @@ export default function App() {
           activeSubmenu={activeSubmenu}
           setActiveMenu={setActiveMenu}
           setActiveSubmenu={setActiveSubmenu}
+          touchLocked={touchLocked}
+          setTouchLocked={setTouchLocked}
         />
       </div>
     </div>

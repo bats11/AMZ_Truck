@@ -22,6 +22,8 @@ interface CameraMenuProps {
   activeSubmenu: string | null;
   setActiveMenu: (value: string | null) => void;
   setActiveSubmenu: (value: string | null) => void;
+  touchLocked: boolean;
+  setTouchLocked: (value: boolean) => void;
 }
 
 export default function CameraMenu({
@@ -30,6 +32,8 @@ export default function CameraMenu({
   activeSubmenu,
   setActiveMenu,
   setActiveSubmenu,
+  touchLocked,
+  setTouchLocked,
 }: CameraMenuProps) {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
@@ -45,15 +49,17 @@ export default function CameraMenu({
 
       if (activeSubmenu && typeof menuEntry[activeSubmenu] === "object") {
         const submenuEntry = menuEntry[activeSubmenu] as SubmenuDetails;
-        if (submenuEntry._uiHeight) return submenuEntry._uiHeight;
+        if (submenuEntry._uiHeight && submenuEntry._uiHeight.trim() !== "") return submenuEntry._uiHeight;
       }
 
-      return menuEntry._uiHeight || null;
+      if (menuEntry._uiHeight && menuEntry._uiHeight.trim() !== "") return menuEntry._uiHeight;
+
+      return null;
     };
 
     const targetHeight = getHeight();
     if (targetHeight) {
-      container.style.transition = "height 0.4s ease";
+      container.style.transition = "height 1.8s cubic-bezier(0.65, 0, 0.35, 1)";
       container.style.setProperty("--ui-height", targetHeight);
     }
   }, [activeMenu, activeSubmenu]);
@@ -63,6 +69,7 @@ export default function CameraMenu({
     setActiveMenu(label);
     setActiveSubmenu(null);
     moveCameraTo(label);
+    if (!touchLocked) setTouchLocked(true);
   }
 
   function onSubClick(subKey: string) {
@@ -77,12 +84,19 @@ export default function CameraMenu({
     }));
   }
 
-  // === Colonna destra (menu principale) ===
   if (position === "right") {
     const mainButtons = Object.keys(typedSubmenuData);
 
     return (
       <div className="menu-main">
+        {touchLocked && (
+          <button
+            onClick={() => setTouchLocked(false)}
+            className="menu-btn unlock-btn"
+          >
+            🔓 Unlock Touch
+          </button>
+        )}
         {mainButtons.map((label) => (
           <button
             key={label}
@@ -96,7 +110,6 @@ export default function CameraMenu({
     );
   }
 
-  // === Colonna sinistra (submenu) ===
   if (position === "left" && activeMenu) {
     const submenu = typedSubmenuData[activeMenu];
 

@@ -14,7 +14,7 @@ export function setupMovementControls(scene: BABYLON.Scene) {
   if (!modelRoot) return;
 
   // Impostazioni iniziali personalizzabili
-  modelRoot.position = new BABYLON.Vector3(0, 3, 0); // ← modificabile
+  modelRoot.position = new BABYLON.Vector3(0, 4, 0); // ← modificabile
   modelRoot.rotation = new BABYLON.Vector3(
     BABYLON.Tools.ToRadians(0),
     BABYLON.Tools.ToRadians(0),
