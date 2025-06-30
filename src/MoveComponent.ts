@@ -1,4 +1,4 @@
-// src/MoveComponent.ts
+// src/moveComponent.ts
 import * as BABYLON from "@babylonjs/core";
 import { animateTransformTo } from "./utils";
 import { setMoveCameraTo } from "./babylonBridge";
@@ -11,81 +11,6 @@ let initialTransform: {
   rotation: BABYLON.Vector3;
   scaling: BABYLON.Vector3;
 } | null = null;
-
-const SMALL_SCALE = new BABYLON.Vector3(1.1, 1.1, 1.1);
-const LARGE_SCALE_THRESHOLD = 1.9;
-
-function animateScale(
-  target: BABYLON.TransformNode,
-  to: BABYLON.Vector3,
-  totalFrames: number,
-  onEnd?: () => void
-) {
-  const anim = new BABYLON.Animation(
-    "scaleAnim",
-    "scaling",
-    60,
-    BABYLON.Animation.ANIMATIONTYPE_VECTOR3
-  );
-  anim.setKeys([
-    { frame: 0, value: target.scaling.clone() },
-    { frame: totalFrames, value: to.clone() },
-  ]);
-  const ease = new BABYLON.CubicEase();
-  ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
-  anim.setEasingFunction(ease);
-
-  target.getScene().beginDirectAnimation(target, [anim], 0, totalFrames, false, 1.0, onEnd);
-}
-
-function animatePositionRotation(
-  target: BABYLON.TransformNode,
-  settings: { position?: BABYLON.Vector3; rotation?: BABYLON.Vector3 },
-  totalFrames: number,
-  onEnd?: () => void
-) {
-  const anims: BABYLON.Animation[] = [];
-
-  if (settings.position) {
-    const anim = new BABYLON.Animation(
-      "posAnim",
-      "position",
-      60,
-      BABYLON.Animation.ANIMATIONTYPE_VECTOR3
-    );
-    anim.setKeys([
-      { frame: 0, value: target.position.clone() },
-      { frame: totalFrames, value: settings.position.clone() },
-    ]);
-    const ease = new BABYLON.QuarticEase();
-    ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
-    anim.setEasingFunction(ease);
-    anims.push(anim);
-  }
-
-  if (settings.rotation) {
-    const anim = new BABYLON.Animation(
-      "rotAnim",
-      "rotation",
-      60,
-      BABYLON.Animation.ANIMATIONTYPE_VECTOR3
-    );
-    anim.setKeys([
-      { frame: 0, value: target.rotation.clone() },
-      { frame: totalFrames, value: settings.rotation.clone() },
-    ]);
-    const ease = new BABYLON.QuarticEase();
-    ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
-    anim.setEasingFunction(ease);
-    anims.push(anim);
-  }
-
-  if (anims.length > 0) {
-    target.getScene().beginDirectAnimation(target, anims, 0, totalFrames, false, 1.0, onEnd);
-  } else if (onEnd) {
-    onEnd();
-  }
-}
 
 export function setupMovementControls(scene: BABYLON.Scene) {
   modelRoot = scene.getTransformNodeByName("ModelRoot");
@@ -110,18 +35,72 @@ export function setupMovementControls(scene: BABYLON.Scene) {
     const settings = transformSettings[label];
     if (!settings) return;
 
-    const currentScale = modelRoot.scaling.length();
-    const isCurrentlyLarge = currentScale > LARGE_SCALE_THRESHOLD;
+    const currentScale = modelRoot.scaling.lengthSquared();
+    const targetScale = settings.scaling?.lengthSquared() ?? currentScale;
+    const isReducingScale = targetScale < currentScale - 0.001;
 
-    if (isCurrentlyLarge) {
-      animateScale(modelRoot, SMALL_SCALE, 30, () => {
-        animatePositionRotation(modelRoot!, settings, 45, () => {
-          if (settings.scaling) {
-            animateScale(modelRoot!, settings.scaling, 30);
-          }
-        });
-      });
+    if (isReducingScale && settings.scaling) {
+      const frameRate = 60;
+      const duration = 1.5;
+      const totalFrames = Math.ceil(duration * frameRate);
+
+      const animations: BABYLON.Animation[] = [];
+
+      // === SCALING ===
+      const scaleAnim = new BABYLON.Animation(
+        "scaleAnim",
+        "scaling",
+        frameRate,
+        BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+      );
+      scaleAnim.setKeys([
+        { frame: 0, value: modelRoot.scaling.clone() },
+        { frame: totalFrames, value: settings.scaling.clone() },
+      ]);
+      const scaleEase = new BABYLON.CubicEase();
+      scaleEase.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+      scaleAnim.setEasingFunction(scaleEase);
+      animations.push(scaleAnim);
+
+      // === POSITION ===
+      if (settings.position) {
+        const posAnim = new BABYLON.Animation(
+          "positionAnim",
+          "position",
+          frameRate,
+          BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+        );
+        posAnim.setKeys([
+          { frame: 0, value: modelRoot.position.clone() },
+          { frame: totalFrames, value: settings.position.clone() },
+        ]);
+        const posEase = new BABYLON.QuarticEase();
+        posEase.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
+        posAnim.setEasingFunction(posEase);
+        animations.push(posAnim);
+      }
+
+      // === ROTATION ===
+      if (settings.rotation) {
+        const rotAnim = new BABYLON.Animation(
+          "rotationAnim",
+          "rotation",
+          frameRate,
+          BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+        );
+        rotAnim.setKeys([
+          { frame: 0, value: modelRoot.rotation.clone() },
+          { frame: totalFrames, value: settings.rotation.clone() },
+        ]);
+        const rotEase = new BABYLON.QuarticEase();
+        rotEase.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
+        rotAnim.setEasingFunction(rotEase);
+        animations.push(rotAnim);
+      }
+
+      scene.beginDirectAnimation(modelRoot, animations, 0, totalFrames, false, 1.0);
     } else {
+      // ➕ Caso standard: trasformazione diretta classica
       animateTransformTo(modelRoot, settings);
     }
   });
