@@ -1,41 +1,42 @@
 import * as BABYLON from "@babylonjs/core";
 
-export function animateRotationTo(
-  node: BABYLON.TransformNode,
-  targetAngle: number,
-  speedDegPerSec = 90
-) {
-  const frameRate = 60;
-  const currentY = node.rotation.y;
-  const delta = shortestAngleBetween(currentY, targetAngle);
-  const totalAngleDeg = Math.abs(BABYLON.Tools.ToDegrees(delta));
-  const duration = totalAngleDeg / speedDegPerSec;
-  const totalFrames = Math.ceil(duration * frameRate);
-
-  const easing = new BABYLON.CubicEase();
-  easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
-
-  const anim = new BABYLON.Animation("rotationY", "rotation.y", frameRate, BABYLON.Animation.ANIMATIONTYPE_FLOAT);
-  anim.setKeys([
-    { frame: 0, value: currentY },
-    { frame: totalFrames, value: currentY + delta },
-  ]);
-  anim.setEasingFunction(easing);
-
-  node.animations = [anim];
-  node.getScene().beginAnimation(node, 0, totalFrames, false);
-}
-
 export interface TransformOptions {
   position?: BABYLON.Vector3;
   rotation?: BABYLON.Vector3;
   scaling?: BABYLON.Vector3;
 }
 
+export function createAnimation<T>(
+  property: string,
+  from: T,
+  to: T,
+  frameStart: number,
+  frameEnd: number,
+  easing: BABYLON.EasingFunction
+): BABYLON.Animation {
+  const animation = new BABYLON.Animation(
+    property + "Anim",
+    property,
+    60,
+    typeof from === "number"
+      ? BABYLON.Animation.ANIMATIONTYPE_FLOAT
+      : BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+  );
+
+  animation.setKeys([
+    { frame: frameStart, value: from },
+    { frame: frameEnd, value: to },
+  ]);
+  animation.setEasingFunction(easing);
+
+  return animation;
+}
+
 export function animateTransformTo(
   node: BABYLON.TransformNode,
-  options: TransformOptions
-) {
+  options: TransformOptions,
+  durationOverride?: number
+): Promise<void> {
   const frameRate = 60;
   const animations: BABYLON.Animation[] = [];
   const easing = new BABYLON.CubicEase();
@@ -46,21 +47,10 @@ export function animateTransformTo(
     const start = node.position.clone();
     const end = options.position.clone();
     const distance = BABYLON.Vector3.Distance(start, end);
-    const speed = 1; // units per second
-    const duration = distance / speed;
+    const speed = 1;
+    const duration = durationOverride ?? (distance / speed);
     const frames = Math.ceil(duration * frameRate);
-    const anim = new BABYLON.Animation(
-      "position",
-      "position",
-      frameRate,
-      BABYLON.Animation.ANIMATIONTYPE_VECTOR3
-    );
-    anim.setKeys([
-      { frame: 0, value: start },
-      { frame: frames, value: end },
-    ]);
-    anim.setEasingFunction(easing);
-    animations.push(anim);
+    animations.push(createAnimation("position", start, end, 0, frames, easing));
     maxFrames = Math.max(maxFrames, frames);
   }
 
@@ -78,46 +68,13 @@ export function animateTransformTo(
       Math.abs(BABYLON.Tools.ToDegrees(delta.z))
     );
     const speedDegPerSec = 90;
-    const duration = totalAngleDeg / speedDegPerSec;
+    const duration = durationOverride ?? (totalAngleDeg / speedDegPerSec);
     const frames = Math.ceil(duration * frameRate);
 
-    const animX = new BABYLON.Animation(
-      "rotationX",
-      "rotation.x",
-      frameRate,
-      BABYLON.Animation.ANIMATIONTYPE_FLOAT
-    );
-    animX.setKeys([
-      { frame: 0, value: current.x },
-      { frame: frames, value: current.x + delta.x },
-    ]);
-    animX.setEasingFunction(easing);
+    animations.push(createAnimation("rotation.x", current.x, current.x + delta.x, 0, frames, easing));
+    animations.push(createAnimation("rotation.y", current.y, current.y + delta.y, 0, frames, easing));
+    animations.push(createAnimation("rotation.z", current.z, current.z + delta.z, 0, frames, easing));
 
-    const animY = new BABYLON.Animation(
-      "rotationY",
-      "rotation.y",
-      frameRate,
-      BABYLON.Animation.ANIMATIONTYPE_FLOAT
-    );
-    animY.setKeys([
-      { frame: 0, value: current.y },
-      { frame: frames, value: current.y + delta.y },
-    ]);
-    animY.setEasingFunction(easing);
-
-    const animZ = new BABYLON.Animation(
-      "rotationZ",
-      "rotation.z",
-      frameRate,
-      BABYLON.Animation.ANIMATIONTYPE_FLOAT
-    );
-    animZ.setKeys([
-      { frame: 0, value: current.z },
-      { frame: frames, value: current.z + delta.z },
-    ]);
-    animZ.setEasingFunction(easing);
-
-    animations.push(animX, animY, animZ);
     maxFrames = Math.max(maxFrames, frames);
   }
 
@@ -125,30 +82,19 @@ export function animateTransformTo(
     const start = node.scaling.clone();
     const end = options.scaling.clone();
     const delta = BABYLON.Vector3.Distance(start, end);
-    const speed = 1; // units per second
-    const duration = delta / speed;
+    const speed = 1;
+    const duration = durationOverride ?? (delta / speed);
     const frames = Math.ceil(duration * frameRate);
-    const anim = new BABYLON.Animation(
-      "scaling",
-      "scaling",
-      frameRate,
-      BABYLON.Animation.ANIMATIONTYPE_VECTOR3
-    );
-    anim.setKeys([
-      { frame: 0, value: start },
-      { frame: frames, value: end },
-    ]);
-    anim.setEasingFunction(easing);
-    animations.push(anim);
+    animations.push(createAnimation("scaling", start, end, 0, frames, easing));
     maxFrames = Math.max(maxFrames, frames);
   }
 
-  if (animations.length === 0) {
-    return;
-  }
+  if (animations.length === 0) return Promise.resolve();
 
-  node.animations = animations;
-  node.getScene().beginAnimation(node, 0, maxFrames, false);
+  return new Promise((resolve) => {
+    node.animations = animations;
+    node.getScene().beginAnimation(node, 0, maxFrames, false, 1.0, resolve);
+  });
 }
 
 function normalizeAngle(angle: number): number {
