@@ -8,9 +8,9 @@ export interface TransformSetting {
 
 export const transformSettings: Record<string, TransformSetting> = {
   "FRONT SIDE": {
-    position: new BABYLON.Vector3(0, 2, 0),
+    position: new BABYLON.Vector3(0, 2.5, 0),
     rotation: new BABYLON.Vector3(0, Math.PI / 2, 0),
-    scaling: new BABYLON.Vector3(2.5, 2.5, 2.5),
+    scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
   },
   "DRIVER SIDE": {
     position: new BABYLON.Vector3(0, 4, 0),
@@ -18,7 +18,7 @@ export const transformSettings: Record<string, TransformSetting> = {
     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
   },
   "BACK SIDE": {
-    position: new BABYLON.Vector3(0, 2, 0),
+    position: new BABYLON.Vector3(0, 2.5, 0),
     rotation: new BABYLON.Vector3(0, -Math.PI / 2, 0),
     scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
   },

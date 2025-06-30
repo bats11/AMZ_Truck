@@ -1,6 +1,6 @@
 {
   "FRONT SIDE": {
-    "_uiHeight": "35%",
+    "_uiHeight": "40%",
     "Lights & Light Covers": {
       "_uiHeight": "",
       "details": [
@@ -30,7 +30,7 @@
     }
   },
   "DRIVER SIDE": {
-    "_uiHeight": "57%",
+    "_uiHeight": "60%",
     "Back Tire, Wheel, & Rim": {
       "_uiHeight": "",
       "details": [
@@ -88,7 +88,7 @@
     }
   },
   "BACK SIDE": {
-    "_uiHeight": "35%",
+    "_uiHeight": "40%",
     "Lights & Light Covers": {
       "_uiHeight": "",
       "details": [
@@ -124,7 +124,7 @@
     }
   },
   "PASSENGER SIDE": {
-    "_uiHeight": "57%",
+    "_uiHeight": "60%",
     "Side Mirrors": {
       "_uiHeight": "",
       "details": [

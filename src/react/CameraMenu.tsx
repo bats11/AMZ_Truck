@@ -90,18 +90,7 @@ export default function CameraMenu({
     const mainButtons = Object.keys(typedSubmenuData);
 
     return (
-      <div className="menu-main">
-        {touchLocked && (
-          <button
-            onClick={() => {
-              setTouchLocked(false);
-              resetApp();
-            }}
-            className="menu-btn unlock-btn"
-          >
-            🔓 Unlock Touch
-          </button>
-        )}
+      <div className="menu-main" style={{ display: "flex", flexDirection: "column" }}>
         {mainButtons.map((label) => (
           <button
             key={label}
@@ -111,6 +100,18 @@ export default function CameraMenu({
             {label}
           </button>
         ))}
+
+        {touchLocked && (
+          <button
+            onClick={() => {
+              setTouchLocked(false);
+              resetApp();
+            }}
+            className="return-btn"
+          >
+            Return to Start
+          </button>
+        )}
       </div>
     );
   }

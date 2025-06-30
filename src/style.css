@@ -98,6 +98,20 @@ html, body {
  margin-right: 1rem;
 }
 
+.return-btn {
+  padding: 1rem;
+  background-color: #00688d;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  margin-top: 2rem;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+
+
 .menu-submenu {
   display: flex;
   flex-direction: column;
