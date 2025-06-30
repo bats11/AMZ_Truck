@@ -12,38 +12,17 @@ let initialTransform: {
   scaling: BABYLON.Vector3;
 } | null = null;
 
-/**
- * Inizializza il nodo radice del modello e gestisce la logica di rotazione su comandi esterni.
- */
 export function setupMovementControls(scene: BABYLON.Scene) {
   modelRoot = scene.getTransformNodeByName("ModelRoot");
   if (!modelRoot) return;
 
-  // Impostazioni iniziali personalizzabili
-  modelRoot.position = new BABYLON.Vector3(0, 4, 0); // ← modificabile
+  modelRoot.position = new BABYLON.Vector3(0, 4, 0);
   modelRoot.rotation = new BABYLON.Vector3(
     BABYLON.Tools.ToRadians(0),
     BABYLON.Tools.ToRadians(0),
     BABYLON.Tools.ToRadians(0)
   );
-  modelRoot.scaling = new BABYLON.Vector3(1.1 ,1.1 ,1.1);
-
-  // 🔵 Aggiunge una sfera visiva per mostrare la posizione della root
- /* const debugSphere = BABYLON.MeshBuilder.CreateSphere("debugSphere", {
-    diameter: 0.2,
-  }, scene);
-  debugSphere.position = modelRoot.position.clone();
-
-  const debugMat = new BABYLON.StandardMaterial("debugMat", scene);
-  debugMat.diffuseColor = new BABYLON.Color3(0, 0, 1); // blu acceso
-  debugSphere.material = debugMat;
-
-  // 🔁 Sincronizza la sfera alla posizione della root (runtime)
-  scene.onBeforeRenderObservable.add(() => {
-    if (modelRoot) {
-      debugSphere.position = modelRoot.getAbsolutePosition();
-    }
-  });*/
+  modelRoot.scaling = new BABYLON.Vector3(1.1, 1.1, 1.1);
 
   initialTransform = {
     position: modelRoot.position.clone(),
@@ -51,11 +30,57 @@ export function setupMovementControls(scene: BABYLON.Scene) {
     scaling: modelRoot.scaling.clone(),
   };
 
-
   setMoveCameraTo((label) => {
     if (!modelRoot) return;
-      const settings = transformSettings[label];
-    if (settings) {
+    const settings = transformSettings[label];
+    if (!settings) return;
+
+    const currentScale = modelRoot.scaling.lengthSquared();
+    const targetScale = settings.scaling?.lengthSquared() ?? currentScale;
+    const isReducingScale = targetScale < currentScale - 0.001;
+
+    if (isReducingScale && settings.scaling) {
+      // 1️⃣ Anima solo lo scaling SENZA toccare modelRoot.animations
+      const frameRate = 60;
+      const start = modelRoot.scaling.clone();
+      const end = settings.scaling.clone();
+      const delta = BABYLON.Vector3.Distance(start, end);
+      const duration = delta / 1;
+      const totalFrames = Math.ceil(duration * frameRate);
+
+      const easing = new BABYLON.CubicEase();
+      easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+
+      const anim = new BABYLON.Animation(
+        "scaling",
+        "scaling",
+        frameRate,
+        BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+      );
+      anim.setKeys([
+        { frame: 0, value: start },
+        { frame: totalFrames, value: end },
+      ]);
+      anim.setEasingFunction(easing);
+
+      // ✅ usa beginDirectAnimation per evitare conflitti
+      scene.beginDirectAnimation(
+        modelRoot,
+        [anim],
+        0,
+        totalFrames,
+        false,
+        1.0,
+        () => {
+          // 2️⃣ Quando scaling è finito, parte rotation e position
+          animateTransformTo(modelRoot!, {
+            position: settings.position,
+            rotation: settings.rotation,
+          });
+        }
+      );
+    } else {
+      // ➕ Tutto insieme se non si riduce la scala
       animateTransformTo(modelRoot, settings);
     }
   });
@@ -71,9 +96,6 @@ export function resetModelTransform() {
   });
 }
 
-/**
- * Modifica dinamicamente transform del nodo root.
- */
 export function setModelTransform(options: {
   position?: BABYLON.Vector3;
   rotation?: BABYLON.Vector3;
@@ -86,9 +108,6 @@ export function setModelTransform(options: {
   if (options.scaling) modelRoot.scaling = options.scaling;
 }
 
-/**
- * Accesso al nodo radice per ispezioni o altri usi.
- */
 export function getModelRoot(): BABYLON.TransformNode | null {
   return modelRoot;
 }
