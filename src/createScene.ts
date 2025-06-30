@@ -24,9 +24,18 @@ export async function createScene() {
     premultipliedAlpha: true,
   });
 
+  // ✅ Risoluzione piena senza scaling sfocato
+  engine.setHardwareScalingLevel(1 / window.devicePixelRatio);
+
   const scene = new BABYLON.Scene(engine);
 
-  setupCamera(scene, canvas);
+  // 📷 Setup camera e pipeline
+  const camera = setupCamera(scene, canvas);
+
+  const pipeline = new BABYLON.DefaultRenderingPipeline("defaultPipeline", true, scene, [camera]);
+  pipeline.fxaaEnabled = true;
+
+  // 💡 Luci, sfondo, modello
   const shadowGenerator = await setupLighting(scene);
   setupBackground(scene);
 
@@ -38,15 +47,16 @@ export async function createScene() {
 
     setupMovementControls(scene);
 
-
     const root = scene.getTransformNodeByName("ModelRoot");
     if (root) {
       enableTouchRotation(root, canvas);
     }
   });
 
+  // 🖱️ UI React
   mountUI();
 
+  // 📐 Resize e render loop
   const resizeCanvas = () => engine.resize();
   new ResizeObserver(resizeCanvas).observe(canvas as unknown as Element);
   window.addEventListener("resize", resizeCanvas);
