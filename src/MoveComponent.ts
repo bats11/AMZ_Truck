@@ -1,4 +1,4 @@
-// src/moveComponent.ts
+// src/MoveComponent.ts
 import * as BABYLON from "@babylonjs/core";
 import { animateTransformTo } from "./utils";
 import { setMoveCameraTo } from "./babylonBridge";
@@ -11,6 +11,81 @@ let initialTransform: {
   rotation: BABYLON.Vector3;
   scaling: BABYLON.Vector3;
 } | null = null;
+
+const SMALL_SCALE = new BABYLON.Vector3(1.1, 1.1, 1.1);
+const LARGE_SCALE_THRESHOLD = 1.9;
+
+function animateScale(
+  target: BABYLON.TransformNode,
+  to: BABYLON.Vector3,
+  totalFrames: number,
+  onEnd?: () => void
+) {
+  const anim = new BABYLON.Animation(
+    "scaleAnim",
+    "scaling",
+    60,
+    BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+  );
+  anim.setKeys([
+    { frame: 0, value: target.scaling.clone() },
+    { frame: totalFrames, value: to.clone() },
+  ]);
+  const ease = new BABYLON.CubicEase();
+  ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+  anim.setEasingFunction(ease);
+
+  target.getScene().beginDirectAnimation(target, [anim], 0, totalFrames, false, 1.0, onEnd);
+}
+
+function animatePositionRotation(
+  target: BABYLON.TransformNode,
+  settings: { position?: BABYLON.Vector3; rotation?: BABYLON.Vector3 },
+  totalFrames: number,
+  onEnd?: () => void
+) {
+  const anims: BABYLON.Animation[] = [];
+
+  if (settings.position) {
+    const anim = new BABYLON.Animation(
+      "posAnim",
+      "position",
+      60,
+      BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+    );
+    anim.setKeys([
+      { frame: 0, value: target.position.clone() },
+      { frame: totalFrames, value: settings.position.clone() },
+    ]);
+    const ease = new BABYLON.QuarticEase();
+    ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
+    anim.setEasingFunction(ease);
+    anims.push(anim);
+  }
+
+  if (settings.rotation) {
+    const anim = new BABYLON.Animation(
+      "rotAnim",
+      "rotation",
+      60,
+      BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+    );
+    anim.setKeys([
+      { frame: 0, value: target.rotation.clone() },
+      { frame: totalFrames, value: settings.rotation.clone() },
+    ]);
+    const ease = new BABYLON.QuarticEase();
+    ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
+    anim.setEasingFunction(ease);
+    anims.push(anim);
+  }
+
+  if (anims.length > 0) {
+    target.getScene().beginDirectAnimation(target, anims, 0, totalFrames, false, 1.0, onEnd);
+  } else if (onEnd) {
+    onEnd();
+  }
+}
 
 export function setupMovementControls(scene: BABYLON.Scene) {
   modelRoot = scene.getTransformNodeByName("ModelRoot");
@@ -35,52 +110,18 @@ export function setupMovementControls(scene: BABYLON.Scene) {
     const settings = transformSettings[label];
     if (!settings) return;
 
-    const currentScale = modelRoot.scaling.lengthSquared();
-    const targetScale = settings.scaling?.lengthSquared() ?? currentScale;
-    const isReducingScale = targetScale < currentScale - 0.001;
+    const currentScale = modelRoot.scaling.length();
+    const isCurrentlyLarge = currentScale > LARGE_SCALE_THRESHOLD;
 
-    if (isReducingScale && settings.scaling) {
-      // 1️⃣ Anima solo lo scaling SENZA toccare modelRoot.animations
-      const frameRate = 60;
-      const start = modelRoot.scaling.clone();
-      const end = settings.scaling.clone();
-      const delta = BABYLON.Vector3.Distance(start, end);
-      const duration = delta / 1;
-      const totalFrames = Math.ceil(duration * frameRate);
-
-      const easing = new BABYLON.CubicEase();
-      easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
-
-      const anim = new BABYLON.Animation(
-        "scaling",
-        "scaling",
-        frameRate,
-        BABYLON.Animation.ANIMATIONTYPE_VECTOR3
-      );
-      anim.setKeys([
-        { frame: 0, value: start },
-        { frame: totalFrames, value: end },
-      ]);
-      anim.setEasingFunction(easing);
-
-      // ✅ usa beginDirectAnimation per evitare conflitti
-      scene.beginDirectAnimation(
-        modelRoot,
-        [anim],
-        0,
-        totalFrames,
-        false,
-        1.0,
-        () => {
-          // 2️⃣ Quando scaling è finito, parte rotation e position
-          animateTransformTo(modelRoot!, {
-            position: settings.position,
-            rotation: settings.rotation,
-          });
-        }
-      );
+    if (isCurrentlyLarge) {
+      animateScale(modelRoot, SMALL_SCALE, 30, () => {
+        animatePositionRotation(modelRoot!, settings, 45, () => {
+          if (settings.scaling) {
+            animateScale(modelRoot!, settings.scaling, 30);
+          }
+        });
+      });
     } else {
-      // ➕ Tutto insieme se non si riduce la scala
       animateTransformTo(modelRoot, settings);
     }
   });
