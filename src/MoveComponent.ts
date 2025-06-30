@@ -12,6 +12,10 @@ let initialTransform: {
   scaling: BABYLON.Vector3;
 } | null = null;
 
+function isBig(lengthSquared: number): boolean {
+  return lengthSquared > 5.0;
+}
+
 export function setupMovementControls(scene: BABYLON.Scene) {
   modelRoot = scene.getTransformNodeByName("ModelRoot");
   if (!modelRoot) return;
@@ -29,7 +33,7 @@ export function setupMovementControls(scene: BABYLON.Scene) {
   setMoveCameraTo(async (label) => {
     if (!modelRoot) return;
 
-    animationCycle++; // Invalida animazioni precedenti
+    animationCycle++;
 
     const settings = transformSettings[label];
     if (!settings) return;
@@ -38,7 +42,7 @@ export function setupMovementControls(scene: BABYLON.Scene) {
     const targetScale = settings.scaling?.lengthSquared() ?? currentScale;
 
     const isReducingScale = targetScale < currentScale - 0.001;
-    const isBigToBig = currentScale > 4.5 && targetScale > 4.5 && Math.abs(currentScale - targetScale) < 0.01;
+    const isBigToBig = isBig(currentScale) && isBig(targetScale);
 
     if (isBigToBig && settings.scaling) {
       await animateSandwichedTransition(modelRoot, scene, settings);
@@ -99,14 +103,14 @@ function animateSandwichedTransition(
   const currentCycle = animationCycle;
 
   const frameRate = 60;
-  const shrinkEnd = 48;         
-  const holdSmallUntil = 106;   
-  const growEnd = 162;          
-       
-  const moveDuration = 60;    
+  const shrinkEnd = 48;
+  const holdSmallUntil = 106;
+  const growEnd = 162;
+
+  const moveDuration = 60;
 
   const scaleStart = node.scaling.clone();
-  const scaleSmall = new BABYLON.Vector3(1.2, 1.2, 1.2);
+  const scaleSmall = new BABYLON.Vector3(1, 1, 1);
   const scaleBig = target.scaling ?? node.scaling.clone();
   const posStart = node.position.clone();
   const posEnd = target.position ?? posStart;
@@ -120,14 +124,13 @@ function animateSandwichedTransition(
   scaleAnim.setKeys([
     { frame: 0, value: scaleStart },
     { frame: shrinkEnd, value: scaleSmall },
-    { frame: holdSmallUntil, value: scaleSmall },  // 🔒 Mantieni piccolo durante il move
+    { frame: holdSmallUntil, value: scaleSmall },
     { frame: growEnd, value: scaleBig }
   ]);
   scaleAnim.setEasingFunction(easing);
 
   scene.beginDirectAnimation(node, [scaleAnim], 0, growEnd, false, 1.0);
 
-  // Start movimento dopo shrink
   const delayMs = (shrinkEnd / frameRate) * 1000;
 
   setTimeout(() => {
