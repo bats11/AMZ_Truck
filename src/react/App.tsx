@@ -1,38 +1,19 @@
 import React, { useState, useEffect } from "react";
 import CameraMenu from "./CameraMenu";
+import LoadingOverlay from "./LoadingOverlay"; // ✅ nuovo componente esterno
 import { setTouchLockedGetter } from "../babylonBridge";
 import { resetModelTransform } from "../MoveComponent";
-
-function LoadingScreen() {
-  return (
-    <div className="loading-overlay">
-      <div className="spinner" />
-      <p className="loading-text">Loading...</p>
-    </div>
-  );
-}
 
 export default function App() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [touchLocked, setTouchLocked] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(true);
   const initialUiHeight = "50%";
 
   // ✅ Sync stato touch con Babylon
   useEffect(() => {
     setTouchLockedGetter(() => touchLocked);
   }, [touchLocked]);
-
-  // ✅ Espone il controllo del loading a Babylon
-  useEffect(() => {
-  console.log("🔧 React: espongo finishReactLoading su window");
-  (window as any).finishReactLoading = () => {
-    console.log("✅ React: finishReactLoading è stato chiamato");
-    setIsLoading(false);
-  };
-}, []);
-
 
   const resetApp = () => {
     resetModelTransform();
@@ -46,7 +27,7 @@ export default function App() {
 
   return (
     <>
-      {isLoading && <LoadingScreen />}
+      <LoadingOverlay /> {/* ✅ mostra loading se necessario */}
       <div id="app-container" style={{ pointerEvents: "none" }}>
         {/* Colonna sinistra */}
         <div
@@ -91,5 +72,3 @@ export default function App() {
     </>
   );
 }
-
-
