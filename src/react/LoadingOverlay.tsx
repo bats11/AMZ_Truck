@@ -4,10 +4,9 @@ export default function LoadingOverlay() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log("🔧 React: espongo finishReactLoading su window");
     (window as any).finishReactLoading = () => {
-      console.log("✅ React: finishReactLoading è stato chiamato");
       setIsLoading(false);
+      window.dispatchEvent(new Event("react-loading-finished"));
     };
   }, []);
 

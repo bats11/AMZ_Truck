@@ -1,24 +1,48 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import CameraMenu from "./CameraMenu";
-import LoadingOverlay from "./LoadingOverlay"; // ✅ nuovo componente esterno
+import LoadingOverlay from "./LoadingOverlay";
 import { setTouchLockedGetter } from "../babylonBridge";
 import { resetModelTransform } from "../MoveComponent";
+import { moveCameraTo } from "../babylonBridge";
+import submenuData from "../data/submenuData.json";
+
+const typedSubmenuData: Record<string, any> = submenuData;
 
 export default function App() {
+  const [appPhase, setAppPhase] = useState<"loading" | "selection" | "experience">("loading");
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [touchLocked, setTouchLocked] = useState<boolean>(false);
   const initialUiHeight = "50%";
 
-  // ✅ Sync stato touch con Babylon
   useEffect(() => {
     setTouchLockedGetter(() => touchLocked);
   }, [touchLocked]);
 
+  useEffect(() => {
+    const handleFinishLoading = () => setAppPhase("selection");
+    window.addEventListener("react-loading-finished", handleFinishLoading);
+    return () => window.removeEventListener("react-loading-finished", handleFinishLoading);
+  }, []);
+
+  const startExperience = () => {
+    const firstMenuLabel = Object.keys(typedSubmenuData)[0];
+    if (!firstMenuLabel) return;
+
+    setActiveMenu(firstMenuLabel);
+    setActiveSubmenu(null);
+    setTouchLocked(true);
+    moveCameraTo(firstMenuLabel);
+    setAppPhase("experience");
+  };
+
   const resetApp = () => {
     resetModelTransform();
+    setTouchLocked(false);
     setActiveMenu(null);
     setActiveSubmenu(null);
+    setAppPhase("selection");
+
     const container = document.getElementById("app-container");
     if (container) {
       container.style.setProperty("--ui-height", initialUiHeight);
@@ -27,48 +51,56 @@ export default function App() {
 
   return (
     <>
-      <LoadingOverlay /> {/* ✅ mostra loading se necessario */}
-      <div id="app-container" style={{ pointerEvents: "none" }}>
-        {/* Colonna sinistra */}
-        <div
-          style={{
-            flex: 6.5,
-            pointerEvents: "auto",
-            padding: "2rem 2rem 0 4rem",
-          }}
-        >
-          <CameraMenu
-            position="left"
-            activeMenu={activeMenu}
-            activeSubmenu={activeSubmenu}
-            setActiveMenu={setActiveMenu}
-            setActiveSubmenu={setActiveSubmenu}
-            touchLocked={touchLocked}
-            setTouchLocked={setTouchLocked}
-            resetApp={resetApp}
-          />
-        </div>
+      <LoadingOverlay />
 
-        {/* Colonna destra */}
-        <div
-          style={{
-            flex: 3.5,
-            pointerEvents: "auto",
-            padding: "2rem 0 0 0",
-          }}
-        >
-          <CameraMenu
-            position="right"
-            activeMenu={activeMenu}
-            activeSubmenu={activeSubmenu}
-            setActiveMenu={setActiveMenu}
-            setActiveSubmenu={setActiveSubmenu}
-            touchLocked={touchLocked}
-            setTouchLocked={setTouchLocked}
-            resetApp={resetApp}
-          />
+      {appPhase === "selection" && (
+        <div className="experience-selection">
+          <button className="exp-btn active" onClick={startExperience}>Esperienza 1</button>
+          <button className="exp-btn" disabled>Esperienza 2 (coming soon)</button>
         </div>
-      </div>
+      )}
+
+      {appPhase === "experience" && (
+        <div id="app-container" style={{ pointerEvents: "none" }}>
+          <div
+            style={{
+              flex: 6.5,
+              pointerEvents: "auto",
+              padding: "2rem 2rem 0 4rem",
+            }}
+          >
+            <CameraMenu
+              position="left"
+              activeMenu={activeMenu}
+              activeSubmenu={activeSubmenu}
+              setActiveMenu={setActiveMenu}
+              setActiveSubmenu={setActiveSubmenu}
+              touchLocked={touchLocked}
+              setTouchLocked={setTouchLocked}
+              resetApp={resetApp}
+            />
+          </div>
+
+          <div
+            style={{
+              flex: 3.5,
+              pointerEvents: "auto",
+              padding: "2rem 0 0 0",
+            }}
+          >
+            <CameraMenu
+              position="right"
+              activeMenu={activeMenu}
+              activeSubmenu={activeSubmenu}
+              setActiveMenu={setActiveMenu}
+              setActiveSubmenu={setActiveSubmenu}
+              touchLocked={touchLocked}
+              setTouchLocked={setTouchLocked}
+              resetApp={resetApp}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

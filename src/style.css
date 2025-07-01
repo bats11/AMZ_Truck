@@ -205,3 +205,39 @@ html, body {
     transform: rotate(360deg);
   }
 }
+
+.experience-selection {
+  position: absolute;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  flex-direction: column;
+  pointer-events: none; /* 👈 disattiva eventi di default */
+}
+
+.exp-btn {
+  pointer-events: auto;  /* 👈 riattiva eventi solo sui bottoni */
+  padding: 1.5rem 3rem;
+  font-size: 1.8rem;
+  font-family: Arial, sans-serif;
+  border-radius: 1rem;
+  border: none;
+  cursor: pointer;
+  background: #0085b3;
+  color: white;
+  transition: background 0.3s ease;
+}
+
+
+.exp-btn:hover:not(:disabled) {
+  background: #00688d;
+}
+
+.exp-btn:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
