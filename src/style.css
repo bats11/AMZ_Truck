@@ -184,6 +184,21 @@ html, body {
   pointer-events: all;
 }
 
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.loading-overlay.fade-out {
+  animation: fadeOut 0.8s ease forwards;
+  pointer-events: none;
+}
+
+
 .loading-text {
   font-size: 1.5rem;
   color: #333;
@@ -193,30 +208,33 @@ html, body {
 
 .experience-selection {
   position: absolute;
-  top: 60%; /* 🔧 Modifica questo valore per regolare la posizione verticale */
-  left: 0;
-  right: 0;
+  top: 60%;
+  right: 5rem; /* distanza dal bordo destro */
   z-index: 900;
   display: flex;
-  justify-content: center;
-  gap: 3rem;
-  flex-direction: row; /* 🔁 cambia da column a row per pulsanti affiancati */
+  flex-direction: column; /* ✅ ora sono in colonna */
+  align-items: flex-end;
+  gap: 2rem;
   pointer-events: none;
 }
 
 
+
 .exp-btn {
-  pointer-events: auto;  /* 👈 riattiva eventi solo sui bottoni */
-  padding: 1.5rem 3rem;
-  font-size: 1.8rem;
+  pointer-events: auto;
+  width: 15rem;        /* ✅ larghezza fissa */
+  padding: 1.5rem 0;
+  font-size: 1.6rem;
   font-family: Arial, sans-serif;
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   border: none;
   cursor: pointer;
   background: #0085b3;
   color: white;
+  text-align: center;
   transition: background 0.3s ease;
 }
+
 
 
 .exp-btn:hover:not(:disabled) {

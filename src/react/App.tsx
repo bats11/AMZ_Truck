@@ -55,8 +55,8 @@ export default function App() {
 
       {appPhase === "selection" && (
         <div className="experience-selection">
-          <button className="exp-btn active" onClick={startExperience}>Esperienza 1</button>
-          <button className="exp-btn" disabled>Esperienza 2 (coming soon)</button>
+          <button className="exp-btn active" onClick={startExperience}>Damage Report</button>
+          <button className="exp-btn" disabled>Cargo</button>
         </div>
       )}
 
