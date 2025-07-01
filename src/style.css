@@ -208,15 +208,17 @@ html, body {
 
 .experience-selection {
   position: absolute;
-  inset: 0;
+  top: 60%; /* 🔧 Modifica questo valore per regolare la posizione verticale */
+  left: 0;
+  right: 0;
   z-index: 900;
   display: flex;
-  align-items: center;
   justify-content: center;
   gap: 3rem;
-  flex-direction: column;
-  pointer-events: none; /* 👈 disattiva eventi di default */
+  flex-direction: row; /* 🔁 cambia da column a row per pulsanti affiancati */
+  pointer-events: none;
 }
+
 
 .exp-btn {
   pointer-events: auto;  /* 👈 riattiva eventi solo sui bottoni */

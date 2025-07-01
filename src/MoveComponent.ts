@@ -20,7 +20,7 @@ export function setupMovementControls(scene: BABYLON.Scene) {
   modelRoot = scene.getTransformNodeByName("ModelRoot");
   if (!modelRoot) return;
 
-  modelRoot.position = new BABYLON.Vector3(0, 4, 0);
+  modelRoot.position = new BABYLON.Vector3(0, 1 , 0);
   modelRoot.rotation = new BABYLON.Vector3(0, 0, 0);
   modelRoot.scaling = new BABYLON.Vector3(1.1, 1.1, 1.1);
 
