@@ -6,10 +6,12 @@ import { resetModelTransform } from "../MoveComponent";
 import { moveCameraTo } from "../babylonBridge";
 import submenuData from "../data/submenuData.json";
 
+import { motion, AnimatePresence } from "framer-motion";
+
 const typedSubmenuData: Record<string, any> = submenuData;
 
 export default function App() {
-  const [appPhase, setAppPhase] = useState<"loading" | "selection" | "experience">("loading");
+  const [appPhase, setAppPhase] = useState<"loading" | "selection" | "transitioning" | "experience">("loading");
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [touchLocked, setTouchLocked] = useState<boolean>(false);
@@ -29,11 +31,15 @@ export default function App() {
     const firstMenuLabel = Object.keys(typedSubmenuData)[0];
     if (!firstMenuLabel) return;
 
-    setActiveMenu(firstMenuLabel);
-    setActiveSubmenu(null);
-    setTouchLocked(true);
-    moveCameraTo(firstMenuLabel);
-    setAppPhase("experience");
+    setAppPhase("transitioning");
+
+    setTimeout(() => {
+      setActiveMenu(firstMenuLabel);
+      setActiveSubmenu(null);
+      setTouchLocked(true);
+      moveCameraTo(firstMenuLabel);
+      setAppPhase("experience");
+    }, 600);
   };
 
   const resetApp = () => {
@@ -53,54 +59,114 @@ export default function App() {
     <>
       <LoadingOverlay />
 
-      {appPhase === "selection" && (
-        <div className="experience-selection">
-          <button className="exp-btn active" onClick={startExperience}>Damage Report</button>
-          <button className="exp-btn" disabled>Cargo</button>
-        </div>
-      )}
+      <AnimatePresence>
+        {appPhase === "selection" && (
+          <motion.div
+            className="experience-selection"
+            key="selection-buttons"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
+          >
+            <motion.button
+              className="exp-btn active"
+              onClick={startExperience}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.7, opacity: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              Damage Report
+            </motion.button>
 
-      {appPhase === "experience" && (
-        <div id="app-container" style={{ pointerEvents: "none" }}>
-          <div
+            <motion.button
+              className="exp-btn"
+              disabled
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.7, opacity: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
+              Cargo
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {appPhase === "experience" && (
+          <motion.div
+            id="app-container"
+            key="app-container"
             style={{
-              flex: 6.5,
-              pointerEvents: "auto",
-              padding: "2rem 2rem 0 4rem",
+              pointerEvents: "none",
+              transformOrigin: "top",
+            }}
+            initial={{ scaleY: 0, opacity: 0 }}
+            animate={{ scaleY: 1, opacity: 1 }}
+            exit={{ scaleY: 0, opacity: 0 }}
+            transition={{
+              duration: 0.7,
+              ease: [0.65, 0, 0.35, 1],
             }}
           >
-            <CameraMenu
-              position="left"
-              activeMenu={activeMenu}
-              activeSubmenu={activeSubmenu}
-              setActiveMenu={setActiveMenu}
-              setActiveSubmenu={setActiveSubmenu}
-              touchLocked={touchLocked}
-              setTouchLocked={setTouchLocked}
-              resetApp={resetApp}
-            />
-          </div>
+            {/* CameraMenu LEFT con delay */}
+            <motion.div
+              style={{
+                flex: 6.5,
+                pointerEvents: "auto",
+                padding: "2rem 2rem 0 4rem",
+              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                delay: 0.15,
+                duration: 0.6,
+                ease: [0.65, 0, 0.35, 1],
+              }}
+            >
+              <CameraMenu
+                position="left"
+                activeMenu={activeMenu}
+                activeSubmenu={activeSubmenu}
+                setActiveMenu={setActiveMenu}
+                setActiveSubmenu={setActiveSubmenu}
+                touchLocked={touchLocked}
+                setTouchLocked={setTouchLocked}
+                resetApp={resetApp}
+              />
+            </motion.div>
 
-          <div
-            style={{
-              flex: 3.5,
-              pointerEvents: "auto",
-              padding: "2rem 0 0 0",
-            }}
-          >
-            <CameraMenu
-              position="right"
-              activeMenu={activeMenu}
-              activeSubmenu={activeSubmenu}
-              setActiveMenu={setActiveMenu}
-              setActiveSubmenu={setActiveSubmenu}
-              touchLocked={touchLocked}
-              setTouchLocked={setTouchLocked}
-              resetApp={resetApp}
-            />
-          </div>
-        </div>
-      )}
+            {/* CameraMenu RIGHT */}
+            <motion.div
+              style={{
+                flex: 3.5,
+                pointerEvents: "auto",
+                padding: "2rem 0 0 0",
+              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                delay: 0,
+                duration: 0.6,
+                ease: [0.65, 0, 0.35, 1],
+              }}
+            >
+              <CameraMenu
+                position="right"
+                activeMenu={activeMenu}
+                activeSubmenu={activeSubmenu}
+                setActiveMenu={setActiveMenu}
+                setActiveSubmenu={setActiveSubmenu}
+                touchLocked={touchLocked}
+                setTouchLocked={setTouchLocked}
+                resetApp={resetApp}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
