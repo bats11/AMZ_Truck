@@ -31,7 +31,9 @@ export function setupMovementControls(scene: BABYLON.Scene) {
 
   // 🔁 Configuriamo lo stato di partenza per l'animazione d'apparizione
   modelRoot.position = new BABYLON.Vector3(0, 3, 0);
-  modelRoot.rotation = initialTransform.rotation.clone();
+  // Partenza ruotata di 360° sull'asse Y
+  modelRoot.rotation = new BABYLON.Vector3(0, Math.PI * 1.5
+, 0);
   modelRoot.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
 
   // ⏱️ Avviamo l'animazione d'apparizione dopo un breve delay
@@ -43,7 +45,12 @@ export function setupMovementControls(scene: BABYLON.Scene) {
     easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEOUT);
 
     // Posizione
-    const posAnim = new BABYLON.Animation("appearancePos", "position", frameRate, BABYLON.Animation.ANIMATIONTYPE_VECTOR3);
+    const posAnim = new BABYLON.Animation(
+      "appearancePos",
+      "position",
+      frameRate,
+      BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+    );
     posAnim.setKeys([
       { frame: 0, value: modelRoot!.position.clone() },
       { frame: totalFrames, value: initialTransform!.position.clone() },
@@ -51,22 +58,40 @@ export function setupMovementControls(scene: BABYLON.Scene) {
     posAnim.setEasingFunction(easing);
 
     // Scala
-    const scaleAnim = new BABYLON.Animation("appearanceScale", "scaling", frameRate, BABYLON.Animation.ANIMATIONTYPE_VECTOR3);
+    const scaleAnim = new BABYLON.Animation(
+      "appearanceScale",
+      "scaling",
+      frameRate,
+      BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+    );
     scaleAnim.setKeys([
       { frame: 0, value: modelRoot!.scaling.clone() },
       { frame: totalFrames, value: initialTransform!.scaling.clone() },
     ]);
     scaleAnim.setEasingFunction(easing);
 
-    // Rotazione (opzionale, qui mantenuta neutra)
-    const rotAnim = new BABYLON.Animation("appearanceRot", "rotation", frameRate, BABYLON.Animation.ANIMATIONTYPE_VECTOR3);
-    rotAnim.setKeys([
-      { frame: 0, value: modelRoot!.rotation.clone() },
-      { frame: totalFrames, value: initialTransform!.rotation.clone() },
-    ]);
-    rotAnim.setEasingFunction(easing);
+    // Rotazione di ingresso: da 360° → orientamento neutro
+    // Rotazione di ingresso: da 360° → orientamento neutro (lineare)
+const rotAnim = new BABYLON.Animation(
+  "appearanceRot",
+  "rotation",
+  frameRate,
+  BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+);
+rotAnim.setKeys([
+  { frame: 0, value: modelRoot!.rotation.clone() },
+  { frame: totalFrames, value: initialTransform!.rotation.clone() },
+]);
+// ❌ Non aggiungere easing — sarà lineare di default
 
-    scene.beginDirectAnimation(modelRoot!, [posAnim, scaleAnim, rotAnim], 0, totalFrames, false);
+
+    scene.beginDirectAnimation(
+      modelRoot!,
+      [posAnim, scaleAnim, rotAnim],
+      0,
+      totalFrames,
+      false
+    );
   }, 500);
 
   // 📦 Colleghiamo il comando React che muove il modello in base al label
@@ -91,7 +116,12 @@ export function setupMovementControls(scene: BABYLON.Scene) {
       const animations: BABYLON.Animation[] = [];
 
       // Scala
-      const scaleAnim2 = new BABYLON.Animation("scaleAnim", "scaling", frameRate2, BABYLON.Animation.ANIMATIONTYPE_VECTOR3);
+      const scaleAnim2 = new BABYLON.Animation(
+        "scaleAnim",
+        "scaling",
+        frameRate2,
+        BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+      );
       scaleAnim2.setKeys([
         { frame: 0, value: modelRoot.scaling.clone() },
         { frame: totalFrames2, value: settings.scaling.clone() },
@@ -103,7 +133,12 @@ export function setupMovementControls(scene: BABYLON.Scene) {
 
       // Posizione
       if (settings.position) {
-        const posAnim2 = new BABYLON.Animation("posAnim", "position", frameRate2, BABYLON.Animation.ANIMATIONTYPE_VECTOR3);
+        const posAnim2 = new BABYLON.Animation(
+          "posAnim",
+          "position",
+          frameRate2,
+          BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+        );
         posAnim2.setKeys([
           { frame: 0, value: modelRoot.position.clone() },
           { frame: totalFrames2, value: settings.position.clone() },
@@ -116,7 +151,12 @@ export function setupMovementControls(scene: BABYLON.Scene) {
 
       // Rotazione
       if (settings.rotation) {
-        const rotAnim2 = new BABYLON.Animation("rotAnim", "rotation", frameRate2, BABYLON.Animation.ANIMATIONTYPE_VECTOR3);
+        const rotAnim2 = new BABYLON.Animation(
+          "rotAnim",
+          "rotation",
+          frameRate2,
+          BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+        );
         rotAnim2.setKeys([
           { frame: 0, value: modelRoot.rotation.clone() },
           { frame: totalFrames2, value: settings.rotation.clone() },
@@ -127,7 +167,14 @@ export function setupMovementControls(scene: BABYLON.Scene) {
         animations.push(rotAnim2);
       }
 
-      scene.beginDirectAnimation(modelRoot, animations, 0, totalFrames2, false, 1.0);
+      scene.beginDirectAnimation(
+        modelRoot,
+        animations,
+        0,
+        totalFrames2,
+        false,
+        1.0
+      );
     } else {
       await animateTransformTo(modelRoot, settings);
     }
@@ -158,7 +205,12 @@ async function animateSandwichedTransition(
   const easing = new BABYLON.CubicEase();
   easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
 
-  const scaleAnim = new BABYLON.Animation("sandwichScale", "scaling", frameRate, BABYLON.Animation.ANIMATIONTYPE_VECTOR3);
+  const scaleAnim = new BABYLON.Animation(
+    "sandwichScale",
+    "scaling",
+    frameRate,
+    BABYLON.Animation.ANIMATIONTYPE_VECTOR3
+  );
   scaleAnim.setKeys([
     { frame: 0, value: scaleStart },
     { frame: shrinkEnd, value: scaleSmall },
@@ -172,10 +224,46 @@ async function animateSandwichedTransition(
   setTimeout(() => {
     if (animationCycle !== currentCycle) return;
     const moveAnims: BABYLON.Animation[] = [];
-    moveAnims.push(createAnimation("position", posStart, target.position ?? posStart, 0, 60, easing));
-    moveAnims.push(createAnimation("rotation.x", rotStart.x, target.rotation?.x ?? rotStart.x, 0, 60, easing));
-    moveAnims.push(createAnimation("rotation.y", rotStart.y, target.rotation?.y ?? rotStart.y, 0, 60, easing));
-    moveAnims.push(createAnimation("rotation.z", rotStart.z, target.rotation?.z ?? rotStart.z, 0, 60, easing));
+    moveAnims.push(
+      createAnimation(
+        "position",
+        posStart,
+        target.position ?? posStart,
+        0,
+        60,
+        easing
+      )
+    );
+    moveAnims.push(
+      createAnimation(
+        "rotation.x",
+        rotStart.x,
+        target.rotation?.x ?? rotStart.x,
+        0,
+        60,
+        easing
+      )
+    );
+    moveAnims.push(
+      createAnimation(
+        "rotation.y",
+        rotStart.y,
+        target.rotation?.y ?? rotStart.y,
+        0,
+        60,
+        easing
+      )
+    );
+    moveAnims.push(
+      createAnimation(
+        "rotation.z",
+        rotStart.z,
+        target.rotation?.z ?? rotStart.z,
+        0,
+        60,
+        easing
+      )
+    );
     scene.beginDirectAnimation(node, moveAnims, 0, 60, false, 1.0);
   }, (shrinkEnd / frameRate) * 1000);
 }
