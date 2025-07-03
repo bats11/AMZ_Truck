@@ -24,14 +24,20 @@ export function enableTouchRotation(node: BABYLON.TransformNode, canvas: HTMLCan
 function onPointerDown(e: PointerEvent) {
   if (!rootNode || getTouchLocked()) return;
 
-  isDragging = true;
-  lastX = e.clientX;
-  velocityY = 0;
+  // → interrompi l’animazione di loop Babylon sul nodo
+  const scene = rootNode.getScene();
+  scene.stopAnimation(rootNode);
 
+  // → interrompi eventuale inertia JS pendente
   if (animationFrame !== null) {
     cancelAnimationFrame(animationFrame);
     animationFrame = null;
   }
+  velocityY = 0;
+
+  // → inizia il drag touch
+  isDragging = true;
+  lastX = e.clientX;
 }
 
 function onPointerMove(e: PointerEvent) {
@@ -41,13 +47,13 @@ function onPointerMove(e: PointerEvent) {
   lastX = e.clientX;
 
   const rotY = deltaX * ROTATION_SPEED;
-
   rootNode.rotation.y -= rotY;
-
   velocityY = rotY;
 }
 
 function onPointerUp() {
+  if (!rootNode) return;
+
   isDragging = false;
   applyInertia();
 }
