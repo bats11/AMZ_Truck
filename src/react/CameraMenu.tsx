@@ -38,6 +38,7 @@ export default function CameraMenu({
   resetApp,
 }: CameraMenuProps) {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const [isAnimatingMenuChange, setIsAnimatingMenuChange] = useState(false);
 
   // === Gestione altezza dinamica ===
   useEffect(() => {
@@ -51,10 +52,10 @@ export default function CameraMenu({
 
       if (activeSubmenu && typeof menuEntry[activeSubmenu] === "object") {
         const submenuEntry = menuEntry[activeSubmenu] as SubmenuDetails;
-        if (submenuEntry._uiHeight && submenuEntry._uiHeight.trim() !== "") return submenuEntry._uiHeight;
+        if (submenuEntry._uiHeight?.trim()) return submenuEntry._uiHeight;
       }
 
-      if (menuEntry._uiHeight && menuEntry._uiHeight.trim() !== "") return menuEntry._uiHeight;
+      if (menuEntry._uiHeight?.trim()) return menuEntry._uiHeight;
 
       return null;
     };
@@ -68,9 +69,46 @@ export default function CameraMenu({
 
   // === Interazioni UI ===
   function onMainClick(label: string) {
-    setActiveMenu(label);
-    setActiveSubmenu(null);
-    moveCameraTo(label);
+    if (label === activeMenu || isAnimatingMenuChange) return;
+
+    setIsAnimatingMenuChange(true);
+    const submenuWrapper = document.getElementById("submenu-wrapper");
+
+    if (!submenuWrapper) {
+      setTimeout(() => {
+        setActiveMenu(label);
+        setActiveSubmenu(null);
+        moveCameraTo(label);
+        if (!touchLocked) setTouchLocked(true);
+        setIsAnimatingMenuChange(false);
+      }, 0);
+      return;
+    }
+
+    submenuWrapper.animate(
+      [{ transform: "scaleY(1)", opacity: 1 }, { transform: "scaleY(0)", opacity: 0 }],
+      {
+        duration: 400,
+        easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+        fill: "forwards",
+      }
+    ).onfinish = () => {
+      setActiveMenu(label);
+      setActiveSubmenu(null);
+      moveCameraTo(label);
+
+      requestAnimationFrame(() => {
+        submenuWrapper.animate(
+          [{ transform: "scaleY(0)", opacity: 0 }, { transform: "scaleY(1)", opacity: 1 }],
+          {
+            duration: 400,
+            easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+            fill: "forwards",
+          }
+        ).onfinish = () => setIsAnimatingMenuChange(false);
+      });
+    };
+
     if (!touchLocked) setTouchLocked(true);
   }
 
@@ -120,7 +158,11 @@ export default function CameraMenu({
     const submenu = typedSubmenuData[activeMenu];
 
     return (
-      <div className="menu-submenu">
+      <div
+        id="submenu-wrapper"
+        className="menu-submenu"
+        style={{ transformOrigin: "top", transition: "none" }}
+      >
         {Object.entries(submenu)
           .filter(([key]) => key !== "_uiHeight")
           .map(([subKey, content]) => {
