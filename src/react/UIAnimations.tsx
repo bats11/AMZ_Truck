@@ -31,11 +31,10 @@ export default function UIAnimations({
   startExperience,
 }: UIAnimationsProps) {
   const [menuReady, setMenuReady] = useState(false);
+  const [isAnimatingMenuChange, setIsAnimatingMenuChange] = useState(false);
 
   useEffect(() => {
-    if (appPhase === "experience") {
-      setMenuReady(false); // reset quando entriamo in experience
-    }
+    if (appPhase === "experience") setMenuReady(false);
   }, [appPhase]);
 
   useEffect(() => {
@@ -51,6 +50,41 @@ export default function UIAnimations({
       }
     }
   }, [appPhase, menuReady, activeMenu]);
+
+  const animateMenuChange = (label: string, onSwitch: () => void) => {
+    if (isAnimatingMenuChange) return;
+
+    setIsAnimatingMenuChange(true);
+    const submenuWrapper = document.getElementById("submenu-wrapper");
+
+    if (!submenuWrapper) {
+      onSwitch();
+      setIsAnimatingMenuChange(false);
+      return;
+    }
+
+    submenuWrapper.animate(
+      [{ transform: "scaleY(1)", opacity: 1 }, { transform: "scaleY(0)", opacity: 0 }],
+      {
+        duration: 400,
+        easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+        fill: "forwards",
+      }
+    ).onfinish = () => {
+      onSwitch();
+
+      requestAnimationFrame(() => {
+        submenuWrapper.animate(
+          [{ transform: "scaleY(0)", opacity: 0 }, { transform: "scaleY(1)", opacity: 1 }],
+          {
+            duration: 400,
+            easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+            fill: "forwards",
+          }
+        ).onfinish = () => setIsAnimatingMenuChange(false);
+      });
+    };
+  };
 
   return (
     <>
@@ -126,6 +160,7 @@ export default function UIAnimations({
                 touchLocked={touchLocked}
                 setTouchLocked={setTouchLocked}
                 resetApp={resetApp}
+                animateMenuChange={animateMenuChange}
               />
             </motion.div>
 
@@ -144,7 +179,7 @@ export default function UIAnimations({
                 ease: [0.65, 0, 0.35, 1],
               }}
               onAnimationComplete={() => {
-                setMenuReady(true); // solo qui segniamo che è visibile
+                setMenuReady(true);
               }}
             >
               <CameraMenu
@@ -156,6 +191,7 @@ export default function UIAnimations({
                 touchLocked={touchLocked}
                 setTouchLocked={setTouchLocked}
                 resetApp={resetApp}
+                animateMenuChange={animateMenuChange}
               />
             </motion.div>
           </motion.div>

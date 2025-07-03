@@ -1,9 +1,9 @@
+// src/CameraMenu.tsx
 import React, { useEffect, useState } from "react";
 import { moveCameraTo } from "../babylonBridge";
 import submenuData from "../data/submenuData.json";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
-// === Tipi estesi ===
 interface SubmenuDetails {
   _uiHeight?: string;
   details: string[];
@@ -16,7 +16,6 @@ interface SubmenuCategory {
 
 const typedSubmenuData: Record<string, SubmenuCategory> = submenuData as Record<string, SubmenuCategory>;
 
-// === Props component ===
 interface CameraMenuProps {
   position: "left" | "right";
   activeMenu: string | null;
@@ -26,6 +25,7 @@ interface CameraMenuProps {
   touchLocked: boolean;
   setTouchLocked: (value: boolean) => void;
   resetApp: () => void;
+  animateMenuChange: (label: string, callback: () => void) => void;
 }
 
 export default function CameraMenu({
@@ -37,11 +37,10 @@ export default function CameraMenu({
   touchLocked,
   setTouchLocked,
   resetApp,
+  animateMenuChange,
 }: CameraMenuProps) {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
-  const [isAnimatingMenuChange, setIsAnimatingMenuChange] = useState(false);
 
-  // === Gestione altezza dinamica ===
   useEffect(() => {
     const container = document.getElementById("app-container");
     if (!container) return;
@@ -68,47 +67,16 @@ export default function CameraMenu({
     }
   }, [activeMenu, activeSubmenu]);
 
-  // === Interazioni UI ===
   function onMainClick(label: string) {
-    if (label === activeMenu || isAnimatingMenuChange) return;
+    if (label === activeMenu) return;
 
-    setIsAnimatingMenuChange(true);
     const submenuWrapper = document.getElementById("submenu-wrapper");
 
-    if (!submenuWrapper) {
-      setTimeout(() => {
-        setActiveMenu(label);
-        setActiveSubmenu(null);
-        moveCameraTo(label);
-        if (!touchLocked) setTouchLocked(true);
-        setIsAnimatingMenuChange(false);
-      }, 0);
-      return;
-    }
-
-    submenuWrapper.animate(
-      [{ transform: "scaleY(1)", opacity: 1 }, { transform: "scaleY(0)", opacity: 0 }],
-      {
-        duration: 400,
-        easing: "cubic-bezier(0.65, 0, 0.35, 1)",
-        fill: "forwards",
-      }
-    ).onfinish = () => {
+    animateMenuChange(label, () => {
       setActiveMenu(label);
       setActiveSubmenu(null);
       moveCameraTo(label);
-
-      requestAnimationFrame(() => {
-        submenuWrapper.animate(
-          [{ transform: "scaleY(0)", opacity: 0 }, { transform: "scaleY(1)", opacity: 1 }],
-          {
-            duration: 400,
-            easing: "cubic-bezier(0.65, 0, 0.35, 1)",
-            fill: "forwards",
-          }
-        ).onfinish = () => setIsAnimatingMenuChange(false);
-      });
-    };
+    });
 
     if (!touchLocked) setTouchLocked(true);
   }
