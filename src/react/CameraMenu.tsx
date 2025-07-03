@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { moveCameraTo } from "../babylonBridge";
 import submenuData from "../data/submenuData.json";
+import { motion, AnimatePresence } from "framer-motion";
 
 // === Tipi estesi ===
 interface SubmenuDetails {
@@ -179,21 +180,31 @@ export default function CameraMenu({
                   {subKey}
                 </button>
 
-                {activeSubmenu === subKey && (
-                  <div className="submenu-details">
-                    {details.map((detail: string) => (
-                      <label key={detail} className="detail-item">
-                        <input
-                          type="checkbox"
-                          className="detail-checkbox"
-                          checked={!!checkedItems[detail]}
-                          onChange={() => toggleCheckbox(detail)}
-                        />
-                        <span>{detail}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
+                <AnimatePresence initial={false}>
+                  {activeSubmenu === subKey && (
+                    <motion.div
+                      className="submenu-details"
+                      key={subKey}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.4, ease: [0.65, 0, 0.35, 1] }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      {details.map((detail: string) => (
+                        <label key={detail} className="detail-item">
+                          <input
+                            type="checkbox"
+                            className="detail-checkbox"
+                            checked={!!checkedItems[detail]}
+                            onChange={() => toggleCheckbox(detail)}
+                          />
+                          <span>{detail}</span>
+                        </label>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}
