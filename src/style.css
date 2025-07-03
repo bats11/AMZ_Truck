@@ -70,8 +70,9 @@ html, body {
   column-gap: 0rem;
   pointer-events: auto;
   padding: 2rem 0 2rem 0;
-  background: #0085b3;
-  border-radius: 15px 0 0 15px;
+  background: rgba(0, 133, 179, 0.5);
+  border-radius: 15px;      /* Fully rounded corners */
+  margin-right: 2rem;        /* Move away from the left edge */
 }
 
 .menu-btn {
@@ -83,6 +84,7 @@ html, body {
   text-align: left;
   font-family: Arial, sans-serif;
   font-size: 1.5rem;
+  text-shadow: 1px 2px 6px rgba(0,0,0,1);
 }
 
 .menu-btn::before {
@@ -112,16 +114,17 @@ html, body {
 
 
 
+
 .menu-submenu {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.5);
   padding: 3rem 3rem 1.5rem 2rem;
   pointer-events: auto;
-  background: #ffffff;
   border-radius: 15px;
 }
+
 
 .submenu-btn {
   all: unset;
@@ -132,6 +135,7 @@ html, body {
   text-align: left;
   font-family: Arial, sans-serif;
   font-size: 1.6rem;
+  text-shadow: 1px 2px 6px rgba(0,0,0,0.7);
 }
 
 .submenu-btn.active {

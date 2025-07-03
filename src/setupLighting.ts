@@ -8,7 +8,7 @@ export function setupLighting(scene: BABYLON.Scene): BABYLON.CascadedShadowGener
   // === Directional Light === //
   const directionalLight = new BABYLON.DirectionalLight(
     "mainDirectionalLight",
-    new BABYLON.Vector3(-0.2, -0.4, 1).normalize(),
+    new BABYLON.Vector3(0.5, -0.8, 1.8).normalize(),
     scene
   );
   directionalLight.intensity = 4;
@@ -24,14 +24,14 @@ export function setupLighting(scene: BABYLON.Scene): BABYLON.CascadedShadowGener
   csm.shadowMaxZ = 100;
 
   csm.depthClamp = true;
-  csm.bias = 0.0005;
-  csm.normalBias = 0.02;
+  csm.bias = 0.0002;
+  csm.normalBias = 0.01;
 
   // === HDR Environment Texture === //
   const hdrTexture = new BABYLON.HDRCubeTexture(
     "/assets/studio_small_08_4k.hdr",
     scene,
-    512,
+    1024,
     false,
     true,
     false,
@@ -43,7 +43,7 @@ export function setupLighting(scene: BABYLON.Scene): BABYLON.CascadedShadowGener
   });
 
   scene.environmentTexture = hdrTexture;
-  scene.environmentIntensity = 0.3;
+  scene.environmentIntensity = 0.5;
 
   scene.clearColor = BABYLON.Color4.FromHexString("#00000000");
 
