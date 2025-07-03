@@ -1,6 +1,3 @@
-// src/babylonBridge.ts
-import { enterSelectMode, exitSelectMode } from "./MoveComponent";
-
 export let moveCameraTo = (label: string) => {
   console.warn("moveCameraTo not connected");
 };
@@ -19,6 +16,3 @@ export function setTouchLockedGetter(fn: () => boolean) {
 export function getTouchLocked(): boolean {
   return touchLockedGetter();
 }
-
-// ← RI-ESPORTAZIONE per React
-export { enterSelectMode, exitSelectMode };

@@ -8,12 +8,13 @@ let lastX = 0;
 let velocityY = 0;
 let animationFrame: number | null = null;
 
-const ROT_SPEED = 0.005;
+const ROTATION_SPEED = 0.005;
 const INERTIA_DECAY = 0.95;
 const MIN_VELOCITY = 0.0001;
 
 export function enableTouchRotation(node: BABYLON.TransformNode, canvas: HTMLCanvasElement) {
   rootNode = node;
+
   canvas.addEventListener("pointerdown", onPointerDown);
   canvas.addEventListener("pointermove", onPointerMove);
   canvas.addEventListener("pointerup", onPointerUp);
@@ -21,33 +22,32 @@ export function enableTouchRotation(node: BABYLON.TransformNode, canvas: HTMLCan
 }
 
 function onPointerDown(e: PointerEvent) {
-  if (!rootNode) return;
-  const scene = rootNode.getScene();
-  if (!getTouchLocked()) {
-    // interrompi l’idling
-    scene.stopAnimation(rootNode);
+  if (!rootNode || getTouchLocked()) return;
 
-    isDragging = true;
-    lastX = e.clientX;
-    velocityY = 0;
-    if (animationFrame !== null) {
-      cancelAnimationFrame(animationFrame);
-      animationFrame = null;
-    }
+  isDragging = true;
+  lastX = e.clientX;
+  velocityY = 0;
+
+  if (animationFrame !== null) {
+    cancelAnimationFrame(animationFrame);
+    animationFrame = null;
   }
 }
 
 function onPointerMove(e: PointerEvent) {
   if (!isDragging || !rootNode || getTouchLocked()) return;
-  const dx = e.clientX - lastX;
+
+  const deltaX = e.clientX - lastX;
   lastX = e.clientX;
-  const delta = dx * ROT_SPEED;
-  rootNode.rotation.y -= delta;
-  velocityY = delta;
+
+  const rotY = deltaX * ROTATION_SPEED;
+
+  rootNode.rotation.y -= rotY;
+
+  velocityY = rotY;
 }
 
 function onPointerUp() {
-  if (!rootNode) return;
   isDragging = false;
   applyInertia();
 }
@@ -61,6 +61,5 @@ function applyInertia() {
     animationFrame = requestAnimationFrame(applyInertia);
   } else {
     animationFrame = null;
-    // inertia finita: non riprendiamo alcun idle
   }
 }
