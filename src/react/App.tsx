@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import LoadingOverlay from "./LoadingOverlay";
 import { setTouchLockedGetter } from "../babylonBridge";
 import { resetModelTransform } from "../MoveComponent";
-import { moveCameraTo } from "../babylonBridge";
 import submenuData from "../data/submenuData.json";
 import UIAnimations from "./UIAnimations";
 
@@ -26,20 +25,15 @@ export default function App() {
     return () => window.removeEventListener("react-loading-finished", handleFinishLoading);
   }, []);
 
-  const startExperience = () => {
-    const firstMenuLabel = Object.keys(typedSubmenuData)[0];
-    if (!firstMenuLabel) return;
-
-    setAppPhase("transitioning");
-
-    setTimeout(() => {
-      setActiveMenu(firstMenuLabel);
-      setActiveSubmenu(null);
-      setTouchLocked(true);
-      moveCameraTo(firstMenuLabel);
-      setAppPhase("experience");
-    }, 600);
-  };
+const startExperience = () => {
+  setAppPhase("transitioning");
+  setTimeout(() => {
+    setActiveMenu(null);            // ⬅️ non attiviamo subito
+    setActiveSubmenu(null);
+    setTouchLocked(true);
+    setAppPhase("experience");      // ⬅️ fa partire l’animazione
+  }, 600);
+};
 
   const resetApp = () => {
     resetModelTransform();

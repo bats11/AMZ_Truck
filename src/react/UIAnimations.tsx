@@ -1,7 +1,11 @@
 // src/UIAnimations.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CameraMenu from "./CameraMenu";
+import { moveCameraTo } from "../babylonBridge";
+import submenuData from "../data/submenuData.json";
+
+const typedSubmenuData: Record<string, any> = submenuData;
 
 interface UIAnimationsProps {
   appPhase: "loading" | "selection" | "transitioning" | "experience";
@@ -26,6 +30,28 @@ export default function UIAnimations({
   resetApp,
   startExperience,
 }: UIAnimationsProps) {
+  const [menuReady, setMenuReady] = useState(false);
+
+  useEffect(() => {
+    if (appPhase === "experience") {
+      setMenuReady(false); // reset quando entriamo in experience
+    }
+  }, [appPhase]);
+
+  useEffect(() => {
+    if (
+      appPhase === "experience" &&
+      !activeMenu &&
+      menuReady
+    ) {
+      const firstMenuLabel = Object.keys(typedSubmenuData)[0];
+      if (firstMenuLabel) {
+        setActiveMenu(firstMenuLabel);
+        moveCameraTo(firstMenuLabel);
+      }
+    }
+  }, [appPhase, menuReady, activeMenu]);
+
   return (
     <>
       {/* Pulsanti di selezione */}
@@ -116,6 +142,9 @@ export default function UIAnimations({
                 delay: 0,
                 duration: 0.6,
                 ease: [0.65, 0, 0.35, 1],
+              }}
+              onAnimationComplete={() => {
+                setMenuReady(true); // solo qui segniamo che è visibile
               }}
             >
               <CameraMenu
