@@ -139,7 +139,7 @@ html, body {
 }
 
 .submenu-btn.active {
-  color: #ff8f00;
+  color: #00688d;;
   font-size: 1.8rem;
 }
 
@@ -172,8 +172,8 @@ html, body {
 }
 
 .detail-checkbox:checked {
-  background-color: #ff8f00;
-  border-color: #ff8f00;
+  background-color: #6dcdff;
+  border-color: #6dcdff;
 }
 
 .loading-overlay {

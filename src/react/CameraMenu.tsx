@@ -82,9 +82,14 @@ export default function CameraMenu({
   }
 
   function onSubClick(subKey: string) {
-    setActiveSubmenu(subKey);
+  if (activeSubmenu === subKey) {
+    setActiveSubmenu(null); // 🔁 Se già attivo, chiudi
+  } else {
+    setActiveSubmenu(subKey); // ✅ Altrimenti apri
     moveCameraTo(subKey);
   }
+}
+
 
   function toggleCheckbox(detail: string) {
     setCheckedItems((prev) => ({
@@ -116,7 +121,7 @@ export default function CameraMenu({
             }}
             className="return-btn"
           >
-            Return to Start
+            Exit
           </button>
         )}
       </div>
