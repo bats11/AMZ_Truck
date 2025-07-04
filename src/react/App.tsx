@@ -27,12 +27,12 @@ export default function App() {
 
 const startExperience = () => {
   setAppPhase("transitioning");
-  setTimeout(() => {
-    setActiveMenu(null);            // ⬅️ non attiviamo subito
-    setActiveSubmenu(null);
-    setTouchLocked(true);
-    setAppPhase("experience");      // ⬅️ fa partire l’animazione
-  }, 600);
+
+  // 🔁 Passaggio immediato all'esperienza, senza attendere animazioni
+  setActiveMenu(null);
+  setActiveSubmenu(null);
+  setTouchLocked(true);
+  setAppPhase("experience");
 };
 
   const resetApp = () => {

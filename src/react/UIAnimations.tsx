@@ -45,46 +45,44 @@ export default function UIAnimations({
     ) {
       const firstMenuLabel = Object.keys(typedSubmenuData)[0];
       if (firstMenuLabel) {
-        setActiveMenu(firstMenuLabel);
-        moveCameraTo(firstMenuLabel);
+        // ⏱️ Ritardo per assicurare che la UI sia completamente visibile
+        setTimeout(() => {
+          setActiveMenu(firstMenuLabel);
+          moveCameraTo(firstMenuLabel);
+        }, 900); // ~800ms per la scala + 100ms buffer
       }
     }
   }, [appPhase, menuReady, activeMenu]);
 
-  const animateMenuChange = (label: string, onSwitch: () => void) => {
-    if (isAnimatingMenuChange) return;
+const animateMenuChange = (label: string, onSwitch: () => void) => {
+  if (isAnimatingMenuChange) return;
 
-    setIsAnimatingMenuChange(true);
-    const submenuWrapper = document.getElementById("submenu-wrapper");
+  setIsAnimatingMenuChange(true);
+  const submenuWrapper = document.getElementById("submenu-wrapper");
 
-    if (!submenuWrapper) {
-      onSwitch();
-      setIsAnimatingMenuChange(false);
-      return;
-    }
+  if (!submenuWrapper) {
+    onSwitch();
+    setIsAnimatingMenuChange(false);
+    return;
+  }
 
+  // 🔁 Niente animazione di chiusura: cambia subito
+  onSwitch();
+
+  requestAnimationFrame(() => {
     submenuWrapper.animate(
-      [{ transform: "scaleY(1)", opacity: 1 }, { transform: "scaleY(0)", opacity: 0 }],
+      [{ transform: "scaleY(0)", opacity: 0 }, { transform: "scaleY(1)", opacity: 1 }],
       {
-        duration: 400,
+        duration: 800,
         easing: "cubic-bezier(0.65, 0, 0.35, 1)",
         fill: "forwards",
       }
     ).onfinish = () => {
-      onSwitch();
-
-      requestAnimationFrame(() => {
-        submenuWrapper.animate(
-          [{ transform: "scaleY(0)", opacity: 0 }, { transform: "scaleY(1)", opacity: 1 }],
-          {
-            duration: 400,
-            easing: "cubic-bezier(0.65, 0, 0.35, 1)",
-            fill: "forwards",
-          }
-        ).onfinish = () => setIsAnimatingMenuChange(false);
-      });
+      setIsAnimatingMenuChange(false);
     };
-  };
+  });
+};
+
 
   return (
     <>
