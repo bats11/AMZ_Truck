@@ -1,11 +1,7 @@
 // src/UIAnimations.tsx
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CameraMenu from "./CameraMenu";
-import { moveCameraTo } from "../babylonBridge";
-import submenuData from "../data/submenuData.json";
-
-const typedSubmenuData: Record<string, any> = submenuData;
 
 interface UIAnimationsProps {
   appPhase: "loading" | "selection" | "transitioning" | "experience";
@@ -30,62 +26,6 @@ export default function UIAnimations({
   resetApp,
   startExperience,
 }: UIAnimationsProps) {
-  const [menuReady, setMenuReady] = useState(false);
-  const [isAnimatingMenuChange, setIsAnimatingMenuChange] = useState(false);
-
-  useEffect(() => {
-    if (appPhase === "experience") setMenuReady(false);
-  }, [appPhase]);
-
-  useEffect(() => {
-    if (
-      appPhase === "experience" &&
-      !activeMenu &&
-      menuReady
-    ) {
-      const firstMenuLabel = Object.keys(typedSubmenuData)[0];
-      if (firstMenuLabel) {
-        setActiveMenu(firstMenuLabel);
-        moveCameraTo(firstMenuLabel);
-      }
-    }
-  }, [appPhase, menuReady, activeMenu]);
-
-  const animateMenuChange = (label: string, onSwitch: () => void) => {
-    if (isAnimatingMenuChange) return;
-
-    setIsAnimatingMenuChange(true);
-    const submenuWrapper = document.getElementById("submenu-wrapper");
-
-    if (!submenuWrapper) {
-      onSwitch();
-      setIsAnimatingMenuChange(false);
-      return;
-    }
-
-    submenuWrapper.animate(
-      [{ transform: "scaleY(1)", opacity: 1 }, { transform: "scaleY(0)", opacity: 0 }],
-      {
-        duration: 400,
-        easing: "cubic-bezier(0.65, 0, 0.35, 1)",
-        fill: "forwards",
-      }
-    ).onfinish = () => {
-      onSwitch();
-
-      requestAnimationFrame(() => {
-        submenuWrapper.animate(
-          [{ transform: "scaleY(0)", opacity: 0 }, { transform: "scaleY(1)", opacity: 1 }],
-          {
-            duration: 400,
-            easing: "cubic-bezier(0.65, 0, 0.35, 1)",
-            fill: "forwards",
-          }
-        ).onfinish = () => setIsAnimatingMenuChange(false);
-      });
-    };
-  };
-
   return (
     <>
       {/* Pulsanti di selezione */}
@@ -153,6 +93,7 @@ export default function UIAnimations({
             >
               <CameraMenu
                 position="left"
+                appPhase={appPhase}
                 activeMenu={activeMenu}
                 activeSubmenu={activeSubmenu}
                 setActiveMenu={setActiveMenu}
@@ -160,7 +101,6 @@ export default function UIAnimations({
                 touchLocked={touchLocked}
                 setTouchLocked={setTouchLocked}
                 resetApp={resetApp}
-                animateMenuChange={animateMenuChange}
               />
             </motion.div>
 
@@ -179,11 +119,12 @@ export default function UIAnimations({
                 ease: [0.65, 0, 0.35, 1],
               }}
               onAnimationComplete={() => {
-                setMenuReady(true);
+                // Il menuReady ora è gestito in CameraMenu
               }}
             >
               <CameraMenu
                 position="right"
+                appPhase={appPhase}
                 activeMenu={activeMenu}
                 activeSubmenu={activeSubmenu}
                 setActiveMenu={setActiveMenu}
@@ -191,7 +132,6 @@ export default function UIAnimations({
                 touchLocked={touchLocked}
                 setTouchLocked={setTouchLocked}
                 resetApp={resetApp}
-                animateMenuChange={animateMenuChange}
               />
             </motion.div>
           </motion.div>

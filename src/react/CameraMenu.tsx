@@ -1,5 +1,4 @@
-// src/CameraMenu.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { moveCameraTo } from "../babylonBridge";
 import submenuData from "../data/submenuData.json";
 import { AnimatePresence, motion } from "framer-motion";
@@ -18,6 +17,7 @@ const typedSubmenuData: Record<string, SubmenuCategory> = submenuData as Record<
 
 interface CameraMenuProps {
   position: "left" | "right";
+  appPhase: "loading" | "selection" | "transitioning" | "experience";
   activeMenu: string | null;
   activeSubmenu: string | null;
   setActiveMenu: (value: string | null) => void;
@@ -25,11 +25,11 @@ interface CameraMenuProps {
   touchLocked: boolean;
   setTouchLocked: (value: boolean) => void;
   resetApp: () => void;
-  animateMenuChange: (label: string, callback: () => void) => void;
 }
 
 export default function CameraMenu({
   position,
+  appPhase,
   activeMenu,
   activeSubmenu,
   setActiveMenu,
@@ -37,9 +37,25 @@ export default function CameraMenu({
   touchLocked,
   setTouchLocked,
   resetApp,
-  animateMenuChange,
 }: CameraMenuProps) {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const [isAnimatingMenuChange, setIsAnimatingMenuChange] = useState(false);
+  const hasInitializedRef = useRef(false);
+
+  useEffect(() => {
+    if (
+      appPhase === "experience" &&
+      !activeMenu &&
+      !isAnimatingMenuChange &&
+      !hasInitializedRef.current
+    ) {
+      const firstMenuLabel = Object.keys(typedSubmenuData)[0];
+      if (firstMenuLabel) {
+        hasInitializedRef.current = true;
+        onMainClick(firstMenuLabel);
+      }
+    }
+  }, [appPhase, activeMenu, isAnimatingMenuChange]);
 
   useEffect(() => {
     const container = document.getElementById("app-container");
@@ -67,29 +83,65 @@ export default function CameraMenu({
     }
   }, [activeMenu, activeSubmenu]);
 
-  function onMainClick(label: string) {
-    if (label === activeMenu) return;
+  function animateMenuChange(label: string, onSwitch: () => void) {
+    if (isAnimatingMenuChange) return;
 
+    setIsAnimatingMenuChange(true);
     const submenuWrapper = document.getElementById("submenu-wrapper");
 
-    animateMenuChange(label, () => {
-      setActiveMenu(label);
-      setActiveSubmenu(null);
-      moveCameraTo(label);
-    });
+    if (!submenuWrapper) {
+      onSwitch();
+      setIsAnimatingMenuChange(false);
+      return;
+    }
 
-    if (!touchLocked) setTouchLocked(true);
+    submenuWrapper.animate(
+      [{ transform: "scaleY(1)", opacity: 1 }, { transform: "scaleY(0)", opacity: 0 }],
+      {
+        duration: 400,
+        easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+        fill: "forwards",
+      }
+    ).onfinish = () => {
+      onSwitch();
+
+      requestAnimationFrame(() => {
+        submenuWrapper.animate(
+          [{ transform: "scaleY(0)", opacity: 0 }, { transform: "scaleY(1)", opacity: 1 }],
+          {
+            duration: 400,
+            easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+            fill: "forwards",
+          }
+        ).onfinish = () => setIsAnimatingMenuChange(false);
+      });
+    };
   }
 
-  function onSubClick(subKey: string) {
-  if (activeSubmenu === subKey) {
-    setActiveSubmenu(null); // 🔁 Se già attivo, chiudi
-  } else {
-    setActiveSubmenu(subKey); // ✅ Altrimenti apri
-    moveCameraTo(subKey);
-  }
+ function onMainClick(label: string) {
+  if (label === activeMenu) return;
+
+  // 🟢 1. Inizia SUBITO il movimento 3D
+  moveCameraTo(label);
+
+  // 🟢 2. In parallelo, fai partire l’animazione menu
+  animateMenuChange(label, () => {
+    setActiveMenu(label);
+    setActiveSubmenu(null);
+  });
+
+  if (!touchLocked) setTouchLocked(true);
 }
 
+
+  function onSubClick(subKey: string) {
+    if (activeSubmenu === subKey) {
+      setActiveSubmenu(null); // 🔁 Se già attivo, chiudi
+    } else {
+      setActiveSubmenu(subKey); // ✅ Altrimenti apri
+      moveCameraTo(subKey);
+    }
+  }
 
   function toggleCheckbox(detail: string) {
     setCheckedItems((prev) => ({
@@ -118,6 +170,7 @@ export default function CameraMenu({
             onClick={() => {
               setTouchLocked(false);
               resetApp();
+              hasInitializedRef.current = false;
             }}
             className="return-btn"
           >
