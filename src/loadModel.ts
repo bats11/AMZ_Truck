@@ -6,6 +6,8 @@ export interface BoundingInfoData {
   max: BABYLON.Vector3;
 }
 
+export let loadedMaterialNames: string[] = []; // ✅ ESPORTATO
+
 export function loadModel(
   scene: BABYLON.Scene,
   onLoadComplete: (meshes: BABYLON.AbstractMesh[], boundingInfo: BoundingInfoData) => void,
@@ -20,9 +22,11 @@ export function loadModel(
   let boundingInfo!: BoundingInfoData;
 
   const onAllLoaded = () => {
+    // ✅ Carica i nomi dei materiali una volta completato
+    loadedMaterialNames = scene.materials.map(m => m.name).filter(Boolean);
+
     onLoadComplete(firstMeshes, boundingInfo);
 
-    // ✅ Fine caricamento — notifico React
     if (onFinish) onFinish();
     (window as any).finishReactLoading?.();
   };
@@ -35,7 +39,6 @@ export function loadModel(
       const meshes = container.meshes.filter(m => m.name !== "__root__");
       firstMeshes = meshes;
 
-      // Calcola bounding box prima del parenting
       let min = meshes[0].getBoundingInfo().boundingBox.minimumWorld.clone();
       let max = meshes[0].getBoundingInfo().boundingBox.maximumWorld.clone();
 
