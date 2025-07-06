@@ -98,7 +98,7 @@ export default function CameraMenu({
     submenuWrapper.animate(
       [{ transform: "scaleY(1)", opacity: 1 }, { transform: "scaleY(0)", opacity: 0 }],
       {
-        duration: 400,
+        duration: 600,
         easing: "cubic-bezier(0.65, 0, 0.35, 1)",
         fill: "forwards",
       }
@@ -109,7 +109,7 @@ export default function CameraMenu({
         submenuWrapper.animate(
           [{ transform: "scaleY(0)", opacity: 0 }, { transform: "scaleY(1)", opacity: 1 }],
           {
-            duration: 400,
+            duration: 900,
             easing: "cubic-bezier(0.65, 0, 0.35, 1)",
             fill: "forwards",
           }
