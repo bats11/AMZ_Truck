@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { moveCameraTo } from "../babylonBridge";
-import submenuData from "../data/SubmenuData.json";
+import submenuData from "../data/submenuData.json";
 import { AnimatePresence, motion } from "framer-motion";
 import { clearTransitionState } from "../MoveComponent"; // ✅ IMPORT AGGIUNTO
 
