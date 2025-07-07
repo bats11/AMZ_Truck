@@ -1,3 +1,4 @@
+// src/createScene.ts
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Materials/Textures/Loaders";
@@ -34,25 +35,22 @@ export async function createScene() {
   const shadowGenerator = await setupLighting(scene);
   setupBackground(scene);
 
-  loadModel(
-    scene,
-    (meshes, bounding) => {
-      for (const mesh of meshes) {
-        mesh.receiveShadows = true;
-        shadowGenerator.addShadowCaster(mesh, true);
-      }
-
-      setupMovementControls(scene);
-
-      const root = scene.getTransformNodeByName("ModelRoot");
-      if (root) {
-        enableTouchRotation(root, canvas);
-      }
-    },
-    () => {
-      window.dispatchEvent(new Event("model-loaded"));
+  loadModel(scene, (meshes, bounding) => {
+    for (const mesh of meshes) {
+      mesh.receiveShadows = true;
+      shadowGenerator.addShadowCaster(mesh, true);
     }
-  );
+
+    setupMovementControls(scene);
+
+    const root = scene.getTransformNodeByName("ModelRoot");
+    if (root) {
+      enableTouchRotation(root, canvas);
+    }
+  }, () => {
+    // ✅ Notifica React al termine del caricamento
+    window.dispatchEvent(new Event("model-loaded"));
+  });
 
   mountUI();
 
