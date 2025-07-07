@@ -115,12 +115,11 @@ async function animateWithMaterialTransition(
   }
 
   if (materials) {
-    materialManager.fadeMaterialAlpha(materials, 0); // ✅ fade-out invece di alpha = 0 diretto
+    materialManager.setMaterialVisibility(materials, false);
   }
 
   await animateTransformTo(node, target);
 }
-
 
 async function animateSandwichedTransition(
   node: BABYLON.TransformNode,
@@ -209,7 +208,12 @@ function playEntryAnimation(scene: BABYLON.Scene) {
   );
 }
 
-function startIdleLoopRotation(scene: BABYLON.Scene, startY: number, endY: number, totalFrames: number) {
+function startIdleLoopRotation(
+  scene: BABYLON.Scene,
+  startY: number,
+  endY: number,
+  totalFrames: number
+) {
   if (!modelRoot) return;
 
   const frameRate = 60;
@@ -259,19 +263,6 @@ export function resetModelTransform() {
     const materialManager = new MaterialManager(scene);
     materialManager.setMaterialVisibility(loadedMaterialNames, true);
   }
-}
-
-export function clearTransitionState() {
-  if (!modelRoot) return;
-  const scene = modelRoot.getScene();
-  const materialManager = new MaterialManager(scene);
-
-  const allTransitionMaterials = new Set<string>();
-  Object.values(transitionMap).forEach(config => {
-    config.materials?.forEach(m => allTransitionMaterials.add(m));
-  });
-
-  materialManager.fadeMaterialAlpha([...allTransitionMaterials], 1); // ✅ fade-in
 }
 
 export function setModelTransform(options: {

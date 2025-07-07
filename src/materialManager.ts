@@ -33,34 +33,4 @@ export class MaterialManager {
       }
     }
   }
-
-  public fadeMaterialAlpha(materialNames: string[], toAlpha: number, duration: number = 500): void {
-    for (const name of materialNames) {
-      const mat = this.scene.materials.find((m) => m.name === name);
-      if (!mat) continue;
-
-      const animation = new BABYLON.Animation(
-        `fadeAlpha_${name}`,
-        "alpha",
-        60,
-        BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-      );
-
-      const fromAlpha = mat.alpha ?? 1;
-      const frameCount = (duration / 1000) * 60;
-
-      animation.setKeys([
-        { frame: 0, value: fromAlpha },
-        { frame: frameCount, value: toAlpha },
-      ]);
-
-      const easing = new BABYLON.CubicEase();
-      easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
-      animation.setEasingFunction(easing);
-
-      mat.animations = [animation];
-      this.scene.beginAnimation(mat, 0, frameCount, false);
-    }
-  }
 }
