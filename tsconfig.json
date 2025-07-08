@@ -9,7 +9,9 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "typeRoots": ["./node_modules/@types"],
+    "types": []
   },
   "include": ["src"]
 }
