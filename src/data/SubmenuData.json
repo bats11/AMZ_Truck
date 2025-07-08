@@ -180,6 +180,7 @@
   },
   "IN CAB": {
     "_uiHeight": "",
+    "isCustomSequence": true,
     "Body & Doors": {
       "_uiHeight": "",
       "details": [

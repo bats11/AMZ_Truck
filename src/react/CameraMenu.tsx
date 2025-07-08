@@ -10,8 +10,10 @@ interface SubmenuDetails {
 
 interface SubmenuCategory {
   _uiHeight?: string;
-  [subKey: string]: SubmenuDetails | string | undefined;
+  isCustomSequence?: boolean;
+  [subKey: string]: SubmenuDetails | string | boolean | undefined;
 }
+
 
 const typedSubmenuData: Record<string, SubmenuCategory> = submenuData as Record<string, SubmenuCategory>;
 
@@ -191,7 +193,7 @@ export default function CameraMenu({
         style={{ transformOrigin: "top", transition: "none" }}
       >
         {Object.entries(submenu)
-          .filter(([key]) => key !== "_uiHeight")
+          .filter(([key]) => key !== "_uiHeight" && key !== "isCustomSequence")
           .map(([subKey, content]) => {
             const details = Array.isArray(content)
               ? content
