@@ -18,7 +18,9 @@ export interface TransformSetting {
     durationScale?: number;
     durationPosRot?: number;
   }[];
-  hiddenNodes?: string[]; // 👈 nuovo campo
+  hiddenNodes?: string[];
+  finalCameraFov?: number;        // 👈 nuovo
+  durationCameraFov?: number;     // 👈 nuovo
 }
 
 function degToRad(deg: number): number {
@@ -51,6 +53,8 @@ interface RawTransformSetting {
     durationPosRot?: number;
   }[];
   hiddenNodes?: string[];
+  finalCameraFov?: number;
+  durationCameraFov?: number;
 }
 
 const transformSettingsRaw: Record<string, RawTransformSetting> = {
@@ -75,8 +79,8 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
   },
   "IN CAB": {
-    position: new BABYLON.Vector3(0.6, 0.35, -30.4),
-    rotation: [0, -90, 6],
+    position: new BABYLON.Vector3(0.6, 0, -30.5),
+    rotation: [0, -92, 15],
     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     intermediate: [
       {
@@ -87,7 +91,7 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
         durationPosRot: 2.0,
       },
       {
-        position: new BABYLON.Vector3(-1.8, 0, -28),
+        position: new BABYLON.Vector3(-1.8, 0, -30),
         rotation: [0, 0, 0],
         scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
         durationScale: 1.0,
@@ -103,7 +107,9 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
         durationPosRot: 2,
       }
     ],
-    hiddenNodes: ["SM_Driver_Seat_01a.001"]
+    hiddenNodes: ["SM_Driver_Seat_01a.001"],
+    finalCameraFov: BABYLON.Tools.ToRadians(55),
+    durationCameraFov: 3.5
   }
 };
 
@@ -115,7 +121,7 @@ export const transformSettings: Record<string, TransformSetting> = Object.fromEn
       scaling: raw.scaling,
     };
 
-    if (raw.intermediate && Array.isArray(raw.intermediate)) {
+    if (raw.intermediate) {
       setting.intermediate = raw.intermediate.map((step) => ({
         position: step.position,
         rotation: step.rotation ? vec3DegToRad(step.rotation) : undefined,
@@ -125,7 +131,7 @@ export const transformSettings: Record<string, TransformSetting> = Object.fromEn
       }));
     }
 
-    if (raw.exitIntermediate && Array.isArray(raw.exitIntermediate)) {
+    if (raw.exitIntermediate) {
       setting.exitIntermediate = raw.exitIntermediate.map((step) => ({
         position: step.position,
         rotation: step.rotation ? vec3DegToRad(step.rotation) : undefined,
@@ -137,6 +143,13 @@ export const transformSettings: Record<string, TransformSetting> = Object.fromEn
 
     if (raw.hiddenNodes) {
       setting.hiddenNodes = raw.hiddenNodes;
+    }
+
+    if (raw.finalCameraFov) {
+      setting.finalCameraFov = raw.finalCameraFov;
+    }
+    if (raw.durationCameraFov) {
+      setting.durationCameraFov = raw.durationCameraFov;
     }
 
     return [key, setting];

@@ -14,8 +14,9 @@ const typedSubmenuData = submenuData as Record<string, { isCustomSequence?: bool
 
 let modelRoot: BABYLON.TransformNode | null = null;
 let animationCycle = 0;
+let activeCamera: BABYLON.FreeCamera | null = null;
+let initialCameraFov: number | null = null;
 
-// 🧠 Stato per custom sequence attiva
 let isInCustomSequence: boolean = false;
 let activeCustomLabel: string | null = null;
 const previouslyHiddenNodes = new Set<string>();
@@ -27,7 +28,6 @@ interface TransformState {
 }
 let initialTransform: TransformState | null = null;
 
-// ⏳ Fase centrale della custom sequence
 async function handleCustomSequenceMidStep(label: string): Promise<void> {
   console.log(`[custom sequence] MID-STEP logic for: ${label}`);
 
@@ -48,7 +48,6 @@ async function handleCustomSequenceMidStep(label: string): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, 1000));
 }
 
-// ⛔ Sequenza di uscita da una custom sequence attiva
 async function runExitSequence(fromLabel: string): Promise<void> {
   console.log(`[custom sequence] EXIT sequence from: ${fromLabel}`);
   const settings = transformSettings[fromLabel];
@@ -58,7 +57,6 @@ async function runExitSequence(fromLabel: string): Promise<void> {
     await runInterpolationsTo(modelRoot!.getScene(), step);
   }
 
-  // ✅ Ripristina visibilità dei nodi precedentemente nascosti
   const scene = modelRoot?.getScene();
   for (const name of previouslyHiddenNodes) {
     const node = scene?.getNodeByName(name);
@@ -68,9 +66,27 @@ async function runExitSequence(fromLabel: string): Promise<void> {
     }
   }
   previouslyHiddenNodes.clear();
+
+  // 🔁 Ripristino FOV originale della camera se è cambiato
+  if (activeCamera && initialCameraFov !== null && activeCamera.fov !== initialCameraFov) {
+    const easing = new BABYLON.CubicEase();
+    easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+    const frameRate = 60;
+    const frames = 60; // 1s
+
+    const fovAnim = createAnimation(
+      "fov",
+      activeCamera.fov,
+      initialCameraFov,
+      0,
+      frames,
+      easing
+    );
+    modelRoot?.getScene().beginDirectAnimation(activeCamera, [fovAnim], 0, frames, false);
+    console.log(`🎥 Restoring FOV to ${initialCameraFov.toFixed(2)} radians`);
+  }
 }
 
-// 🔁 Animazione combinata a doppio canale con override
 async function runInterpolationsTo(
   scene: BABYLON.Scene,
   step: {
@@ -79,7 +95,10 @@ async function runInterpolationsTo(
     scaling?: BABYLON.Vector3;
     durationScale?: number;
     durationPosRot?: number;
-  }
+    finalCameraFov?: number;
+    durationCameraFov?: number;
+  },
+  camera?: BABYLON.FreeCamera
 ): Promise<void> {
   if (!modelRoot) return;
 
@@ -107,6 +126,16 @@ async function runInterpolationsTo(
     posRotAnims.push(createAnimation("rotation.z", currentRot.z, targetRot.z, 0, moveFrames, easing));
   }
 
+  // 🎥 FOV camera animation (solo nell’ultimo step)
+  if (camera && typeof step.finalCameraFov === "number") {
+    const startFov = camera.fov;
+    const endFov = step.finalCameraFov;
+    const fovFrames = Math.ceil((step.durationCameraFov ?? 1.5) * frameRate);
+    const fovAnim = createAnimation("fov", startFov, endFov, 0, fovFrames, easing);
+    scene.beginDirectAnimation(camera, [fovAnim], 0, fovFrames, false, 1.0);
+    console.log(`🎥 Animating FOV to ${endFov.toFixed(2)} radians`);
+  }
+
   if (posRotAnims.length > 0) {
     await new Promise<void>((resolve) => {
       scene.beginDirectAnimation(modelRoot!, posRotAnims, 0, moveFrames, false, 1.0, resolve);
@@ -114,9 +143,13 @@ async function runInterpolationsTo(
   }
 }
 
-export function setupMovementControls(scene: BABYLON.Scene) {
+export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.FreeCamera) {
   modelRoot = scene.getTransformNodeByName("ModelRoot");
   if (!modelRoot) return;
+  activeCamera = camera ?? null;
+  if (camera && initialCameraFov === null) {
+    initialCameraFov = camera.fov;
+  }
 
   initialTransform = {
     position: new BABYLON.Vector3(0, 1, 0),
@@ -132,7 +165,6 @@ export function setupMovementControls(scene: BABYLON.Scene) {
   setMoveCameraTo(async (label: string) => {
     if (!modelRoot) return;
 
-    // 🛑 Se siamo in un custom sequence attivo → esegui exit prima
     if (isInCustomSequence && activeCustomLabel && activeCustomLabel !== label) {
       console.log(`🔁 Switching from custom sequence "${activeCustomLabel}" to "${label}"...`);
       await runExitSequence(activeCustomLabel);
@@ -155,17 +187,15 @@ export function setupMovementControls(scene: BABYLON.Scene) {
       for (let i = 0; i < steps.length; i++) {
         const step = steps[i];
         await runInterpolationsTo(scene, step);
-
         if (i === 0) {
-          await handleCustomSequenceMidStep(label); // solo dopo il primo step
+          await handleCustomSequenceMidStep(label);
         }
       }
 
-      await runInterpolationsTo(scene, settings); // finale
+      await runInterpolationsTo(scene, settings, activeCamera ?? undefined);
       return;
     }
 
-    // → logica standard per pulsanti NON custom
     const currentScaleSq = modelRoot.scaling.lengthSquared();
     const targetScaleSq = settings.scaling?.lengthSquared() ?? currentScaleSq;
     const isReducingScale = targetScaleSq < currentScaleSq - 0.001;

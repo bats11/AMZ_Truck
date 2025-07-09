@@ -47,7 +47,7 @@ export async function createScene() {
       shadowGenerator.addShadowCaster(mesh, true);
     }
 
-    setupMovementControls(scene);
+    setupMovementControls(scene, camera);
 
     const root = scene.getTransformNodeByName("ModelRoot");
     if (root) {
