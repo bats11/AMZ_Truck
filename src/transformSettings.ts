@@ -63,6 +63,25 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
     rotation: [0, 90, 0],
     scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
   },
+
+  "Lights & Light Covers": {
+    position: new BABYLON.Vector3(-1.5, 2.5, -15),
+    rotation: [0, 90, 0],
+    scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
+  },
+
+  "Suspension & Exhaust System": {
+    position: new BABYLON.Vector3(0, 2.5, -5),
+    rotation: [0, 90, 0],
+    scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
+  },
+
+  "Electric Vehicle (EV)": {
+    position: new BABYLON.Vector3(0, 2.5, -5),
+    rotation: [0, 90, 0],
+    scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
+  },
+  
   "DRIVER SIDE": {
     position: new BABYLON.Vector3(0, 4, 0),
     rotation: [0, 180, 0],

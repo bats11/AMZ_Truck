@@ -127,7 +127,6 @@ async function runInterpolationsTo(
     posRotAnims.push(createAnimation("rotation.z", currentRot.z, targetRot.z, 0, moveFrames, easing));
   }
 
-  // 🎥 FOV camera animation (solo nell’ultimo step)
   if (camera && typeof step.finalCameraFov === "number") {
     const startFov = camera.fov;
     const endFov = step.finalCameraFov;
@@ -166,6 +165,8 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
   setMoveCameraTo(async (label: string) => {
     if (!modelRoot) return;
 
+    const isSubmenu = Object.values(submenuData).some(sub => Object.keys(sub).includes(label));
+
     if (isInCustomSequence && activeCustomLabel && activeCustomLabel !== label) {
       console.log(`🔁 Switching from custom sequence "${activeCustomLabel}" to "${label}"...`);
       await runExitSequence(activeCustomLabel);
@@ -197,18 +198,36 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       return;
     }
 
-    const currentScaleSq = modelRoot.scaling.lengthSquared();
-    const targetScaleSq = settings.scaling?.lengthSquared() ?? currentScaleSq;
-    const isReducingScale = targetScaleSq < currentScaleSq - 0.001;
-    const isBigToBig = currentScaleSq > 5.0 && targetScaleSq > 5.0;
+    // ✅ SALTA isBigToBig per pulsanti secondari
+    if (!isSubmenu) {
+      const currentScaleSq = modelRoot.scaling.lengthSquared();
+      const targetScaleSq = settings.scaling?.lengthSquared() ?? currentScaleSq;
+      const isReducingScale = targetScaleSq < currentScaleSq - 0.001;
+      const isBigToBig = currentScaleSq > 5.0 && targetScaleSq > 5.0;
 
-    if (isBigToBig && settings.scaling) {
-      await handleBigToBigTransition(modelRoot, scene, settings, { current: animationCycle });
-    } else if (isReducingScale && settings.scaling) {
-      await handleReducingScaleTransform(modelRoot, scene, settings);
-    } else {
-      await handleClassicTransform(modelRoot, settings);
+      if (isBigToBig && settings.scaling) {
+        await handleBigToBigTransition(modelRoot, scene, settings, { current: animationCycle });
+        return;
+      } else if (isReducingScale && settings.scaling) {
+        await handleReducingScaleTransform(modelRoot, scene, settings);
+        return;
+      }
     }
+
+    if (isSubmenu) {
+  // Forza durata breve per submenu
+  const step = {
+    position: settings.position,
+    rotation: settings.rotation,
+    scaling: settings.scaling,
+    durationScale: 1.0,
+    durationPosRot: 1.5,
+  };
+  await runInterpolationsTo(scene, step, activeCamera ?? undefined);
+} else {
+  await handleClassicTransform(modelRoot, settings);
+}
+
   });
 }
 
