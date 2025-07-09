@@ -78,9 +78,9 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
   },
   "IN CAB": {
-    position: new BABYLON.Vector3(0.5, 0, -28),
-    rotation: [0, -90, 7],
-    scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+        position: new BABYLON.Vector3(0.6, 0, -30.5),
+        rotation: [0, -90, 6],
+        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     intermediate: [
       {
         position: new BABYLON.Vector3(-1.8, 1, -14),
@@ -90,7 +90,7 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
         durationPosRot: 2.0,
       },
       {
-        position: new BABYLON.Vector3(-1.8, 0, -28),
+        position: new BABYLON.Vector3(-1.8, 0, -30),
         rotation: [0, 0, 0],
         scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
         durationScale: 1.0,
