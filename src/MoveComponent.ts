@@ -18,6 +18,7 @@ let animationCycle = 0;
 // 🧠 Stato per custom sequence attiva
 let isInCustomSequence: boolean = false;
 let activeCustomLabel: string | null = null;
+const previouslyHiddenNodes = new Set<string>();
 
 interface TransformState {
   position: BABYLON.Vector3;
@@ -29,6 +30,21 @@ let initialTransform: TransformState | null = null;
 // ⏳ Fase centrale della custom sequence
 async function handleCustomSequenceMidStep(label: string): Promise<void> {
   console.log(`[custom sequence] MID-STEP logic for: ${label}`);
+
+  const hidden = transformSettings[label]?.hiddenNodes ?? [];
+  const scene = modelRoot?.getScene();
+
+  for (const name of hidden) {
+    const node = scene?.getNodeByName(name);
+    if (node && node instanceof BABYLON.AbstractMesh) {
+      node.isVisible = false;
+      previouslyHiddenNodes.add(name);
+      console.log(`🔻 Hiding node: ${name}`);
+    } else {
+      console.warn(`⚠️ Node not found or not hideable: ${name}`);
+    }
+  }
+
   await new Promise(resolve => setTimeout(resolve, 1000));
 }
 
@@ -41,6 +57,17 @@ async function runExitSequence(fromLabel: string): Promise<void> {
   for (const step of steps) {
     await runInterpolationsTo(modelRoot!.getScene(), step);
   }
+
+  // ✅ Ripristina visibilità dei nodi precedentemente nascosti
+  const scene = modelRoot?.getScene();
+  for (const name of previouslyHiddenNodes) {
+    const node = scene?.getNodeByName(name);
+    if (node && node instanceof BABYLON.AbstractMesh) {
+      node.isVisible = true;
+      console.log(`✅ Restored visibility: ${name}`);
+    }
+  }
+  previouslyHiddenNodes.clear();
 }
 
 // 🔁 Animazione combinata a doppio canale con override

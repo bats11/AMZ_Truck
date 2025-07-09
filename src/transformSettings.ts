@@ -1,7 +1,5 @@
-// src/transformSettings.ts
 import * as BABYLON from "@babylonjs/core";
 
-// Interfaccia pubblica per le impostazioni di trasformazione
 export interface TransformSetting {
   position: BABYLON.Vector3;
   rotation?: BABYLON.Vector3;
@@ -20,9 +18,9 @@ export interface TransformSetting {
     durationScale?: number;
     durationPosRot?: number;
   }[];
+  hiddenNodes?: string[]; // 👈 nuovo campo
 }
 
-// Utility per convertire gradi in radianti
 function degToRad(deg: number): number {
   return (deg * Math.PI) / 180;
 }
@@ -34,7 +32,6 @@ function vec3DegToRad(arr: [number, number, number]): BABYLON.Vector3 {
   );
 }
 
-// Tipo raw per le voci in input
 interface RawTransformSetting {
   position: BABYLON.Vector3;
   rotation: [number, number, number];
@@ -53,9 +50,9 @@ interface RawTransformSetting {
     durationScale?: number;
     durationPosRot?: number;
   }[];
+  hiddenNodes?: string[];
 }
 
-// Impostazioni grezze
 const transformSettingsRaw: Record<string, RawTransformSetting> = {
   "FRONT SIDE": {
     position: new BABYLON.Vector3(0, 2.5, 0),
@@ -78,9 +75,9 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
   },
   "IN CAB": {
-        position: new BABYLON.Vector3(0.6, 0, -30.5),
-        rotation: [0, -90, 6],
-        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+    position: new BABYLON.Vector3(0.6, 0.35, -30.4),
+    rotation: [0, -90, 6],
+    scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     intermediate: [
       {
         position: new BABYLON.Vector3(-1.8, 1, -14),
@@ -90,7 +87,7 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
         durationPosRot: 2.0,
       },
       {
-        position: new BABYLON.Vector3(-1.8, 0, -30),
+        position: new BABYLON.Vector3(-1.8, 0, -28),
         rotation: [0, 0, 0],
         scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
         durationScale: 1.0,
@@ -105,11 +102,11 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
         durationScale: 1.0,
         durationPosRot: 2,
       }
-    ]
+    ],
+    hiddenNodes: ["SM_Driver_Seat_01a.001"]
   }
 };
 
-// Conversione raw → finale
 export const transformSettings: Record<string, TransformSetting> = Object.fromEntries(
   Object.entries(transformSettingsRaw).map(([key, raw]) => {
     const setting: TransformSetting = {
@@ -136,6 +133,10 @@ export const transformSettings: Record<string, TransformSetting> = Object.fromEn
         durationScale: step.durationScale,
         durationPosRot: step.durationPosRot,
       }));
+    }
+
+    if (raw.hiddenNodes) {
+      setting.hiddenNodes = raw.hiddenNodes;
     }
 
     return [key, setting];

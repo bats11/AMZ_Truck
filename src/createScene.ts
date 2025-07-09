@@ -36,6 +36,12 @@ export async function createScene() {
   setupBackground(scene);
 
   loadModel(scene, (meshes, bounding) => {
+
+    console.log("📦 Nodi disponibili nella scena:");
+  scene.meshes.forEach((m) => console.log(`Mesh: ${m.name}`));
+  scene.transformNodes.forEach((n) => console.log(`Node: ${n.name}`));
+
+
     for (const mesh of meshes) {
       mesh.receiveShadows = true;
       shadowGenerator.addShadowCaster(mesh, true);
