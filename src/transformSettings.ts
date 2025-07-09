@@ -84,15 +84,15 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     intermediate: [
       {
-        position: new BABYLON.Vector3(-1.8, 1, -14),
-        rotation: [0, 0, 0],
+        position: new BABYLON.Vector3(0, 1, -14),
+        rotation: [0, -90, 0],
         scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
         durationScale: 1.0,
         durationPosRot: 2.0,
       },
       {
-        position: new BABYLON.Vector3(-1.8, 0, -30),
-        rotation: [0, 0, 0],
+        position: new BABYLON.Vector3(0, 0, -30.5),
+        rotation: [0, -90, 0],
         scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
         durationScale: 1.0,
         durationPosRot: 2.0,
@@ -108,8 +108,8 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
       }
     ],
     hiddenNodes: ["SM_Driver_Seat_01a.001"],
-    finalCameraFov: BABYLON.Tools.ToRadians(55),
-    durationCameraFov: 3.5
+    finalCameraFov: BABYLON.Tools.ToRadians(60),
+    durationCameraFov: 2,
   }
 };
 

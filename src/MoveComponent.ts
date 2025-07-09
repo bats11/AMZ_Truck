@@ -50,6 +50,26 @@ async function handleCustomSequenceMidStep(label: string): Promise<void> {
 
 async function runExitSequence(fromLabel: string): Promise<void> {
   console.log(`[custom sequence] EXIT sequence from: ${fromLabel}`);
+
+  // 🎥 Reset FOV subito in parallelo
+  if (activeCamera && initialCameraFov !== null && activeCamera.fov !== initialCameraFov) {
+    const easing = new BABYLON.CubicEase();
+    easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+    const frameRate = 60;
+    const frames = 60;
+
+    const fovAnim = createAnimation(
+      "fov",
+      activeCamera.fov,
+      initialCameraFov,
+      0,
+      frames,
+      easing
+    );
+    modelRoot?.getScene().beginDirectAnimation(activeCamera, [fovAnim], 0, frames, false);
+    console.log(`🎥 Resetting FOV to ${initialCameraFov.toFixed(2)} at start of exit sequence`);
+  }
+
   const settings = transformSettings[fromLabel];
   const steps = settings.exitIntermediate ?? [];
 
@@ -66,25 +86,6 @@ async function runExitSequence(fromLabel: string): Promise<void> {
     }
   }
   previouslyHiddenNodes.clear();
-
-  // 🔁 Ripristino FOV originale della camera se è cambiato
-  if (activeCamera && initialCameraFov !== null && activeCamera.fov !== initialCameraFov) {
-    const easing = new BABYLON.CubicEase();
-    easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
-    const frameRate = 60;
-    const frames = 60; // 1s
-
-    const fovAnim = createAnimation(
-      "fov",
-      activeCamera.fov,
-      initialCameraFov,
-      0,
-      frames,
-      easing
-    );
-    modelRoot?.getScene().beginDirectAnimation(activeCamera, [fovAnim], 0, frames, false);
-    console.log(`🎥 Restoring FOV to ${initialCameraFov.toFixed(2)} radians`);
-  }
 }
 
 async function runInterpolationsTo(
