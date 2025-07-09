@@ -102,8 +102,3 @@ export async function handleBigToBigTransition(
   }, (shrinkEnd / frameRate) * 1000);
 }
 
-// Stub iniziale per custom sequence
-export async function handleCustomSequence(label: string) {
-  console.log(`[🔧 CustomSequence] Triggered for ${label}`);
-  // To be implemented in next step
-}

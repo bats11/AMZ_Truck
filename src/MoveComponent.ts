@@ -7,9 +7,9 @@ import {
   handleClassicTransform,
   handleReducingScaleTransform,
   handleBigToBigTransition,
-  handleCustomSequence
-} from "../src/transformHandlers";
-import { playEntryAnimation } from "../src/entryAnimation";
+} from "./transformHandlers";
+import { playEntryAnimation } from "./entryAnimation";
+import { animateTransformTo } from "./utils";
 
 const typedSubmenuData = submenuData as Record<string, { isCustomSequence?: boolean }>;
 
@@ -31,36 +31,55 @@ export function setupMovementControls(scene: BABYLON.Scene) {
   modelRoot = scene.getTransformNodeByName("ModelRoot");
   if (!modelRoot) return;
 
+  // salvo il transform di partenza per il reset
   initialTransform = {
     position: new BABYLON.Vector3(0, 1, 0),
     rotation: new BABYLON.Vector3(0, 0, 0),
     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
   };
 
+  // entry animation all’avvio
   modelRoot.position = new BABYLON.Vector3(0, 3, 0);
   modelRoot.rotation = new BABYLON.Vector3(0, Math.PI * 1.5, 0);
   modelRoot.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
-
-  setTimeout(() => {
-    playEntryAnimation(modelRoot!, scene, initialTransform!);
-  }, 500);
+  setTimeout(() => playEntryAnimation(modelRoot!, scene, initialTransform!), 500);
 
   setMoveCameraTo(async (label: string) => {
     if (!modelRoot) return;
     animationCycle++;
 
-    const isCustomSequence = typedSubmenuData[label]?.isCustomSequence === true;
-    if (isCustomSequence) {
-      await handleCustomSequence(label);
-      return;
-    }
-
     const settings = transformSettings[label];
     if (!settings) return;
 
+    const isCustomSequence = typedSubmenuData[label]?.isCustomSequence === true;
+    if (isCustomSequence) {
+      const durationOverride = 1.5;
+      const currentScaleSq = modelRoot.scaling.lengthSquared();
+
+      if (!isBig(currentScaleSq)) {
+        // custom-sequence + modello “non big”: SOLO intermediate
+        if (settings.intermediate) {
+          await animateTransformTo(
+            modelRoot,
+            {
+              position: settings.intermediate.position,
+              rotation: settings.intermediate.rotation,
+              scaling: settings.intermediate.scaling,
+            },
+            durationOverride
+          );
+        }
+        return;
+      } else {
+        // custom-sequence + modello “big”: fallback al solo finale
+        //await animateTransformTo(modelRoot, settings, durationOverride);
+        return;
+      }
+    }
+
+    // → logica standard per sequenze NON custom
     const currentScaleSq = modelRoot.scaling.lengthSquared();
     const targetScaleSq = settings.scaling?.lengthSquared() ?? currentScaleSq;
-
     const isReducingScale = targetScaleSq < currentScaleSq - 0.001;
     const isBigToBig = isBig(currentScaleSq) && isBig(targetScaleSq);
 
