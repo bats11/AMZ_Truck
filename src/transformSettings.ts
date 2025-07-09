@@ -65,12 +65,12 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
     // punto finale “storico”
     position: new BABYLON.Vector3(0.5, 0, -28),
     rotation: [0, -90, 7],
-    scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
+    scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     // UN SOLO punto intermedio
     intermediate: {
-      position: new BABYLON.Vector3(0, 1, -14),
-      rotation: [0, -45, 3],
-      scaling: new BABYLON.Vector3(1.5, 1.5, 1.5),
+      position: new BABYLON.Vector3(-0.3, 3, 0),
+      rotation: [0, 45, 3],
+      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
   },
 };

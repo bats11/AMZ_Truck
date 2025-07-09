@@ -1,7 +1,6 @@
-// src/MoveComponent.ts
 import * as BABYLON from "@babylonjs/core";
 import { setMoveCameraTo } from "./babylonBridge";
-import { transformSettings, TransformSetting } from "./transformSettings";
+import { transformSettings } from "./transformSettings";
 import submenuData from "./data/submenuData.json";
 import {
   handleClassicTransform,
@@ -9,7 +8,7 @@ import {
   handleBigToBigTransition,
 } from "./transformHandlers";
 import { playEntryAnimation } from "./entryAnimation";
-import { animateTransformTo } from "./utils";
+import { animateTransformTo, createAnimation } from "./utils";
 
 const typedSubmenuData = submenuData as Record<string, { isCustomSequence?: boolean }>;
 
@@ -23,22 +22,60 @@ interface TransformState {
 }
 let initialTransform: TransformState | null = null;
 
-function isBig(lengthSquared: number): boolean {
-  return lengthSquared > 5.0;
+// ⏳ Funzione segnaposto FASE 2
+async function handleCustomSequenceMidStep(label: string): Promise<void> {
+  console.log(`[custom sequence] MID-STEP logic for: ${label}`);
+  await new Promise(resolve => setTimeout(resolve, 0)); // per ora è solo un attesa nulla
+}
+
+// 🔄 Funzione per animazioni doppie (scaling + pos+rot)
+async function runInterpolationsTo(
+  scene: BABYLON.Scene,
+  target: { position?: BABYLON.Vector3; rotation?: BABYLON.Vector3; scaling?: BABYLON.Vector3 }
+): Promise<void> {
+  if (!modelRoot) return;
+
+  const frameRate = 60;
+  const easing = new BABYLON.CubicEase();
+  easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+
+  const scaleFrames = Math.ceil(1.0 * frameRate);
+  const moveFrames = Math.ceil(2.0 * frameRate);
+
+  if (target.scaling) {
+    const scaleAnim = createAnimation("scaling", modelRoot.scaling.clone(), target.scaling.clone(), 0, scaleFrames, easing);
+    scene.beginDirectAnimation(modelRoot, [scaleAnim], 0, scaleFrames, false, 1.0);
+  }
+
+  const posRotAnims: BABYLON.Animation[] = [];
+  if (target.position) {
+    posRotAnims.push(createAnimation("position", modelRoot.position.clone(), target.position.clone(), 0, moveFrames, easing));
+  }
+  if (target.rotation) {
+    const currentRot = modelRoot.rotation.clone();
+    const targetRot = target.rotation.clone();
+    posRotAnims.push(createAnimation("rotation.x", currentRot.x, targetRot.x, 0, moveFrames, easing));
+    posRotAnims.push(createAnimation("rotation.y", currentRot.y, targetRot.y, 0, moveFrames, easing));
+    posRotAnims.push(createAnimation("rotation.z", currentRot.z, targetRot.z, 0, moveFrames, easing));
+  }
+
+  if (posRotAnims.length > 0) {
+    await new Promise<void>((resolve) => {
+      scene.beginDirectAnimation(modelRoot!, posRotAnims, 0, moveFrames, false, 1.0, resolve);
+    });
+  }
 }
 
 export function setupMovementControls(scene: BABYLON.Scene) {
   modelRoot = scene.getTransformNodeByName("ModelRoot");
   if (!modelRoot) return;
 
-  // salvo il transform di partenza per il reset
   initialTransform = {
     position: new BABYLON.Vector3(0, 1, 0),
     rotation: new BABYLON.Vector3(0, 0, 0),
     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
   };
 
-  // entry animation all’avvio
   modelRoot.position = new BABYLON.Vector3(0, 3, 0);
   modelRoot.rotation = new BABYLON.Vector3(0, Math.PI * 1.5, 0);
   modelRoot.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
@@ -53,35 +90,24 @@ export function setupMovementControls(scene: BABYLON.Scene) {
 
     const isCustomSequence = typedSubmenuData[label]?.isCustomSequence === true;
     if (isCustomSequence) {
-      const durationOverride = 1.5;
-      const currentScaleSq = modelRoot.scaling.lengthSquared();
+      if (settings.intermediate) {
+        // FASE 1: Interpolazione verso intermediate
+        await runInterpolationsTo(scene, settings.intermediate);
 
-      if (!isBig(currentScaleSq)) {
-        // custom-sequence + modello “non big”: SOLO intermediate
-        if (settings.intermediate) {
-          await animateTransformTo(
-            modelRoot,
-            {
-              position: settings.intermediate.position,
-              rotation: settings.intermediate.rotation,
-              scaling: settings.intermediate.scaling,
-            },
-            durationOverride
-          );
-        }
-        return;
-      } else {
-        // custom-sequence + modello “big”: fallback al solo finale
-        //await animateTransformTo(modelRoot, settings, durationOverride);
-        return;
+        // FASE 2: Azione intermedia (placeholder)
+        await handleCustomSequenceMidStep(label);
+
+        // FASE 3: Interpolazione finale verso transform completo
+        await runInterpolationsTo(scene, settings);
       }
+      return;
     }
 
     // → logica standard per sequenze NON custom
     const currentScaleSq = modelRoot.scaling.lengthSquared();
     const targetScaleSq = settings.scaling?.lengthSquared() ?? currentScaleSq;
     const isReducingScale = targetScaleSq < currentScaleSq - 0.001;
-    const isBigToBig = isBig(currentScaleSq) && isBig(targetScaleSq);
+    const isBigToBig = currentScaleSq > 5.0 && targetScaleSq > 5.0;
 
     if (isBigToBig && settings.scaling) {
       await handleBigToBigTransition(modelRoot, scene, settings, { current: animationCycle });
