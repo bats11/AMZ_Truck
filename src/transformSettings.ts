@@ -1,8 +1,7 @@
 // src/transformSettings.ts
 import * as BABYLON from "@babylonjs/core";
 
-// Interfaccia pubblica per le impostazioni di trasformazione,
-// con un solo punto intermedio opzionale
+// Interfaccia pubblica per le impostazioni di trasformazione
 export interface TransformSetting {
   position: BABYLON.Vector3;
   rotation?: BABYLON.Vector3;
@@ -11,7 +10,9 @@ export interface TransformSetting {
     position?: BABYLON.Vector3;
     rotation?: BABYLON.Vector3;
     scaling?: BABYLON.Vector3;
-  };
+    durationScale?: number;
+    durationPosRot?: number;
+  }[];
 }
 
 // Utility per convertire gradi in radianti
@@ -26,7 +27,7 @@ function vec3DegToRad(arr: [number, number, number]): BABYLON.Vector3 {
   );
 }
 
-// Tipo raw per le voci in input (rotazioni in gradi, optional intermediate singolo)
+// Tipo raw per le voci in input (rotazioni in gradi, optional intermediate)
 interface RawTransformSetting {
   position: BABYLON.Vector3;
   rotation: [number, number, number];
@@ -35,11 +36,12 @@ interface RawTransformSetting {
     position?: BABYLON.Vector3;
     rotation?: [number, number, number];
     scaling?: BABYLON.Vector3;
-  };
+    durationScale?: number;
+    durationPosRot?: number;
+  }[];
 }
 
-// Definizione “raw” delle impostazioni.
-// Su “IN CAB” abbiamo un solo punto intermedio, poi il final transform.
+// Impostazioni grezze
 const transformSettingsRaw: Record<string, RawTransformSetting> = {
   "FRONT SIDE": {
     position: new BABYLON.Vector3(0, 2.5, 0),
@@ -62,21 +64,29 @@ const transformSettingsRaw: Record<string, RawTransformSetting> = {
     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
   },
   "IN CAB": {
-    // punto finale “storico”
     position: new BABYLON.Vector3(0.5, 0, -28),
     rotation: [0, -90, 7],
     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
-    // UN SOLO punto intermedio
-    intermediate: {
-      position: new BABYLON.Vector3(-0.3, 3, 0),
-      rotation: [0, 45, 3],
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
-    },
+    intermediate: [
+      {
+        position: new BABYLON.Vector3(-1.8, 1, -14),
+        rotation: [0, 0, 0],
+        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+        durationScale: 1.0,
+        durationPosRot: 2,
+      },
+      {
+        position: new BABYLON.Vector3(-1.8, 0, -28),
+        rotation: [0, 0, 0],
+        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+        durationScale: 1.0,
+        durationPosRot: 2,
+      }
+    ],
   },
 };
 
-// Mappatura finale: converte le rotazioni da gradi → radianti,
-// mantiene position e scaling, e processa l’intermediate se presente.
+// Conversione raw → finale
 export const transformSettings: Record<string, TransformSetting> = Object.fromEntries(
   Object.entries(transformSettingsRaw).map(([key, raw]) => {
     const setting: TransformSetting = {
@@ -85,14 +95,14 @@ export const transformSettings: Record<string, TransformSetting> = Object.fromEn
       scaling: raw.scaling,
     };
 
-    if (raw.intermediate) {
-      setting.intermediate = {
-        position: raw.intermediate.position,
-        rotation: raw.intermediate.rotation
-          ? vec3DegToRad(raw.intermediate.rotation)
-          : undefined,
-        scaling: raw.intermediate.scaling,
-      };
+    if (raw.intermediate && Array.isArray(raw.intermediate)) {
+      setting.intermediate = raw.intermediate.map((step) => ({
+        position: step.position,
+        rotation: step.rotation ? vec3DegToRad(step.rotation) : undefined,
+        scaling: step.scaling,
+        durationScale: step.durationScale,
+        durationPosRot: step.durationPosRot,
+      }));
     }
 
     return [key, setting];

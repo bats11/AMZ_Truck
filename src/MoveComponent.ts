@@ -22,16 +22,20 @@ interface TransformState {
 }
 let initialTransform: TransformState | null = null;
 
-// ⏳ Funzione segnaposto FASE 2
 async function handleCustomSequenceMidStep(label: string): Promise<void> {
   console.log(`[custom sequence] MID-STEP logic for: ${label}`);
-  await new Promise(resolve => setTimeout(resolve, 0)); // per ora è solo un attesa nulla
+  await new Promise(resolve => setTimeout(resolve, 1000));
 }
 
-// 🔄 Funzione per animazioni doppie (scaling + pos+rot)
 async function runInterpolationsTo(
   scene: BABYLON.Scene,
-  target: { position?: BABYLON.Vector3; rotation?: BABYLON.Vector3; scaling?: BABYLON.Vector3 }
+  step: {
+    position?: BABYLON.Vector3;
+    rotation?: BABYLON.Vector3;
+    scaling?: BABYLON.Vector3;
+    durationScale?: number;
+    durationPosRot?: number;
+  }
 ): Promise<void> {
   if (!modelRoot) return;
 
@@ -39,21 +43,21 @@ async function runInterpolationsTo(
   const easing = new BABYLON.CubicEase();
   easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
 
-  const scaleFrames = Math.ceil(1.0 * frameRate);
-  const moveFrames = Math.ceil(2.0 * frameRate);
+  const scaleFrames = Math.ceil((step.durationScale ?? 1.0) * frameRate);
+  const moveFrames = Math.ceil((step.durationPosRot ?? 2.0) * frameRate);
 
-  if (target.scaling) {
-    const scaleAnim = createAnimation("scaling", modelRoot.scaling.clone(), target.scaling.clone(), 0, scaleFrames, easing);
+  if (step.scaling) {
+    const scaleAnim = createAnimation("scaling", modelRoot.scaling.clone(), step.scaling.clone(), 0, scaleFrames, easing);
     scene.beginDirectAnimation(modelRoot, [scaleAnim], 0, scaleFrames, false, 1.0);
   }
 
   const posRotAnims: BABYLON.Animation[] = [];
-  if (target.position) {
-    posRotAnims.push(createAnimation("position", modelRoot.position.clone(), target.position.clone(), 0, moveFrames, easing));
+  if (step.position) {
+    posRotAnims.push(createAnimation("position", modelRoot.position.clone(), step.position.clone(), 0, moveFrames, easing));
   }
-  if (target.rotation) {
+  if (step.rotation) {
     const currentRot = modelRoot.rotation.clone();
-    const targetRot = target.rotation.clone();
+    const targetRot = step.rotation.clone();
     posRotAnims.push(createAnimation("rotation.x", currentRot.x, targetRot.x, 0, moveFrames, easing));
     posRotAnims.push(createAnimation("rotation.y", currentRot.y, targetRot.y, 0, moveFrames, easing));
     posRotAnims.push(createAnimation("rotation.z", currentRot.z, targetRot.z, 0, moveFrames, easing));
@@ -90,20 +94,21 @@ export function setupMovementControls(scene: BABYLON.Scene) {
 
     const isCustomSequence = typedSubmenuData[label]?.isCustomSequence === true;
     if (isCustomSequence) {
-      if (settings.intermediate) {
-        // FASE 1: Interpolazione verso intermediate
-        await runInterpolationsTo(scene, settings.intermediate);
+      const steps = settings.intermediate ?? [];
 
-        // FASE 2: Azione intermedia (placeholder)
-        await handleCustomSequenceMidStep(label);
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
+        await runInterpolationsTo(scene, step);
 
-        // FASE 3: Interpolazione finale verso transform completo
-        await runInterpolationsTo(scene, settings);
+        if (i === 0) {
+          await handleCustomSequenceMidStep(label); // solo dopo il primo step
+        }
       }
+
+      await runInterpolationsTo(scene, settings); // finale
       return;
     }
 
-    // → logica standard per sequenze NON custom
     const currentScaleSq = modelRoot.scaling.lengthSquared();
     const targetScaleSq = settings.scaling?.lengthSquared() ?? currentScaleSq;
     const isReducingScale = targetScaleSq < currentScaleSq - 0.001;
