@@ -15,6 +15,10 @@ const typedSubmenuData = submenuData as Record<string, { isCustomSequence?: bool
 let modelRoot: BABYLON.TransformNode | null = null;
 let animationCycle = 0;
 
+// 🧠 Stato per custom sequence attiva
+let isInCustomSequence: boolean = false;
+let activeCustomLabel: string | null = null;
+
 interface TransformState {
   position: BABYLON.Vector3;
   rotation: BABYLON.Vector3;
@@ -22,11 +26,24 @@ interface TransformState {
 }
 let initialTransform: TransformState | null = null;
 
+// ⏳ Fase centrale della custom sequence
 async function handleCustomSequenceMidStep(label: string): Promise<void> {
   console.log(`[custom sequence] MID-STEP logic for: ${label}`);
   await new Promise(resolve => setTimeout(resolve, 1000));
 }
 
+// ⛔ Sequenza di uscita da una custom sequence attiva
+async function runExitSequence(fromLabel: string): Promise<void> {
+  console.log(`[custom sequence] EXIT sequence from: ${fromLabel}`);
+  const settings = transformSettings[fromLabel];
+  const steps = settings.exitIntermediate ?? [];
+
+  for (const step of steps) {
+    await runInterpolationsTo(modelRoot!.getScene(), step);
+  }
+}
+
+// 🔁 Animazione combinata a doppio canale con override
 async function runInterpolationsTo(
   scene: BABYLON.Scene,
   step: {
@@ -87,6 +104,15 @@ export function setupMovementControls(scene: BABYLON.Scene) {
 
   setMoveCameraTo(async (label: string) => {
     if (!modelRoot) return;
+
+    // 🛑 Se siamo in un custom sequence attivo → esegui exit prima
+    if (isInCustomSequence && activeCustomLabel && activeCustomLabel !== label) {
+      console.log(`🔁 Switching from custom sequence "${activeCustomLabel}" to "${label}"...`);
+      await runExitSequence(activeCustomLabel);
+      isInCustomSequence = false;
+      activeCustomLabel = null;
+    }
+
     animationCycle++;
 
     const settings = transformSettings[label];
@@ -94,6 +120,9 @@ export function setupMovementControls(scene: BABYLON.Scene) {
 
     const isCustomSequence = typedSubmenuData[label]?.isCustomSequence === true;
     if (isCustomSequence) {
+      isInCustomSequence = true;
+      activeCustomLabel = label;
+
       const steps = settings.intermediate ?? [];
 
       for (let i = 0; i < steps.length; i++) {
@@ -109,6 +138,7 @@ export function setupMovementControls(scene: BABYLON.Scene) {
       return;
     }
 
+    // → logica standard per pulsanti NON custom
     const currentScaleSq = modelRoot.scaling.lengthSquared();
     const targetScaleSq = settings.scaling?.lengthSquared() ?? currentScaleSq;
     const isReducingScale = targetScaleSq < currentScaleSq - 0.001;
