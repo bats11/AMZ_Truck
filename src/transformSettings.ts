@@ -42,11 +42,21 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       position: new BABYLON.Vector3(0, 2.5, 0),
       rotation: vec3DegToRad([0, 90, 0]),
       scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
+      intermediate: [
+        {
+          position: new BABYLON.Vector3(0, 2.5, 0),
+          rotation: vec3DegToRad([0, 90, 0]),
+          scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+          durationScale: 0.7,
+          durationPosRot: 1.50,
+        },
+      ],
+      
     },
-    "Lights & Light Covers": {
+    /*"Lights & Light Covers": {
       position: new BABYLON.Vector3(-1.5, 2.5, -15),
       rotation: vec3DegToRad([0, 90, 0]),
-      scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
+      scaling: new BABYLON.Vector3(2.3, 2.3, 0),
     },
     "Suspension & Exhaust System": {
       position: new BABYLON.Vector3(0, 2.5, -5),
@@ -62,7 +72,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       position: new BABYLON.Vector3(0, 2.5, -7),
       rotation: vec3DegToRad([0, 90, 0]),
       scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
-    },
+    },*/
   },
 
   "IN CAB": {
@@ -72,7 +82,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       intermediate: [
         {
-          position: new BABYLON.Vector3(0, 1, -14),
+          position: new BABYLON.Vector3(0, 1, 0),
           rotation: vec3DegToRad([0, -90, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
@@ -124,6 +134,15 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       position: new BABYLON.Vector3(0, 2.5, 0),
       rotation: vec3DegToRad([0, -90, 0]),
       scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
+      intermediate: [
+        {
+          position: new BABYLON.Vector3(0, 2.5, 0),
+          rotation: vec3DegToRad([0, -90, 0]),
+          scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+          durationScale: 0.7,
+          durationPosRot: 1.50,
+        },
+      ],
     },
   },
 

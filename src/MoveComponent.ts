@@ -1,6 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
 import { setMoveCameraTo } from "./babylonBridge";
-import { transformSettings, TransformSetting, getTransformSetting } from "./transformSettings";
+import { getTransformSetting } from "./transformSettings";
 import submenuData from "./data/submenuData.json";
 import {
   handleClassicTransform,
@@ -82,6 +82,50 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
     animationCycle++;
 
+    // ✅ FORZATURA isBigToBig → trattato come custom sequence
+    if (!isSubmenu) {
+      const currentScaleSq = modelRoot.scaling.lengthSquared();
+      const targetScaleSq = settings.scaling
+        ? settings.scaling.lengthSquared()
+        : currentScaleSq;
+      const isBigToBig = currentScaleSq > 5.0 && targetScaleSq > 5.0;
+
+      if (isBigToBig) {
+        console.log("📣 isBigToBig attivo — forzatura in modalità CustomSequence");
+
+        isInCustomSequence = true;
+        activeCustomLabel = label;
+
+        const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
+
+        for (let i = 0; i < steps.length; i++) {
+          const step = steps[i];
+          await handleInterpolatedTransform(
+            modelRoot,
+            modelRoot.getScene(),
+            step,
+            activeCamera ?? undefined
+          );
+          if (i === 0 && settings.hiddenNodes?.length) {
+            await handleCustomSequenceMidStep(
+              modelRoot,
+              modelRoot.getScene(),
+              settings,
+              previouslyHiddenNodes
+            );
+          }
+        }
+
+        await handleInterpolatedTransform(
+          modelRoot,
+          modelRoot.getScene(),
+          settings,
+          activeCamera ?? undefined
+        );
+        return;
+      }
+    }
+
     if (isCustomSequence) {
       isInCustomSequence = true;
       activeCustomLabel = label;
@@ -90,13 +134,28 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
       for (let i = 0; i < steps.length; i++) {
         const step = steps[i];
-        await handleInterpolatedTransform(modelRoot, modelRoot.getScene(), step, activeCamera ?? undefined);
+        await handleInterpolatedTransform(
+          modelRoot,
+          modelRoot.getScene(),
+          step,
+          activeCamera ?? undefined
+        );
         if (i === 0 && settings.hiddenNodes?.length) {
-          await handleCustomSequenceMidStep(modelRoot, modelRoot.getScene(), settings, previouslyHiddenNodes);
+          await handleCustomSequenceMidStep(
+            modelRoot,
+            modelRoot.getScene(),
+            settings,
+            previouslyHiddenNodes
+          );
         }
       }
 
-      await handleInterpolatedTransform(modelRoot, modelRoot.getScene(), settings, activeCamera ?? undefined);
+      await handleInterpolatedTransform(
+        modelRoot,
+        modelRoot.getScene(),
+        settings,
+        activeCamera ?? undefined
+      );
       return;
     }
 
@@ -108,7 +167,12 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         durationScale: 1.0,
         durationPosRot: 1.5,
       };
-      await handleInterpolatedTransform(modelRoot, modelRoot.getScene(), step, activeCamera ?? undefined);
+      await handleInterpolatedTransform(
+        modelRoot,
+        modelRoot.getScene(),
+        step,
+        activeCamera ?? undefined
+      );
     } else {
       await handleClassicTransform(modelRoot, settings);
     }
