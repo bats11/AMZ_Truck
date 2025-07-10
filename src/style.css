@@ -70,7 +70,8 @@ html, body {
   column-gap: 0rem;
   pointer-events: auto;
   padding: 2rem 0 2rem 0;
-  background: rgba(0, 133, 179, 0.5);
+  background-color: #004f6c;
+  opacity: 0.8;
   border-radius: 15px;      /* Fully rounded corners */
   margin-right: 2rem;        /* Move away from the left edge */
 }
@@ -95,23 +96,39 @@ html, body {
 }
 
 .menu-btn.active {
- /*color: #ff8f00;*/
- background-color: #6dcdff;
- margin-right: 1rem;
+color: #daf0ff;
+}
+
+.menu-btn.inactive {
+  color: #87dbed;
 }
 
 .return-btn {
   padding: 1rem;
   background-color: #00688d;
-  color: #000;
+  color: #fff;
   font-weight: bold;
   border: none;
   cursor: pointer;
   margin-top: 2rem;
   font-size: 1.4rem;
   text-align: center;
+
+  /* NEW FLEX SETTINGS */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
 }
 
+.return-icon {
+  font-size: 1.6rem;
+  display: inline-block;
+}
+
+.return-label {
+  display: inline-block;
+}
 
 
 

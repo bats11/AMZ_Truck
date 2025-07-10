@@ -4,8 +4,6 @@ import { transformSettings, TransformSetting, getTransformSetting } from "./tran
 import submenuData from "./data/submenuData.json";
 import {
   handleClassicTransform,
-  handleReducingScaleTransform,
-  handleBigToBigTransition,
   handleInterpolatedTransform,
   handleExitSequence,
 } from "./transformHandlers";

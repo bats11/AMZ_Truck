@@ -156,15 +156,18 @@ export default function CameraMenu({
 
     return (
       <div className="menu-main" style={{ display: "flex", flexDirection: "column" }}>
-        {mainButtons.map((label) => (
-          <button
-            key={label}
-            onClick={() => onMainClick(label)}
-            className={`menu-btn ${activeMenu === label ? "active" : ""}`}
-          >
-            {label}
-          </button>
-        ))}
+        {mainButtons.map((label) => {
+          const isActive = activeMenu === label;
+          return (
+            <button
+              key={label}
+              onClick={() => onMainClick(label)}
+              className={`menu-btn ${isActive ? "active" : "inactive"}`}
+            >
+              {label}
+            </button>
+          );
+        })}
 
         {touchLocked && (
           <button
@@ -174,8 +177,9 @@ export default function CameraMenu({
               hasInitializedRef.current = false;
             }}
             className="return-btn"
-          >
-            Exit
+      >
+            <span className="arrow">←</span>
+            <span className="label">Activity Menu</span>
           </button>
         )}
       </div>
