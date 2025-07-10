@@ -135,3 +135,13 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
     },
   },
 };
+
+export function getTransformSetting(activeMenu: string | null, label: string): TransformSetting | undefined {
+  if (activeMenu && transformSettings[activeMenu]?.[label]) {
+    return transformSettings[activeMenu][label];
+  }
+  if (transformSettings[label]?.settings) {
+    return transformSettings[label].settings;
+  }
+  return undefined;
+}
