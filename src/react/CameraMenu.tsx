@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { moveCameraTo } from "../babylonBridge";
+import { setActiveMenuForTransforms } from "../MoveComponent"; // ✅ IMPORTANTE
 import submenuData from "../data/submenuData.json";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -13,7 +14,6 @@ interface SubmenuCategory {
   isCustomSequence?: boolean;
   [subKey: string]: SubmenuDetails | string | boolean | undefined;
 }
-
 
 const typedSubmenuData: Record<string, SubmenuCategory> = submenuData as Record<string, SubmenuCategory>;
 
@@ -120,27 +120,26 @@ export default function CameraMenu({
     };
   }
 
- function onMainClick(label: string) {
-  if (label === activeMenu) return;
+  function onMainClick(label: string) {
+    if (label === activeMenu) return;
 
-  // 🟢 1. Inizia SUBITO il movimento 3D
-  moveCameraTo(label);
+    setActiveMenuForTransforms(label); // ✅ FONDAMENTALE
 
-  // 🟢 2. In parallelo, fai partire l’animazione menu
-  animateMenuChange(label, () => {
-    setActiveMenu(label);
-    setActiveSubmenu(null);
-  });
+    moveCameraTo(label);
 
-  if (!touchLocked) setTouchLocked(true);
-}
+    animateMenuChange(label, () => {
+      setActiveMenu(label);
+      setActiveSubmenu(null);
+    });
 
+    if (!touchLocked) setTouchLocked(true);
+  }
 
   function onSubClick(subKey: string) {
     if (activeSubmenu === subKey) {
-      setActiveSubmenu(null); // 🔁 Se già attivo, chiudi
+      setActiveSubmenu(null);
     } else {
-      setActiveSubmenu(subKey); // ✅ Altrimenti apri
+      setActiveSubmenu(subKey);
       moveCameraTo(subKey);
     }
   }

@@ -1,6 +1,7 @@
+// MoveComponent.ts aggiornato con lookup gerarchico + runInterpolationsTo integrato
 import * as BABYLON from "@babylonjs/core";
 import { setMoveCameraTo } from "./babylonBridge";
-import { transformSettings } from "./transformSettings";
+import { transformSettings, TransformSetting } from "./transformSettings";
 import submenuData from "./data/submenuData.json";
 import {
   handleClassicTransform,
@@ -17,8 +18,9 @@ let animationCycle = 0;
 let activeCamera: BABYLON.FreeCamera | null = null;
 let initialCameraFov: number | null = null;
 
-let isInCustomSequence: boolean = false;
+let isInCustomSequence = false;
 let activeCustomLabel: string | null = null;
+let activeMenu: string | null = null;
 const previouslyHiddenNodes = new Set<string>();
 
 interface TransformState {
@@ -26,22 +28,106 @@ interface TransformState {
   rotation: BABYLON.Vector3;
   scaling: BABYLON.Vector3;
 }
+
 let initialTransform: TransformState | null = null;
 
-async function handleCustomSequenceMidStep(label: string): Promise<void> {
-  console.log(`[custom sequence] MID-STEP logic for: ${label}`);
+export function setActiveMenuForTransforms(menu: string | null) {
+  activeMenu = menu;
+}
 
-  const hidden = transformSettings[label]?.hiddenNodes ?? [];
+function getTransformSetting(label: string): TransformSetting | undefined {
+  if (activeMenu && transformSettings[activeMenu]?.[label]) {
+    return transformSettings[activeMenu][label];
+  }
+  if (transformSettings[label]?.settings) {
+    return transformSettings[label].settings;
+  }
+  return undefined;
+}
+
+export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.FreeCamera) {
+  modelRoot = scene.getTransformNodeByName("ModelRoot");
+  if (!modelRoot) return;
+  activeCamera = camera ?? null;
+  if (camera && initialCameraFov === null) {
+    initialCameraFov = camera.fov;
+  }
+
+  initialTransform = {
+    position: new BABYLON.Vector3(0, 1, 0),
+    rotation: new BABYLON.Vector3(0, 0, 0),
+    scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+  };
+
+  modelRoot.position = new BABYLON.Vector3(0, 3, 0);
+  modelRoot.rotation = new BABYLON.Vector3(0, Math.PI * 1.5, 0);
+  modelRoot.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
+  setTimeout(() => playEntryAnimation(modelRoot!, scene, initialTransform!), 500);
+
+  setMoveCameraTo(async (label: string) => {
+    if (!modelRoot) return;
+
+    const isSubmenu = Object.values(submenuData).some((sub) => Object.keys(sub).includes(label));
+
+    const settings = getTransformSetting(label);
+    if (!settings) {
+      console.warn(`⚠️ Nessuna impostazione trovata per ${activeMenu ?? "<root>"} > ${label}`);
+      return;
+    }
+
+    const isCustomSequence = typedSubmenuData[activeMenu ?? ""]?.isCustomSequence === true;
+
+    if (isInCustomSequence && activeCustomLabel && activeCustomLabel !== label) {
+      await runExitSequence(activeCustomLabel);
+      isInCustomSequence = false;
+      activeCustomLabel = null;
+    }
+
+    animationCycle++;
+
+    if (isCustomSequence) {
+      isInCustomSequence = true;
+      activeCustomLabel = label;
+
+      const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
+
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
+        await runInterpolationsTo(scene, step);
+        if (i === 0 && settings.hiddenNodes?.length) {
+          await handleCustomSequenceMidStep(label);
+        }
+      }
+
+      await runInterpolationsTo(scene, settings, activeCamera ?? undefined);
+      return;
+    }
+
+    if (isSubmenu) {
+      const step = {
+        position: settings.position,
+        rotation: settings.rotation,
+        scaling: settings.scaling,
+        durationScale: 1.0,
+        durationPosRot: 1.5,
+      };
+      await runInterpolationsTo(scene, step, activeCamera ?? undefined);
+    } else {
+      await handleClassicTransform(modelRoot, settings);
+    }
+  });
+}
+
+async function handleCustomSequenceMidStep(label: string): Promise<void> {
+  const settings = getTransformSetting(label);
+  if (!settings || !settings.hiddenNodes) return;
   const scene = modelRoot?.getScene();
 
-  for (const name of hidden) {
+  for (const name of settings.hiddenNodes) {
     const node = scene?.getNodeByName(name);
     if (node && node instanceof BABYLON.AbstractMesh) {
       node.isVisible = false;
       previouslyHiddenNodes.add(name);
-      console.log(`🔻 Hiding node: ${name}`);
-    } else {
-      console.warn(`⚠️ Node not found or not hideable: ${name}`);
     }
   }
 
@@ -49,40 +135,28 @@ async function handleCustomSequenceMidStep(label: string): Promise<void> {
 }
 
 async function runExitSequence(fromLabel: string): Promise<void> {
-  console.log(`[custom sequence] EXIT sequence from: ${fromLabel}`);
+  const settings = getTransformSetting(fromLabel);
+  const steps = settings?.exitIntermediate ?? [];
 
-  // 🎥 Reset FOV subito in parallelo
   if (activeCamera && initialCameraFov !== null && activeCamera.fov !== initialCameraFov) {
     const easing = new BABYLON.CubicEase();
     easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
     const frameRate = 60;
     const frames = 60;
 
-    const fovAnim = createAnimation(
-      "fov",
-      activeCamera.fov,
-      initialCameraFov,
-      0,
-      frames,
-      easing
-    );
+    const fovAnim = createAnimation("fov", activeCamera.fov, initialCameraFov, 0, frames, easing);
     modelRoot?.getScene().beginDirectAnimation(activeCamera, [fovAnim], 0, frames, false);
-    console.log(`🎥 Resetting FOV to ${initialCameraFov.toFixed(2)} at start of exit sequence`);
-  }
-
-  const settings = transformSettings[fromLabel];
-  const steps = settings.exitIntermediate ?? [];
-
-  for (const step of steps) {
-    await runInterpolationsTo(modelRoot!.getScene(), step);
   }
 
   const scene = modelRoot?.getScene();
+  for (const step of steps) {
+    await runInterpolationsTo(scene!, step);
+  }
+
   for (const name of previouslyHiddenNodes) {
     const node = scene?.getNodeByName(name);
     if (node && node instanceof BABYLON.AbstractMesh) {
       node.isVisible = true;
-      console.log(`✅ Restored visibility: ${name}`);
     }
   }
   previouslyHiddenNodes.clear();
@@ -128,12 +202,9 @@ async function runInterpolationsTo(
   }
 
   if (camera && typeof step.finalCameraFov === "number") {
-    const startFov = camera.fov;
-    const endFov = step.finalCameraFov;
     const fovFrames = Math.ceil((step.durationCameraFov ?? 1.5) * frameRate);
-    const fovAnim = createAnimation("fov", startFov, endFov, 0, fovFrames, easing);
+    const fovAnim = createAnimation("fov", camera.fov, step.finalCameraFov, 0, fovFrames, easing);
     scene.beginDirectAnimation(camera, [fovAnim], 0, fovFrames, false, 1.0);
-    console.log(`🎥 Animating FOV to ${endFov.toFixed(2)} radians`);
   }
 
   if (posRotAnims.length > 0) {
@@ -141,94 +212,6 @@ async function runInterpolationsTo(
       scene.beginDirectAnimation(modelRoot!, posRotAnims, 0, moveFrames, false, 1.0, resolve);
     });
   }
-}
-
-export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.FreeCamera) {
-  modelRoot = scene.getTransformNodeByName("ModelRoot");
-  if (!modelRoot) return;
-  activeCamera = camera ?? null;
-  if (camera && initialCameraFov === null) {
-    initialCameraFov = camera.fov;
-  }
-
-  initialTransform = {
-    position: new BABYLON.Vector3(0, 1, 0),
-    rotation: new BABYLON.Vector3(0, 0, 0),
-    scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
-  };
-
-  modelRoot.position = new BABYLON.Vector3(0, 3, 0);
-  modelRoot.rotation = new BABYLON.Vector3(0, Math.PI * 1.5, 0);
-  modelRoot.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
-  setTimeout(() => playEntryAnimation(modelRoot!, scene, initialTransform!), 500);
-
-  setMoveCameraTo(async (label: string) => {
-    if (!modelRoot) return;
-
-    const isSubmenu = Object.values(submenuData).some(sub => Object.keys(sub).includes(label));
-
-    if (isInCustomSequence && activeCustomLabel && activeCustomLabel !== label) {
-      console.log(`🔁 Switching from custom sequence "${activeCustomLabel}" to "${label}"...`);
-      await runExitSequence(activeCustomLabel);
-      isInCustomSequence = false;
-      activeCustomLabel = null;
-    }
-
-    animationCycle++;
-
-    const settings = transformSettings[label];
-    if (!settings) return;
-
-    const isCustomSequence = typedSubmenuData[label]?.isCustomSequence === true;
-    if (isCustomSequence) {
-      isInCustomSequence = true;
-      activeCustomLabel = label;
-
-      const steps = settings.intermediate ?? [];
-
-      for (let i = 0; i < steps.length; i++) {
-        const step = steps[i];
-        await runInterpolationsTo(scene, step);
-        if (i === 0) {
-          await handleCustomSequenceMidStep(label);
-        }
-      }
-
-      await runInterpolationsTo(scene, settings, activeCamera ?? undefined);
-      return;
-    }
-
-    // ✅ SALTA isBigToBig per pulsanti secondari
-    if (!isSubmenu) {
-      const currentScaleSq = modelRoot.scaling.lengthSquared();
-      const targetScaleSq = settings.scaling?.lengthSquared() ?? currentScaleSq;
-      const isReducingScale = targetScaleSq < currentScaleSq - 0.001;
-      const isBigToBig = currentScaleSq > 5.0 && targetScaleSq > 5.0;
-
-      if (isBigToBig && settings.scaling) {
-        await handleBigToBigTransition(modelRoot, scene, settings, { current: animationCycle });
-        return;
-      } else if (isReducingScale && settings.scaling) {
-        await handleReducingScaleTransform(modelRoot, scene, settings);
-        return;
-      }
-    }
-
-    if (isSubmenu) {
-  // Forza durata breve per submenu
-  const step = {
-    position: settings.position,
-    rotation: settings.rotation,
-    scaling: settings.scaling,
-    durationScale: 1.0,
-    durationPosRot: 1.5,
-  };
-  await runInterpolationsTo(scene, step, activeCamera ?? undefined);
-} else {
-  await handleClassicTransform(modelRoot, settings);
-}
-
-  });
 }
 
 export function resetModelTransform() {
