@@ -72,7 +72,7 @@ html, body {
   padding: 2rem 0 2rem 0;
   background-color: #004f6c;
   opacity: 0.8;
-  border-radius: 15px;      /* Fully rounded corners */
+  border-radius: 1.5rem;      /* Fully rounded corners */
   margin-right: 2rem;        /* Move away from the left edge */
 }
 
@@ -106,7 +106,7 @@ color: #daf0ff;
 .return-btn {
   position: relative;
   padding: 1rem;
-  background-color: #00688d;
+  background: transparent;
   color: #fff;
   font-weight: bold;
   border: none;
@@ -117,18 +117,30 @@ color: #daf0ff;
   overflow: hidden;
 }
 
-.return-icon {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.6rem;
+.return-label-wrapper {
+  position: relative;
+  display: inline-block;
+  margin: 0 auto;
 }
 
 .return-label {
   display: block;
-  margin: 0 auto;
   text-align: center;
+}
+
+.return-icon {
+  position: absolute;
+  right: 100%; /* Posiziona a sinistra del testo */
+  top: 50%;
+  transform: translateY(-50%);
+  margin-right: 0.6rem; /* distanza dalla scritta */
+}
+
+.return-icon svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  stroke: white;
+  display: block;
 }
 
 
@@ -139,7 +151,7 @@ color: #daf0ff;
   background: rgba(255, 255, 255, 0.5);
   padding: 3rem 3rem 1.5rem 2rem;
   pointer-events: auto;
-  border-radius: 15px;
+  border-radius: 1.5rem;
 }
 
 
