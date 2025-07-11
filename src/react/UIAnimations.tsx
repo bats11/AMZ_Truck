@@ -81,7 +81,7 @@ export default function UIAnimations({
               style={{
                 flex: 6.5,
                 pointerEvents: "auto",
-                padding: "2rem 2rem 0 4rem",
+                padding: "2rem 2rem 0 2rem",
               }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
