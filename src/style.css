@@ -169,6 +169,13 @@ html, body {
   display: block;
 }
 
+.submenu-container {
+  padding: 2rem 0 0 2rem;
+  flex: 6.5;
+  pointer-events: auto;
+}
+
+
 .menu-submenu {
   display: flex;
   flex-direction: column;

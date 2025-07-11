@@ -48,49 +48,28 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
           rotation: vec3DegToRad([0, 90, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 0.7,
-          durationPosRot: 1.50,
+          durationPosRot: 1.5,
         },
       ],
-      
     },
-    /*"Lights & Light Covers": {
-      position: new BABYLON.Vector3(-1.5, 2.5, -15),
-      rotation: vec3DegToRad([0, 90, 0]),
-      scaling: new BABYLON.Vector3(2.3, 2.3, 0),
-    },
-    "Suspension & Exhaust System": {
-      position: new BABYLON.Vector3(0, 2.5, -5),
-      rotation: vec3DegToRad([0, 90, 0]),
-      scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
-    },
-    "Electric Vehicle (EV)": {
-      position: new BABYLON.Vector3(0, 2.5, -5),
-      rotation: vec3DegToRad([0, 90, 0]),
-      scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
-    },
-    "Body & Doors": {
-      position: new BABYLON.Vector3(0, 2.5, -7),
-      rotation: vec3DegToRad([0, 90, 0]),
-      scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
-    },*/
   },
 
   "IN CAB": {
     settings: {
       position: new BABYLON.Vector3(0.6, 0, -30.5),
-      rotation: vec3DegToRad([0, -92, 15]),
+      rotation: vec3DegToRad([0, 268, 15]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       intermediate: [
         {
           position: new BABYLON.Vector3(0, 1, 0),
-          rotation: vec3DegToRad([0, -90, 0]),
+          rotation: vec3DegToRad([0, 270, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
           durationPosRot: 2.0,
         },
         {
           position: new BABYLON.Vector3(0, 0, -30.5),
-          rotation: vec3DegToRad([0, -90, 0]),
+          rotation: vec3DegToRad([0, 270, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
           durationPosRot: 2.0,
@@ -111,12 +90,12 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
     },
     "Body & Doors": {
       position: new BABYLON.Vector3(-1.5, 1.5, -30),
-      rotation: vec3DegToRad([0, -100, 0]),
+      rotation: vec3DegToRad([0, 260, 0]),
       scaling: new BABYLON.Vector3(1.2, 1.2, 1.2),
     },
     "Brakes": {
       position: new BABYLON.Vector3(0, 1.2, -28),
-      rotation: vec3DegToRad([0, -100, 0]),
+      rotation: vec3DegToRad([0, 260, 0]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
   },
@@ -132,15 +111,15 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
   "BACK SIDE": {
     settings: {
       position: new BABYLON.Vector3(0, 2.5, 0),
-      rotation: vec3DegToRad([0, -90, 0]),
+      rotation: vec3DegToRad([0, 270, 0]),
       scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
       intermediate: [
         {
           position: new BABYLON.Vector3(0, 2.5, 0),
-          rotation: vec3DegToRad([0, -90, 0]),
+          rotation: vec3DegToRad([0, 270, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 0.7,
-          durationPosRot: 1.50,
+          durationPosRot: 1.5,
         },
       ],
     },

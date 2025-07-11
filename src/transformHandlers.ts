@@ -3,7 +3,28 @@ import * as BABYLON from "@babylonjs/core";
 import { animateTransformTo, createAnimation } from "../src/utils";
 import { TransformSetting } from "../src/transformSettings";
 
-// Transizione classica
+function createQuaternionAnimation(
+  from: BABYLON.Quaternion,
+  to: BABYLON.Quaternion,
+  frameStart: number,
+  frameEnd: number,
+  easing: BABYLON.EasingFunction
+): BABYLON.Animation {
+  const animation = new BABYLON.Animation(
+    "rotationQuaternionAnim",
+    "rotationQuaternion",
+    60,
+    BABYLON.Animation.ANIMATIONTYPE_QUATERNION
+  );
+
+  animation.setKeys([
+    { frame: frameStart, value: from },
+    { frame: frameEnd, value: to },
+  ]);
+  animation.setEasingFunction(easing);
+  return animation;
+}
+
 export async function handleClassicTransform(
   node: BABYLON.TransformNode,
   settings: TransformSetting
@@ -38,15 +59,20 @@ export async function handleInterpolatedTransform(
   }
 
   const posRotAnims: BABYLON.Animation[] = [];
+
   if (step.position) {
     posRotAnims.push(createAnimation("position", node.position.clone(), step.position.clone(), 0, moveFrames, easing));
   }
+
   if (step.rotation) {
-    const currentRot = node.rotation.clone();
-    const targetRot = step.rotation.clone();
-    posRotAnims.push(createAnimation("rotation.x", currentRot.x, targetRot.x, 0, moveFrames, easing));
-    posRotAnims.push(createAnimation("rotation.y", currentRot.y, targetRot.y, 0, moveFrames, easing));
-    posRotAnims.push(createAnimation("rotation.z", currentRot.z, targetRot.z, 0, moveFrames, easing));
+    const currentQ =
+      node.rotationQuaternion?.clone() ??
+      BABYLON.Quaternion.FromEulerVector(node.rotation.clone());
+
+    const targetQ = BABYLON.Quaternion.FromEulerVector(step.rotation.clone());
+
+    node.rotationQuaternion = currentQ;
+    posRotAnims.push(createQuaternionAnimation(currentQ, targetQ, 0, moveFrames, easing));
   }
 
   if (camera && typeof step.finalCameraFov === "number") {

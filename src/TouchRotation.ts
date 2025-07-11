@@ -24,20 +24,22 @@ export function enableTouchRotation(node: BABYLON.TransformNode, canvas: HTMLCan
 function onPointerDown(e: PointerEvent) {
   if (!rootNode || getTouchLocked()) return;
 
-  // → interrompi l’animazione di loop Babylon sul nodo
   const scene = rootNode.getScene();
   scene.stopAnimation(rootNode);
 
-  // → interrompi eventuale inertia JS pendente
   if (animationFrame !== null) {
     cancelAnimationFrame(animationFrame);
     animationFrame = null;
   }
   velocityY = 0;
 
-  // → inizia il drag touch
   isDragging = true;
   lastX = e.clientX;
+
+  // ⚠️ Assicuriamoci che sia attivo il rotationQuaternion
+  if (!rootNode.rotationQuaternion) {
+    rootNode.rotationQuaternion = BABYLON.Quaternion.FromEulerVector(rootNode.rotation.clone());
+  }
 }
 
 function onPointerMove(e: PointerEvent) {
@@ -47,8 +49,10 @@ function onPointerMove(e: PointerEvent) {
   lastX = e.clientX;
 
   const rotY = deltaX * ROTATION_SPEED;
-  rootNode.rotation.y -= rotY;
   velocityY = rotY;
+
+  const qDelta = BABYLON.Quaternion.FromEulerAngles(0, -rotY, 0);
+  rootNode.rotationQuaternion = qDelta.multiply(rootNode.rotationQuaternion!);
 }
 
 function onPointerUp() {
@@ -62,7 +66,9 @@ function applyInertia() {
   if (!rootNode || isDragging || getTouchLocked()) return;
 
   if (Math.abs(velocityY) > MIN_VELOCITY) {
-    rootNode.rotation.y -= velocityY;
+    const qDelta = BABYLON.Quaternion.FromEulerAngles(0, -velocityY, 0);
+    rootNode.rotationQuaternion = qDelta.multiply(rootNode.rotationQuaternion!);
+
     velocityY *= INERTIA_DECAY;
     animationFrame = requestAnimationFrame(applyInertia);
   } else {
