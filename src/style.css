@@ -1,3 +1,24 @@
+@font-face {
+  font-family: 'EmberCondensedBold';
+  src: url('./fonts/Ember/EmberCdRC_Bd.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'EmberCondensed';
+  src: url('./fonts/Ember/EmberCdRC_Rg.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'EmberLight';
+  src: url('./fonts/Ember/EmberCdRC_Lt.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
 :root {
   --canvas-height: 100%;
   --ui-height: 57%;
@@ -71,32 +92,36 @@ html, body {
   pointer-events: auto;
   padding: 2rem 0 2rem 0;
   background-color: #004f6c;
-  opacity: 0.8;
-  border-radius: 1.5rem;      /* Fully rounded corners */
-  margin-right: 2rem;        /* Move away from the left edge */
+  opacity: 0.7;
+  border-radius: 1.5rem;
+  margin-right: 2rem;
+  border: #555 solid 0.05rem;
 }
 
+
 .menu-btn {
-  padding: 1rem 1rem;
+  padding: 1rem 1.5rem;
   background: transparent;
   color: #daf0ff;
   border: none;
   cursor: pointer;
   text-align: left;
-  font-family: Arial, sans-serif;
-  font-size: 1.5rem;
-  text-shadow: 1px 2px 6px rgba(0,0,0,1);
+  font-family: 'EmberCondensed', sans-serif;
+  font-size: 1.7rem;
+  /*text-shadow: 1px 2px 6px rgba(0,0,0,1);*/
+  transition: font-size 0.8s ease, color 0.8s ease;
 }
 
-.menu-btn::before {
+/*.menu-btn::before {
   content: "•";
   display: inline-block;
   margin-right: 0.8rem;
   font-size: 1.5rem;
-}
+}*/
 
 .menu-btn.active {
-color: #daf0ff;
+  color: #daf0ff;
+  font-size: 2rem;
 }
 
 .menu-btn.inactive {
@@ -112,9 +137,10 @@ color: #daf0ff;
   border: none;
   cursor: pointer;
   margin-top: 2rem;
-  font-size: 1.4rem;
+  font-size: 1.7rem;
   text-align: center;
   overflow: hidden;
+  font-family: 'EmberCondensedBold', sans-serif;
 }
 
 .return-label-wrapper {
@@ -130,10 +156,10 @@ color: #daf0ff;
 
 .return-icon {
   position: absolute;
-  right: 100%; /* Posiziona a sinistra del testo */
+  right: 100%;
   top: 50%;
   transform: translateY(-50%);
-  margin-right: 0.6rem; /* distanza dalla scritta */
+  margin-right: 0.6rem;
 }
 
 .return-icon svg {
@@ -143,7 +169,6 @@ color: #daf0ff;
   display: block;
 }
 
-
 .menu-submenu {
   display: flex;
   flex-direction: column;
@@ -152,8 +177,8 @@ color: #daf0ff;
   padding: 3rem 3rem 1.5rem 2rem;
   pointer-events: auto;
   border-radius: 1.5rem;
+  border: #555 solid 0.05rem;
 }
-
 
 .submenu-btn {
   all: unset;
@@ -162,14 +187,15 @@ color: #daf0ff;
   border-radius: 1rem;
   cursor: pointer;
   text-align: left;
-  font-family: Arial, sans-serif;
+  font-family: 'EmberCondensed', sans-serif;
   font-size: 1.6rem;
-  text-shadow: 1px 2px 6px rgba(0,0,0,0.7);
+  /*text-shadow: 1px 2px 6px rgba(0,0,0,0.7);*/
 }
 
 .submenu-btn.active {
-  color: #00688d;;
+  color: #00688d;
   font-size: 1.8rem;
+  font-family: 'EmberCondensedBold', sans-serif;
 }
 
 .submenu-details {
@@ -183,7 +209,7 @@ color: #daf0ff;
   margin-bottom: 1rem;
   font-size: 1.3rem;
   color: rgb(24, 24, 24);
-  font-family: Arial, sans-serif;
+  font-family: 'EmberCondensed', sans-serif;
   cursor: pointer;
 }
 
@@ -231,34 +257,30 @@ color: #daf0ff;
   pointer-events: none;
 }
 
-
 .loading-text {
   font-size: 1.5rem;
   color: #333;
-  font-family: Arial, sans-serif;
+  font-family: 'EmberLight', sans-serif;
 }
-
 
 .experience-selection {
   position: absolute;
   top: 60%;
-  right: 5rem; /* distanza dal bordo destro */
+  right: 5rem;
   z-index: 900;
   display: flex;
-  flex-direction: column; /* ✅ ora sono in colonna */
+  flex-direction: column;
   align-items: flex-end;
   gap: 2rem;
   pointer-events: none;
 }
 
-
-
 .exp-btn {
   pointer-events: auto;
-  width: 15rem;        /* ✅ larghezza fissa */
+  width: 15rem;
   padding: 1.5rem 0;
   font-size: 1.6rem;
-  font-family: Arial, sans-serif;
+  font-family: 'EmberCondensed', sans-serif;
   border-radius: 0.5rem;
   border: none;
   cursor: pointer;
@@ -267,8 +289,6 @@ color: #daf0ff;
   text-align: center;
   transition: background 0.3s ease;
 }
-
-
 
 .exp-btn:hover:not(:disabled) {
   background: #00688d;
@@ -285,5 +305,4 @@ color: #daf0ff;
   height: auto;
   margin-bottom: 2rem;
   display: block;
-  
 }
