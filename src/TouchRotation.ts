@@ -5,11 +5,13 @@ import { getTouchLocked } from "./babylonBridge";
 let rootNode: BABYLON.TransformNode | null = null;
 let isDragging = false;
 let lastX = 0;
+let lastY = 0;
+let velocityX = 0;
 let velocityY = 0;
 let animationFrame: number | null = null;
 
 const ROTATION_SPEED = 0.005;
-const INERTIA_DECAY = 0.95;
+const INERTIA_DECAY = 0.97;
 const MIN_VELOCITY = 0.0001;
 
 export function enableTouchRotation(node: BABYLON.TransformNode, canvas: HTMLCanvasElement) {
@@ -31,12 +33,14 @@ function onPointerDown(e: PointerEvent) {
     cancelAnimationFrame(animationFrame);
     animationFrame = null;
   }
-  velocityY = 0;
 
   isDragging = true;
   lastX = e.clientX;
+  lastY = e.clientY;
+  velocityX = 0;
+  velocityY = 0;
 
-  // ⚠️ Assicuriamoci che sia attivo il rotationQuaternion
+  // Assicura che rotationQuaternion sia attivo
   if (!rootNode.rotationQuaternion) {
     rootNode.rotationQuaternion = BABYLON.Quaternion.FromEulerVector(rootNode.rotation.clone());
   }
@@ -46,12 +50,20 @@ function onPointerMove(e: PointerEvent) {
   if (!isDragging || !rootNode || getTouchLocked()) return;
 
   const deltaX = e.clientX - lastX;
+  const deltaY = e.clientY - lastY;
   lastX = e.clientX;
+  lastY = e.clientY;
 
   const rotY = deltaX * ROTATION_SPEED;
+  const rotX = deltaY * ROTATION_SPEED;
+
+  velocityX = rotX;
   velocityY = rotY;
 
-  const qDelta = BABYLON.Quaternion.FromEulerAngles(0, -rotY, 0);
+  const qDeltaX = BABYLON.Quaternion.FromEulerAngles(-rotX, 0, 0);
+  const qDeltaY = BABYLON.Quaternion.FromEulerAngles(0, -rotY, 0);
+  const qDelta = qDeltaX.multiply(qDeltaY);
+
   rootNode.rotationQuaternion = qDelta.multiply(rootNode.rotationQuaternion!);
 }
 
@@ -65,11 +77,21 @@ function onPointerUp() {
 function applyInertia() {
   if (!rootNode || isDragging || getTouchLocked()) return;
 
-  if (Math.abs(velocityY) > MIN_VELOCITY) {
-    const qDelta = BABYLON.Quaternion.FromEulerAngles(0, -velocityY, 0);
+  let applied = false;
+
+  if (Math.abs(velocityX) > MIN_VELOCITY || Math.abs(velocityY) > MIN_VELOCITY) {
+    const qDeltaX = BABYLON.Quaternion.FromEulerAngles(-velocityX, 0, 0);
+    const qDeltaY = BABYLON.Quaternion.FromEulerAngles(0, -velocityY, 0);
+    const qDelta = qDeltaX.multiply(qDeltaY);
+
     rootNode.rotationQuaternion = qDelta.multiply(rootNode.rotationQuaternion!);
 
+    velocityX *= INERTIA_DECAY;
     velocityY *= INERTIA_DECAY;
+    applied = true;
+  }
+
+  if (applied) {
     animationFrame = requestAnimationFrame(applyInertia);
   } else {
     animationFrame = null;

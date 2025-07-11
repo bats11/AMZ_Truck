@@ -1,6 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
 import { setMoveCameraTo } from "./babylonBridge";
-import { getTransformSetting } from "./transformSettings";
+import { getTransformSetting, transformSettings } from "./transformSettings";
 import submenuData from "./data/submenuData.json";
 import {
   handleClassicTransform,
@@ -58,7 +58,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
     if (!modelRoot) return;
 
     const isSubmenu = Object.values(submenuData).some((sub) => Object.keys(sub).includes(label));
-    const settings = getTransformSetting(activeMenu, label);
+    const settings = getTransformSetting(activeMenu ?? "", label);
     if (!settings) {
       console.warn(`⚠️ Nessuna impostazione trovata per ${activeMenu ?? "<root>"} > ${label}`);
       return;
@@ -66,15 +66,18 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
     const isCustomSequence = typedSubmenuData[activeMenu ?? ""]?.isCustomSequence === true;
 
-    if (isInCustomSequence && activeCustomLabel && activeCustomLabel !== label) {
+    const isMainMenuTarget = transformSettings[label]?.settings !== undefined;
+    const isSwitchingToAnotherMainMenu = isMainMenuTarget && activeCustomLabel !== label;
+
+    if (isInCustomSequence && isSwitchingToAnotherMainMenu) {
       await handleExitSequence(
         modelRoot.getScene(),
         activeCamera!,
         modelRoot,
-        activeCustomLabel,
+        activeCustomLabel!,
         initialCameraFov!,
         previouslyHiddenNodes,
-        (lbl) => getTransformSetting(activeMenu, lbl)
+        (lbl) => getTransformSetting(activeMenu ?? "", lbl)
       );
       isInCustomSequence = false;
       activeCustomLabel = null;
@@ -126,7 +129,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       }
     }
 
-    if (isCustomSequence) {
+    if (isCustomSequence && isMainMenuTarget) {
       isInCustomSequence = true;
       activeCustomLabel = label;
 
