@@ -47,7 +47,7 @@ export default function UIAnimations({
               exit={{ scale: 0.7, opacity: 0 }}
               transition={{ duration: 0.4 }}
             >
-              Damage Report
+              DVIC Inspection
             </motion.button>
 
             <motion.button
@@ -58,7 +58,7 @@ export default function UIAnimations({
               exit={{ scale: 0.7, opacity: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
             >
-              Cargo
+              Vehicle Loading
             </motion.button>
           </motion.div>
         )}
@@ -80,8 +80,10 @@ export default function UIAnimations({
             <motion.div
               style={{
                 flex: 6.5,
+                display: "flex",              // 👈 AGGIUNTO
+                flexDirection: "column",
                 pointerEvents: "auto",
-                padding: "2rem 2rem 0 2rem",
+                padding: "2rem 2rem 3rem 2rem",
               }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

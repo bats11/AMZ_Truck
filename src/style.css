@@ -81,6 +81,7 @@ html, body {
   display: flex;
   flex-direction: row;
   pointer-events: none;
+  filter: drop-shadow(0.6rem 1rem 0.5rem rgba(0, 0, 0, 0.2));
 }
 
 /* === CameraMenu === */
@@ -95,7 +96,7 @@ html, body {
   opacity: 0.7;
   border-radius: 1.5rem;
   margin-right: 2rem;
-  border: #555 solid 0.05rem;
+  /*border: #555 solid 0.05rem;*/  
 }
 
 
@@ -105,7 +106,7 @@ html, body {
   color: #daf0ff;
   border: none;
   cursor: pointer;
-  text-align: left;
+  text-align: center;
   font-family: 'EmberCondensed', sans-serif;
   font-size: 1.7rem;
   /*text-shadow: 1px 2px 6px rgba(0,0,0,1);*/
@@ -169,28 +170,25 @@ html, body {
   display: block;
 }
 
-.submenu-container {
-  padding: 2rem 0 0 2rem;
-  flex: 6.5;
-  pointer-events: auto;
-}
+
 
 
 .menu-submenu {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.7);
   padding: 2rem 2rem 1.5rem 2rem;
   pointer-events: auto;
   border-radius: 1.5rem;
-  border: #555 solid 0.05rem;
+  /*border: #555 solid 0.05rem;*/
+  overflow-y: auto;
 }
 
 .submenu-btn {
   all: unset;
   padding: 1.2rem 2rem;
-  color: rgb(24, 24, 24);
+  color: #02080e ;
   border-radius: 1rem;
   cursor: pointer;
   text-align: left;
@@ -200,7 +198,7 @@ html, body {
 }
 
 .submenu-btn.active {
-  color: #00688d;
+  color: #004f6c;
   font-size: 1.8rem;
   font-family: 'EmberCondensedBold', sans-serif;
 }
@@ -234,8 +232,8 @@ html, body {
 }
 
 .detail-checkbox:checked {
-  background-color: #6dcdff;
-  border-color: #6dcdff;
+  background-color: #004f6c;
+  /*border-color: #87dbed;*/
 }
 
 .loading-overlay {
