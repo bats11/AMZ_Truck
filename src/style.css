@@ -104,6 +104,7 @@ color: #daf0ff;
 }
 
 .return-btn {
+  position: relative;
   padding: 1rem;
   background-color: #00688d;
   color: #fff;
@@ -113,23 +114,22 @@ color: #daf0ff;
   margin-top: 2rem;
   font-size: 1.4rem;
   text-align: center;
-
-  /* NEW FLEX SETTINGS */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.7rem;
+  overflow: hidden;
 }
 
 .return-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 1.6rem;
-  display: inline-block;
 }
 
 .return-label {
-  display: inline-block;
+  display: block;
+  margin: 0 auto;
+  text-align: center;
 }
-
 
 
 .menu-submenu {

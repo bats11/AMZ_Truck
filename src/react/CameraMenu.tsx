@@ -178,8 +178,8 @@ export default function CameraMenu({
             }}
             className="return-btn"
       >
-            <span className="arrow">←</span>
-            <span className="label">Activity Menu</span>
+            <span className="return-icon">←</span>
+            <span className="return-label">Activity Menu</span>
           </button>
         )}
       </div>
