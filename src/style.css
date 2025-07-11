@@ -172,9 +172,9 @@ html, body {
 .menu-submenu {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.5rem;
   background: rgba(255, 255, 255, 0.5);
-  padding: 3rem 3rem 1.5rem 2rem;
+  padding: 2rem 2rem 1.5rem 2rem;
   pointer-events: auto;
   border-radius: 1.5rem;
   border: #555 solid 0.05rem;
