@@ -1,4 +1,4 @@
-export let moveCameraTo = (label: string) => {
+export let moveCameraTo = (label: string, opts?: { bypassBigToBig?: boolean }) => {
   console.warn("moveCameraTo not connected");
 };
 

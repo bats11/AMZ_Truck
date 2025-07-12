@@ -141,14 +141,14 @@ export default function CameraMenu({
       setActiveSubmenu(null);
 
       if (activeMenu) {
-        // ⬅️ Triggera ritorno alla trasformazione del main menu
-        moveCameraTo(activeMenu);
+        moveCameraTo(activeMenu, { bypassBigToBig: true }); // ⬅️ ignoriamo isBigToBig solo in questo caso
       }
     } else {
       setActiveSubmenu(subKey);
       moveCameraTo(subKey);
     }
   }
+
 
 
   function toggleCheckbox(detail: string) {

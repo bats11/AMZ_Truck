@@ -54,7 +54,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
   modelRoot.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
   setTimeout(() => playEntryAnimation(modelRoot!, scene, initialTransform!), 500);
 
-  setMoveCameraTo(async (label: string) => {
+  setMoveCameraTo(async (label: string, opts?: { bypassBigToBig?: boolean }) => {
     if (!modelRoot) return;
 
     const isSubmenu = Object.values(submenuData).some((sub) => Object.keys(sub).includes(label));
@@ -93,7 +93,8 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         : currentScaleSq;
       const isBigToBig = currentScaleSq > 5.0 && targetScaleSq > 5.0;
 
-      if (isBigToBig) {
+      if (isBigToBig && !opts?.bypassBigToBig) {
+
         console.log("📣 isBigToBig attivo — forzatura in modalità CustomSequence");
 
         isInCustomSequence = true;
