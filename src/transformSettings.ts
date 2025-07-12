@@ -22,7 +22,12 @@ export interface TransformSetting {
   hiddenNodes?: string[];
   finalCameraFov?: number;
   durationCameraFov?: number;
+
+  // ✅ Aggiunti per interpolazioni normali
+  durationScale?: number;
+  durationPosRot?: number;
 }
+
 
 function degToRad(deg: number): number {
   return (deg * Math.PI) / 180;

@@ -1,3 +1,4 @@
+// utils.ts
 import * as BABYLON from "@babylonjs/core";
 
 export interface TransformOptions {
@@ -5,6 +6,14 @@ export interface TransformOptions {
   rotation?: BABYLON.Vector3;
   scaling?: BABYLON.Vector3;
 }
+
+export interface DurationOverrides {
+  durationPosRot?: number;
+  durationScale?: number;
+}
+
+const DEFAULT_SCALE_DURATION = 1.0;
+const DEFAULT_POSROT_DURATION = 1.5;
 
 export function createAnimation<T>(
   property: string,
@@ -56,59 +65,61 @@ function createQuaternionAnimation(
 export async function animateTransformTo(
   node: BABYLON.TransformNode,
   options: TransformOptions,
-  durationOverride?: number
+  durations?: DurationOverrides
 ): Promise<void> {
   const frameRate = 60;
-  const animations: BABYLON.Animation[] = [];
   const easing = new BABYLON.CubicEase();
   easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
-  let maxFrames = 0;
 
-  // --- POSIZIONE ---
-  if (options.position) {
-    const start = node.position.clone();
-    const end = options.position.clone();
-    const distance = BABYLON.Vector3.Distance(start, end);
-    const duration = durationOverride ?? distance;
-    const frames = Math.ceil(duration * frameRate);
+  const durationScale = durations?.durationScale ?? DEFAULT_SCALE_DURATION;
+  const durationPosRot = durations?.durationPosRot ?? DEFAULT_POSROT_DURATION;
 
-    animations.push(createAnimation("position", start, end, 0, frames, easing));
-    maxFrames = Math.max(maxFrames, frames);
+  const scaleFrames = Math.ceil(durationScale * frameRate);
+  const posRotFrames = Math.ceil(durationPosRot * frameRate);
+
+  const posRotAnims: BABYLON.Animation[] = [];
+  const scaleAnims: BABYLON.Animation[] = [];
+
+  // SCALING
+  if (options.scaling) {
+    const scaleAnim = createAnimation("scaling", node.scaling.clone(), options.scaling.clone(), 0, scaleFrames, easing);
+    scaleAnims.push(scaleAnim);
   }
 
-  // --- ROTAZIONE con quaternion ---
+  // POSITION
+  if (options.position) {
+    const posAnim = createAnimation("position", node.position.clone(), options.position.clone(), 0, posRotFrames, easing);
+    posRotAnims.push(posAnim);
+  }
+
+  // ROTATION (Quaternion)
   if (options.rotation) {
     const currentQ =
       node.rotationQuaternion?.clone() ??
       BABYLON.Quaternion.FromEulerVector(node.rotation.clone());
-
     const targetQ = BABYLON.Quaternion.FromEulerVector(options.rotation.clone());
-    const angle = Math.acos(Math.min(Math.max(BABYLON.Quaternion.Dot(currentQ, targetQ), -1), 1)) * 2;
-
-    const duration = durationOverride ?? (BABYLON.Tools.ToDegrees(angle) / 90); // 90°/s
-    const frames = Math.ceil(duration * frameRate);
 
     node.rotationQuaternion = currentQ;
-    animations.push(createQuaternionAnimation(currentQ, targetQ, 0, frames, easing));
-    maxFrames = Math.max(maxFrames, frames);
+    posRotAnims.push(createQuaternionAnimation(currentQ, targetQ, 0, posRotFrames, easing));
   }
-
-  // --- SCALING ---
-  if (options.scaling) {
-    const start = node.scaling.clone();
-    const end = options.scaling.clone();
-    const delta = BABYLON.Vector3.Distance(start, end);
-    const duration = durationOverride ?? delta;
-    const frames = Math.ceil(duration * frameRate);
-
-    animations.push(createAnimation("scaling", start, end, 0, frames, easing));
-    maxFrames = Math.max(maxFrames, frames);
-  }
-
-  if (animations.length === 0) return;
 
   return new Promise((resolve) => {
-    node.animations = animations;
-    node.getScene().beginAnimation(node, 0, maxFrames, false, 1.0, resolve);
+    let doneCount = 0;
+    const tryResolve = () => {
+      doneCount++;
+      if (doneCount === 2) resolve();
+    };
+
+    if (scaleAnims.length > 0) {
+      node.getScene().beginDirectAnimation(node, scaleAnims, 0, scaleFrames, false, 1.0, tryResolve);
+    } else {
+      tryResolve();
+    }
+
+    if (posRotAnims.length > 0) {
+      node.getScene().beginDirectAnimation(node, posRotAnims, 0, posRotFrames, false, 1.0, tryResolve);
+    } else {
+      tryResolve();
+    }
   });
 }

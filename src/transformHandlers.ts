@@ -29,12 +29,18 @@ export async function handleClassicTransform(
   node: BABYLON.TransformNode,
   settings: TransformSetting
 ) {
-  // 👉 Usa l’utility di interpolazione con easing e quaternion
-  await animateTransformTo(node, {
-    position: settings.position,
-    rotation: settings.rotation,
-    scaling: settings.scaling,
-  });
+  await animateTransformTo(
+    node,
+    {
+      position: settings.position,
+      rotation: settings.rotation,
+      scaling: settings.scaling,
+    },
+    {
+      durationPosRot: settings.durationPosRot,
+      durationScale: settings.durationScale,
+    }
+  );
 }
 
 export async function handleInterpolatedTransform(
