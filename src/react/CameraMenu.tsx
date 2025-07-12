@@ -139,11 +139,17 @@ export default function CameraMenu({
   function onSubClick(subKey: string) {
     if (activeSubmenu === subKey) {
       setActiveSubmenu(null);
+
+      if (activeMenu) {
+        // ⬅️ Triggera ritorno alla trasformazione del main menu
+        moveCameraTo(activeMenu);
+      }
     } else {
       setActiveSubmenu(subKey);
       moveCameraTo(subKey);
     }
   }
+
 
   function toggleCheckbox(detail: string) {
     setCheckedItems((prev) => ({

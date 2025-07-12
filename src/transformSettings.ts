@@ -59,6 +59,11 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
         },
       ],
     },
+    "Lights & Light Covers": {
+      position: new BABYLON.Vector3(-1.7, 2.5, -15),
+      rotation: vec3DegToRad([0, 90, 0]),
+      scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
+    },
   },
 
   "IN CAB": {
