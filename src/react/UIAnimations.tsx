@@ -13,7 +13,8 @@ interface UIAnimationsProps {
   setTouchLocked: (value: boolean) => void;
   resetApp: () => void;
   startExperience: () => void;
-  entryDone: boolean; // ✅ nuova prop
+  entryDone: boolean;
+  selectionKey: number;
 }
 
 export default function UIAnimations({
@@ -27,48 +28,34 @@ export default function UIAnimations({
   resetApp,
   startExperience,
   entryDone,
+  selectionKey,
 }: UIAnimationsProps) {
   return (
     <>
       {/* Pulsanti di selezione */}
-      {/* Pulsanti di selezione */}
       <AnimatePresence>
-        {appPhase === "selection" && (
+        {appPhase === "selection" && entryDone && (
           <motion.div
             className="experience-selection"
-            key="selection-buttons"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: entryDone ? 1 : 0, y: entryDone ? 0 : 40 }}
-            exit={{ opacity: 0, y: -20 }}
+            key={`selection-${selectionKey}`} // forza remount anche al ritorno
+            initial={{ opacity: 0, y: 40, x: 60 }} // ✅ entrata da destra
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, y: -20, x: 60 }}
             transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
-            style={{
-              pointerEvents: entryDone ? "auto" : "none", // ✅ Blocco clic se non pronto
-            }}
           >
             <motion.button
               className="exp-btn active"
               onClick={startExperience}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.7, opacity: 0 }}
-              transition={{ duration: 0.4 }}
             >
               DVIC Inspection
             </motion.button>
 
-            <motion.button
-              className="exp-btn"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.7, opacity: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-            >
+            <motion.button className="exp-btn">
               Vehicle Loading
             </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
-
 
       {/* Interfaccia experience */}
       <AnimatePresence>

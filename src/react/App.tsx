@@ -11,7 +11,8 @@ export default function App() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [touchLocked, setTouchLocked] = useState<boolean>(false);
-  const [entryDone, setEntryDone] = useState(false); // ✅ aggiunto
+  const [entryDone, setEntryDone] = useState(false); // ✅ entry animation completata
+  const [selectionKey, setSelectionKey] = useState(0); // ✅ forza remount
   const initialUiHeight = "50%";
 
   useEffect(() => {
@@ -46,7 +47,7 @@ export default function App() {
     setActiveMenu(null);
     setActiveSubmenu(null);
     setAppPhase("selection");
-    //setEntryDone(false); // ✅ resetta anche qui
+    setSelectionKey((prev) => prev + 1); // ✅ forza remount dei pulsanti
 
     const container = document.getElementById("app-container");
     if (container) {
@@ -67,7 +68,8 @@ export default function App() {
         setTouchLocked={setTouchLocked}
         resetApp={resetApp}
         startExperience={startExperience}
-        entryDone={entryDone} // ✅ passato come prop
+        entryDone={entryDone}
+        selectionKey={selectionKey} // ✅ passiamo anche la chiave
       />
     </>
   );
