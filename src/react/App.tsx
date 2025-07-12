@@ -46,7 +46,7 @@ export default function App() {
     setActiveMenu(null);
     setActiveSubmenu(null);
     setAppPhase("selection");
-    setEntryDone(false); // ✅ resetta anche qui
+    //setEntryDone(false); // ✅ resetta anche qui
 
     const container = document.getElementById("app-container");
     if (container) {
