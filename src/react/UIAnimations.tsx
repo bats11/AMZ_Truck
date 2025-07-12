@@ -13,6 +13,7 @@ interface UIAnimationsProps {
   setTouchLocked: (value: boolean) => void;
   resetApp: () => void;
   startExperience: () => void;
+  entryDone: boolean; // ✅ nuova prop
 }
 
 export default function UIAnimations({
@@ -25,9 +26,11 @@ export default function UIAnimations({
   setTouchLocked,
   resetApp,
   startExperience,
+  entryDone,
 }: UIAnimationsProps) {
   return (
     <>
+      {/* Pulsanti di selezione */}
       {/* Pulsanti di selezione */}
       <AnimatePresence>
         {appPhase === "selection" && (
@@ -35,9 +38,12 @@ export default function UIAnimations({
             className="experience-selection"
             key="selection-buttons"
             initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: entryDone ? 1 : 0, y: entryDone ? 0 : 40 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
+            style={{
+              pointerEvents: entryDone ? "auto" : "none", // ✅ Blocco clic se non pronto
+            }}
           >
             <motion.button
               className="exp-btn active"
@@ -52,7 +58,6 @@ export default function UIAnimations({
 
             <motion.button
               className="exp-btn"
-              disabled
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.7, opacity: 0 }}
@@ -63,6 +68,7 @@ export default function UIAnimations({
           </motion.div>
         )}
       </AnimatePresence>
+
 
       {/* Interfaccia experience */}
       <AnimatePresence>
@@ -76,11 +82,10 @@ export default function UIAnimations({
             exit={{ scaleY: 0, opacity: 0 }}
             transition={{ duration: 0.7, ease: [0.65, 0, 0.35, 1] }}
           >
-            {/* CameraMenu sinistra */}
             <motion.div
               style={{
                 flex: 6.5,
-                display: "flex",              // 👈 AGGIUNTO
+                display: "flex",
                 flexDirection: "column",
                 pointerEvents: "auto",
                 padding: "2rem 2rem 3rem 2rem",
@@ -106,7 +111,6 @@ export default function UIAnimations({
               />
             </motion.div>
 
-            {/* CameraMenu destra */}
             <motion.div
               style={{
                 flex: 3.5,
@@ -119,9 +123,6 @@ export default function UIAnimations({
                 delay: 0,
                 duration: 0.6,
                 ease: [0.65, 0, 0.35, 1],
-              }}
-              onAnimationComplete={() => {
-                // Il menuReady ora è gestito in CameraMenu
               }}
             >
               <CameraMenu

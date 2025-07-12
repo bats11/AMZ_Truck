@@ -47,6 +47,8 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       position: new BABYLON.Vector3(0, 2.5, 0),
       rotation: vec3DegToRad([0, 90, 0]),
       scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
+      durationScale: 1.0,
+      durationPosRot: 1,
       intermediate: [
         {
           position: new BABYLON.Vector3(0, 2.5, 0),

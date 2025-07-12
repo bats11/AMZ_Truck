@@ -44,7 +44,10 @@ export function playEntryAnimation(
     totalFrames,
     false,
     1.0,
-    () => startIdleLoopRotation(node, scene, startRot.y, endRot.y, totalFrames)
+    () => {
+      startIdleLoopRotation(node, scene, startRot.y, endRot.y, totalFrames);
+      window.dispatchEvent(new Event("entry-animation-finished")); // ✅ notifico React
+    }
   );
 }
 

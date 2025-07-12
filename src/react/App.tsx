@@ -6,13 +6,12 @@ import { resetModelTransform } from "../MoveComponent";
 import submenuData from "../data/submenuData.json";
 import UIAnimations from "./UIAnimations";
 
-const typedSubmenuData: Record<string, any> = submenuData;
-
 export default function App() {
   const [appPhase, setAppPhase] = useState<"loading" | "selection" | "transitioning" | "experience">("loading");
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [touchLocked, setTouchLocked] = useState<boolean>(false);
+  const [entryDone, setEntryDone] = useState(false); // ✅ aggiunto
   const initialUiHeight = "50%";
 
   useEffect(() => {
@@ -25,15 +24,21 @@ export default function App() {
     return () => window.removeEventListener("react-loading-finished", handleFinishLoading);
   }, []);
 
-const startExperience = () => {
-  setAppPhase("transitioning");
-  setTimeout(() => {
-    setActiveMenu(null);            // ⬅️ non attiviamo subito
-    setActiveSubmenu(null);
-    setTouchLocked(true);
-    setAppPhase("experience");      // ⬅️ fa partire l’animazione
-  }, 600);
-};
+  useEffect(() => {
+    const onEntryDone = () => setEntryDone(true);
+    window.addEventListener("entry-animation-finished", onEntryDone);
+    return () => window.removeEventListener("entry-animation-finished", onEntryDone);
+  }, []);
+
+  const startExperience = () => {
+    setAppPhase("transitioning");
+    setTimeout(() => {
+      setActiveMenu(null);
+      setActiveSubmenu(null);
+      setTouchLocked(true);
+      setAppPhase("experience");
+    }, 600);
+  };
 
   const resetApp = () => {
     resetModelTransform();
@@ -41,6 +46,7 @@ const startExperience = () => {
     setActiveMenu(null);
     setActiveSubmenu(null);
     setAppPhase("selection");
+    setEntryDone(false); // ✅ resetta anche qui
 
     const container = document.getElementById("app-container");
     if (container) {
@@ -61,6 +67,7 @@ const startExperience = () => {
         setTouchLocked={setTouchLocked}
         resetApp={resetApp}
         startExperience={startExperience}
+        entryDone={entryDone} // ✅ passato come prop
       />
     </>
   );
