@@ -61,7 +61,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       intermediate: [
         {
-          position: new BABYLON.Vector3(0, 1, 0),
+          position: new BABYLON.Vector3(0, 1, -10),
           rotation: vec3DegToRad([0, 270, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
@@ -131,6 +131,11 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       rotation: vec3DegToRad([0, 0, 0]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
+        "Side Mirrors": {
+          position: new BABYLON.Vector3(-2.3, 0.4, -29),
+          rotation: vec3DegToRad([0, -60, 0]),
+          scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+        },
   },
 };
 
