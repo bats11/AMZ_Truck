@@ -54,7 +54,11 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
   modelRoot.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
   setTimeout(() => playEntryAnimation(modelRoot!, scene, initialTransform!), 500);
 
-  setMoveCameraTo(async (label: string, opts?: { bypassBigToBig?: boolean }) => {
+  setMoveCameraTo(async (
+    label: string,
+    opts?: { bypassBigToBig?: boolean; bypassCustomSequence?: boolean }
+  ) => {
+
     if (!modelRoot) return;
 
     const isSubmenu = Object.values(submenuData).some((sub) => Object.keys(sub).includes(label));
@@ -130,38 +134,39 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       }
     }
 
-    if (isCustomSequence && isMainMenuTarget) {
-      isInCustomSequence = true;
-      activeCustomLabel = label;
+    if (isCustomSequence && isMainMenuTarget && !opts?.bypassCustomSequence) {
+  isInCustomSequence = true;
+  activeCustomLabel = label;
 
-      const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
+  const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
 
-      for (let i = 0; i < steps.length; i++) {
-        const step = steps[i];
-        await handleInterpolatedTransform(
-          modelRoot,
-          modelRoot.getScene(),
-          step,
-          activeCamera ?? undefined
-        );
-        if (i === 0 && settings.hiddenNodes?.length) {
-          await handleCustomSequenceMidStep(
-            modelRoot,
-            modelRoot.getScene(),
-            settings,
-            previouslyHiddenNodes
-          );
-        }
-      }
-
-      await handleInterpolatedTransform(
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i];
+    await handleInterpolatedTransform(
+      modelRoot,
+      modelRoot.getScene(),
+      step,
+      activeCamera ?? undefined
+    );
+    if (i === 0 && settings.hiddenNodes?.length) {
+      await handleCustomSequenceMidStep(
         modelRoot,
         modelRoot.getScene(),
         settings,
-        activeCamera ?? undefined
+        previouslyHiddenNodes
       );
-      return;
     }
+  }
+
+  await handleInterpolatedTransform(
+    modelRoot,
+    modelRoot.getScene(),
+    settings,
+    activeCamera ?? undefined
+  );
+  return;
+}
+
 
     if (isSubmenu) {
       const step = {

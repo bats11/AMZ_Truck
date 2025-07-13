@@ -141,7 +141,10 @@ export default function CameraMenu({
       setActiveSubmenu(null);
 
       if (activeMenu) {
-        moveCameraTo(activeMenu, { bypassBigToBig: true }); // ⬅️ ignoriamo isBigToBig solo in questo caso
+        moveCameraTo(activeMenu, {
+          bypassBigToBig: true,
+          bypassCustomSequence: true,
+        }); // ⬅️ ignoriamo isBigToBig solo in questo caso
       }
     } else {
       setActiveSubmenu(subKey);
