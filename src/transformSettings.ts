@@ -110,6 +110,17 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       rotation: vec3DegToRad([0, 260, 0]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
+    /*"Wipers": {
+      position: new BABYLON.Vector3(0.6, 0, -30.5),
+      rotation: vec3DegToRad([0, 268, 15]),
+      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+    },*/
+    
+    "Windshield": {
+      position: new BABYLON.Vector3(0.6, 0, -30.5),
+      rotation: vec3DegToRad([0, 258, 0]),
+      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+    },
   },
 
   "DRIVER SIDE": {
@@ -118,6 +129,11 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       rotation: vec3DegToRad([0, 180, 0]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
+      "Suspension & Exhaust System": {
+        position: new BABYLON.Vector3(0, 1.5, -20),
+        rotation: vec3DegToRad([-30, 135, 0]),
+        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+      },
   },
 
   "BACK SIDE": {
@@ -144,8 +160,8 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
         "Side Mirrors": {
-          position: new BABYLON.Vector3(-2.3, 0.4, -29),
-          rotation: vec3DegToRad([0, -60, 0]),
+          position: new BABYLON.Vector3(-0.3, 0.5, -25),
+          rotation: vec3DegToRad([0, 60, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
         },
   },
