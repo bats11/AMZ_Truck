@@ -20,3 +20,16 @@ export function setTouchLockedGetter(fn: () => boolean) {
 export function getTouchLocked(): boolean {
   return touchLockedGetter();
 }
+
+// === Serve per bloccare/sbloccare i pulsanti della UI
+let uiInteractivitySetter: ((disabled: boolean) => void) | null = null;
+
+export function setUiInteractivitySetter(fn: (disabled: boolean) => void) {
+  uiInteractivitySetter = fn;
+}
+
+export function setUiInteractivity(disabled: boolean) {
+  if (uiInteractivitySetter) {
+    uiInteractivitySetter(disabled);
+  }
+}

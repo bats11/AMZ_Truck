@@ -5,6 +5,8 @@ import { setTouchLockedGetter } from "../babylonBridge";
 import { resetModelTransform } from "../MoveComponent";
 import submenuData from "../data/submenuData.json";
 import UIAnimations from "./UIAnimations";
+import { setUiInteractivitySetter } from "../babylonBridge";
+
 
 export default function App() {
   const [appPhase, setAppPhase] = useState<"loading" | "selection" | "transitioning" | "experience">("loading");
@@ -13,10 +15,12 @@ export default function App() {
   const [touchLocked, setTouchLocked] = useState<boolean>(false);
   const [entryDone, setEntryDone] = useState(false); // ✅ entry animation completata
   const [selectionKey, setSelectionKey] = useState(0); // ✅ forza remount
+  const [buttonsDisabled, setButtonsDisabled] = useState(false); // blocca pulsanti durante animazione
   const initialUiHeight = "50%";
 
   useEffect(() => {
     setTouchLockedGetter(() => touchLocked);
+    setUiInteractivitySetter(setButtonsDisabled);
   }, [touchLocked]);
 
   useEffect(() => {
@@ -70,6 +74,8 @@ export default function App() {
         startExperience={startExperience}
         entryDone={entryDone}
         selectionKey={selectionKey} // ✅ passiamo anche la chiave
+        buttonsDisabled={buttonsDisabled}
+        setButtonsDisabled={setButtonsDisabled}
       />
     </>
   );

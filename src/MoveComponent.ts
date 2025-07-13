@@ -1,5 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
-import { setMoveCameraTo } from "./babylonBridge";
+import { setMoveCameraTo, setUiInteractivity } from "./babylonBridge";
 import { getTransformSetting, transformSettings } from "./transformSettings";
 import submenuData from "./data/submenuData.json";
 import {
@@ -69,7 +69,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
     }
 
     const isCustomSequence = typedSubmenuData[activeMenu ?? ""]?.isCustomSequence === true;
-
     const isMainMenuTarget = transformSettings[label]?.settings !== undefined;
     const isSwitchingToAnotherMainMenu = isMainMenuTarget && activeCustomLabel !== label;
 
@@ -89,7 +88,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
     animationCycle++;
 
-    // ✅ FORZATURA isBigToBig → trattato come custom sequence
     if (!isSubmenu) {
       const currentScaleSq = modelRoot.scaling.lengthSquared();
       const targetScaleSq = settings.scaling
@@ -98,13 +96,14 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       const isBigToBig = currentScaleSq > 5.0 && targetScaleSq > 5.0;
 
       if (isBigToBig && !opts?.bypassBigToBig) {
-
         console.log("📣 isBigToBig attivo — forzatura in modalità CustomSequence");
 
         isInCustomSequence = true;
         activeCustomLabel = label;
 
         const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
+
+        setUiInteractivity(true); // 🔒 blocca pulsanti
 
         for (let i = 0; i < steps.length; i++) {
           const step = steps[i];
@@ -130,43 +129,48 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           settings,
           activeCamera ?? undefined
         );
+
+        setUiInteractivity(false); // ✅ Sblocca pulsanti DOPO l’ultimo step
         return;
       }
     }
 
     if (isCustomSequence && isMainMenuTarget && !opts?.bypassCustomSequence) {
-  isInCustomSequence = true;
-  activeCustomLabel = label;
+      isInCustomSequence = true;
+      activeCustomLabel = label;
 
-  const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
+      const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
 
-  for (let i = 0; i < steps.length; i++) {
-    const step = steps[i];
-    await handleInterpolatedTransform(
-      modelRoot,
-      modelRoot.getScene(),
-      step,
-      activeCamera ?? undefined
-    );
-    if (i === 0 && settings.hiddenNodes?.length) {
-      await handleCustomSequenceMidStep(
+      setUiInteractivity(true); // 🔒 blocca pulsanti
+
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
+        await handleInterpolatedTransform(
+          modelRoot,
+          modelRoot.getScene(),
+          step,
+          activeCamera ?? undefined
+        );
+        if (i === 0 && settings.hiddenNodes?.length) {
+          await handleCustomSequenceMidStep(
+            modelRoot,
+            modelRoot.getScene(),
+            settings,
+            previouslyHiddenNodes
+          );
+        }
+      }
+
+      await handleInterpolatedTransform(
         modelRoot,
         modelRoot.getScene(),
         settings,
-        previouslyHiddenNodes
+        activeCamera ?? undefined
       );
+
+      setUiInteractivity(false); // ✅ Sblocca pulsanti DOPO l’ultimo step
+      return;
     }
-  }
-
-  await handleInterpolatedTransform(
-    modelRoot,
-    modelRoot.getScene(),
-    settings,
-    activeCamera ?? undefined
-  );
-  return;
-}
-
 
     if (isSubmenu) {
       const step = {

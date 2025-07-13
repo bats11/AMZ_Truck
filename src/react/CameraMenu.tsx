@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { moveCameraTo } from "../babylonBridge";
-import { setActiveMenuForTransforms } from "../MoveComponent"; // ✅ IMPORTANTE
+import { setActiveMenuForTransforms } from "../MoveComponent";
 import submenuData from "../data/submenuData.json";
 import { AnimatePresence, motion } from "framer-motion";
-
 
 interface SubmenuDetails {
   _uiHeight?: string;
@@ -16,7 +15,10 @@ interface SubmenuCategory {
   [subKey: string]: SubmenuDetails | string | boolean | undefined;
 }
 
-const typedSubmenuData: Record<string, SubmenuCategory> = submenuData as Record<string, SubmenuCategory>;
+const typedSubmenuData: Record<string, SubmenuCategory> = submenuData as Record<
+  string,
+  SubmenuCategory
+>;
 
 interface CameraMenuProps {
   position: "left" | "right";
@@ -28,6 +30,7 @@ interface CameraMenuProps {
   touchLocked: boolean;
   setTouchLocked: (value: boolean) => void;
   resetApp: () => void;
+  buttonsDisabled: boolean;
 }
 
 export default function CameraMenu({
@@ -40,6 +43,7 @@ export default function CameraMenu({
   touchLocked,
   setTouchLocked,
   resetApp,
+  buttonsDisabled,
 }: CameraMenuProps) {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
   const [isAnimatingMenuChange, setIsAnimatingMenuChange] = useState(false);
@@ -98,36 +102,38 @@ export default function CameraMenu({
       return;
     }
 
-    submenuWrapper.animate(
-      [{ transform: "scaleY(1)", opacity: 1 }, { transform: "scaleY(0)", opacity: 0 }],
-      {
-        duration: 600,
-        easing: "cubic-bezier(0.65, 0, 0.35, 1)",
-        fill: "forwards",
-      }
-    ).onfinish = () => {
-      onSwitch();
+    submenuWrapper
+      .animate(
+        [{ transform: "scaleY(1)", opacity: 1 }, { transform: "scaleY(0)", opacity: 0 }],
+        {
+          duration: 600,
+          easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+          fill: "forwards",
+        }
+      )
+      .onfinish = () => {
+        onSwitch();
 
-      requestAnimationFrame(() => {
-        submenuWrapper.animate(
-          [{ transform: "scaleY(0)", opacity: 0 }, { transform: "scaleY(1)", opacity: 1 }],
-          {
-            duration: 900,
-            easing: "cubic-bezier(0.65, 0, 0.35, 1)",
-            fill: "forwards",
-          }
-        ).onfinish = () => setIsAnimatingMenuChange(false);
-      });
-    };
+        requestAnimationFrame(() => {
+          submenuWrapper
+            .animate(
+              [{ transform: "scaleY(0)", opacity: 0 }, { transform: "scaleY(1)", opacity: 1 }],
+              {
+                duration: 900,
+                easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+                fill: "forwards",
+              }
+            )
+            .onfinish = () => setIsAnimatingMenuChange(false);
+        });
+      };
   }
 
   function onMainClick(label: string) {
     if (label === activeMenu) return;
 
-    setActiveMenuForTransforms(label); // ✅ FONDAMENTALE
-
+    setActiveMenuForTransforms(label);
     moveCameraTo(label);
-
     animateMenuChange(label, () => {
       setActiveMenu(label);
       setActiveSubmenu(null);
@@ -139,20 +145,17 @@ export default function CameraMenu({
   function onSubClick(subKey: string) {
     if (activeSubmenu === subKey) {
       setActiveSubmenu(null);
-
       if (activeMenu) {
         moveCameraTo(activeMenu, {
           bypassBigToBig: true,
           bypassCustomSequence: true,
-        }); // ⬅️ ignoriamo isBigToBig solo in questo caso
+        });
       }
     } else {
       setActiveSubmenu(subKey);
       moveCameraTo(subKey);
     }
   }
-
-
 
   function toggleCheckbox(detail: string) {
     setCheckedItems((prev) => ({
@@ -163,7 +166,6 @@ export default function CameraMenu({
 
   if (position === "right") {
     const mainButtons = Object.keys(typedSubmenuData);
-
     return (
       <div className="menu-main" style={{ display: "flex", flexDirection: "column" }}>
         {mainButtons.map((label) => {
@@ -173,6 +175,7 @@ export default function CameraMenu({
               key={label}
               onClick={() => onMainClick(label)}
               className={`menu-btn ${isActive ? "active" : "inactive"}`}
+              disabled={buttonsDisabled}
             >
               {label}
             </button>
@@ -187,22 +190,24 @@ export default function CameraMenu({
               hasInitializedRef.current = false;
             }}
             className="return-btn"
-      >
+          >
             <span className="return-label-wrapper">
               <span className="return-label">Activity Menu</span>
               <span className="return-icon">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="return-icon-svg"
-                    width="1.6rem"
-                    height="1.6rem">
-                  <path d="m12 19-7-7 7-7"/>
-                  <path d="M19 12H5"/>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="return-icon-svg"
+                  width="1.6rem"
+                  height="1.6rem"
+                >
+                  <path d="m12 19-7-7 7-7" />
+                  <path d="M19 12H5" />
                 </svg>
               </span>
             </span>
@@ -214,7 +219,6 @@ export default function CameraMenu({
 
   if (position === "left" && activeMenu) {
     const submenu = typedSubmenuData[activeMenu];
-
     return (
       <div
         id="submenu-wrapper"
@@ -233,6 +237,7 @@ export default function CameraMenu({
                 <button
                   onClick={() => onSubClick(subKey)}
                   className={`submenu-btn ${activeSubmenu === subKey ? "active" : ""}`}
+                  disabled={buttonsDisabled}
                 >
                   {subKey}
                 </button>

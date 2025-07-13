@@ -1,4 +1,4 @@
-// src/UIAnimations.tsx
+// ✅ UIAnimations.tsx aggiornato
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CameraMenu from "./CameraMenu";
@@ -13,7 +13,10 @@ interface UIAnimationsProps {
   setTouchLocked: (value: boolean) => void;
   resetApp: () => void;
   startExperience: () => void;
-  entryDone: boolean; // ✅ nuova prop
+  entryDone: boolean;
+  buttonsDisabled: boolean;
+  setButtonsDisabled: (val: boolean) => void;
+  selectionKey: number;
 }
 
 export default function UIAnimations({
@@ -27,11 +30,10 @@ export default function UIAnimations({
   resetApp,
   startExperience,
   entryDone,
+  buttonsDisabled,
 }: UIAnimationsProps) {
   return (
     <>
-      {/* Pulsanti di selezione */}
-      {/* Pulsanti di selezione */}
       <AnimatePresence>
         {appPhase === "selection" && (
           <motion.div
@@ -41,13 +43,12 @@ export default function UIAnimations({
             animate={{ opacity: entryDone ? 1 : 0, y: entryDone ? 0 : 40 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
-            style={{
-              pointerEvents: entryDone ? "auto" : "none", // ✅ Blocco clic se non pronto
-            }}
+            style={{ pointerEvents: entryDone ? "auto" : "none" }}
           >
             <motion.button
               className="exp-btn active"
               onClick={startExperience}
+              disabled={buttonsDisabled}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.7, opacity: 0 }}
@@ -58,6 +59,7 @@ export default function UIAnimations({
 
             <motion.button
               className="exp-btn"
+              disabled={buttonsDisabled}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.7, opacity: 0 }}
@@ -69,8 +71,6 @@ export default function UIAnimations({
         )}
       </AnimatePresence>
 
-
-      {/* Interfaccia experience */}
       <AnimatePresence>
         {appPhase === "experience" && (
           <motion.div
@@ -108,6 +108,7 @@ export default function UIAnimations({
                 touchLocked={touchLocked}
                 setTouchLocked={setTouchLocked}
                 resetApp={resetApp}
+                buttonsDisabled={buttonsDisabled}
               />
             </motion.div>
 
@@ -135,6 +136,7 @@ export default function UIAnimations({
                 touchLocked={touchLocked}
                 setTouchLocked={setTouchLocked}
                 resetApp={resetApp}
+                buttonsDisabled={buttonsDisabled}
               />
             </motion.div>
           </motion.div>
