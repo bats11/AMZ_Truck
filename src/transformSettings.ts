@@ -129,9 +129,44 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       rotation: vec3DegToRad([0, 180, 0]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
+      "Back Tire, Wheel, & Rim": {
+        position: new BABYLON.Vector3(0, 4, 0),
+        rotation: vec3DegToRad([0, 180, 0]),
+        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+      },
+      "Lights & Light Covers": {
+        position: new BABYLON.Vector3(0, 4, 0),
+        rotation: vec3DegToRad([0, 180, 0]),
+        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+      },
+      "Body & Doors": {
+        position: new BABYLON.Vector3(0, 4, 0),
+        rotation: vec3DegToRad([0, 180, 0]),
+        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+      },
       "Suspension & Exhaust System": {
+        position: new BABYLON.Vector3(0, 1, -10),
+        rotation: vec3DegToRad([0, 90, 55]),
+        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+      },
+      /*"Suspension & Exhaust System": {
         position: new BABYLON.Vector3(0, 1.5, -20),
         rotation: vec3DegToRad([-30, 135, 0]),
+        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+      },*/
+      "EV System": {
+        position: new BABYLON.Vector3(0, 4, 0),
+        rotation: vec3DegToRad([0, 180, 0]),
+        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+      },
+      "Side Mirrors": {
+        position: new BABYLON.Vector3(0, 4, 0),
+        rotation: vec3DegToRad([0, 180, 0]),
+        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+      },
+      "Front Tire, Wheel, & Rim": {
+        position: new BABYLON.Vector3(0, 4, 0),
+        rotation: vec3DegToRad([0, 180, 0]),
         scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       },
   },
