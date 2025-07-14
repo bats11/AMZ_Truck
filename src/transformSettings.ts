@@ -5,6 +5,15 @@ export interface TransformSetting {
   position: BABYLON.Vector3;
   rotation?: BABYLON.Vector3;
   scaling?: BABYLON.Vector3;
+  sequenceStartTransform?: {
+    position?: BABYLON.Vector3;
+    rotation?: BABYLON.Vector3;
+    scaling?: BABYLON.Vector3;
+    durationScale?: number;
+    durationPosRot?: number;
+    triggerFovAdjust?: boolean;
+    triggerMidStep?: boolean;
+  };
   intermediate?: {
     position?: BABYLON.Vector3;
     rotation?: BABYLON.Vector3;
@@ -75,6 +84,14 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       rotation: vec3DegToRad([0, 268, 15]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       triggerFovAdjust: true,
+      sequenceStartTransform: 
+        {
+          position: new BABYLON.Vector3(0, 1, -10),
+          rotation: vec3DegToRad([0, 270, 0]),
+          scaling: new BABYLON.Vector3(0.1, 0.1, 0.1),
+          durationScale: 1.0,
+          durationPosRot: 2.0,
+        },
       intermediate: [
         {
           position: new BABYLON.Vector3(0, 1, -10),

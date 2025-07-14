@@ -86,10 +86,24 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
     animationCycle++;
 
-    const runSequence = async (steps: any[], finalStep: any) => {
+    const runSequence = async (
+      intermediateSteps: any[],
+      finalTransform: any,
+      settings: any
+    ) => {
       setUiInteractivity(true);
 
-      for (const step of steps) {
+      // 🆕 Step iniziale prima degli intermediate
+      if (settings.sequenceStartTransform) {
+        await handleInterpolatedTransform(
+          modelRoot!,
+          modelRoot!.getScene(),
+          settings.sequenceStartTransform,
+          activeCamera ?? undefined
+        );
+      }
+
+      for (const step of intermediateSteps) {
         await handleInterpolatedTransform(
           modelRoot!,
           modelRoot!.getScene(),
@@ -123,11 +137,11 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       await handleInterpolatedTransform(
         modelRoot!,
         modelRoot!.getScene(),
-        finalStep,
+        finalTransform,
         activeCamera ?? undefined
       );
 
-      if (finalStep.triggerFovAdjust && activeCamera && settings.finalCameraFov !== undefined) {
+      if (finalTransform.triggerFovAdjust && activeCamera && settings.finalCameraFov !== undefined) {
         const fovStep = {
           finalCameraFov: settings.finalCameraFov,
           durationCameraFov: settings.durationCameraFov ?? 1.5,
@@ -157,7 +171,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         activeCustomLabel = label;
 
         const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
-        await runSequence(steps, settings);
+        await runSequence(steps, settings, settings);
         return;
       }
     }
@@ -167,7 +181,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       activeCustomLabel = label;
 
       const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
-      await runSequence(steps, settings);
+      await runSequence(steps, settings, settings);
       return;
     }
 
