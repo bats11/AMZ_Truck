@@ -54,7 +54,7 @@ export async function handleInterpolatedTransform(
     durationPosRot?: number;
     finalCameraFov?: number;
     durationCameraFov?: number;
-    triggerFovAdjust?: boolean; // ✅ per rendere il FOV dichiarativo
+    triggerFovAdjust?: boolean;
   },
   camera?: BABYLON.FreeCamera
 ): Promise<void> {
@@ -87,7 +87,6 @@ export async function handleInterpolatedTransform(
     posRotAnims.push(createQuaternionAnimation(currentQ, targetQ, 0, moveFrames, easing));
   }
 
-  // ✅ Ora il FOV viene animato solo se triggerFovAdjust === true
   if (
     camera &&
     typeof step.finalCameraFov === "number" &&
@@ -116,7 +115,8 @@ export async function handleExitSequence(
   getTransformSetting: (label: string) => TransformSetting | undefined
 ): Promise<void> {
   const settings = getTransformSetting(fromLabel);
-  const steps = settings?.exitIntermediate ?? [];
+
+  const hasExitSteps = Array.isArray(settings?.exitIntermediate) && settings.exitIntermediate.length > 0;
 
   if (camera.fov !== initialCameraFov) {
     const easing = new BABYLON.CubicEase();
@@ -128,8 +128,13 @@ export async function handleExitSequence(
     scene.beginDirectAnimation(camera, [fovAnim], 0, frames, false);
   }
 
-  for (const step of steps) {
-    await handleInterpolatedTransform(modelRoot, scene, step, camera);
+  if (hasExitSteps) {
+    for (const step of settings!.exitIntermediate!) {
+      await handleInterpolatedTransform(modelRoot, scene, step, camera);
+    }
+  } else {
+    // ⚠ Assume che sequenceStartTransform sia sempre presente
+    await handleInterpolatedTransform(modelRoot, scene, settings!.sequenceStartTransform!, camera);
   }
 
   for (const name of previouslyHiddenNodes) {

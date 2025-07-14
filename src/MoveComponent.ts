@@ -78,7 +78,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         activeCustomLabel!,
         initialCameraFov!,
         previouslyHiddenNodes,
-        (lbl) => getTransformSetting(activeMenu ?? "", lbl)
+        (lbl) => transformSettings[lbl]?.settings
       );
       isInCustomSequence = false;
       activeCustomLabel = null;
