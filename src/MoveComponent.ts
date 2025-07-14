@@ -1,3 +1,4 @@
+// MoveComponent.ts — versione aggiornata con triggerMidStep flessibile
 import * as BABYLON from "@babylonjs/core";
 import { setMoveCameraTo, setUiInteractivity } from "./babylonBridge";
 import { getTransformSetting, transformSettings } from "./transformSettings";
@@ -88,6 +89,38 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
     animationCycle++;
 
+    const runSequence = async (steps: any[]) => {
+      setUiInteractivity(true);
+
+      for (const step of steps) {
+        await handleInterpolatedTransform(
+          modelRoot!,
+          modelRoot!.getScene(),
+          step,
+          activeCamera ?? undefined
+        );
+
+        // ✅ nuovo trigger flessibile
+        if (step.triggerMidStep && settings.hiddenNodes?.length) {
+          await handleCustomSequenceMidStep(
+            modelRoot!,
+            modelRoot!.getScene(),
+            settings,
+            previouslyHiddenNodes
+          );
+        }
+      }
+
+      await handleInterpolatedTransform(
+        modelRoot!,
+        modelRoot!.getScene(),
+        settings,
+        activeCamera ?? undefined
+      );
+
+      setUiInteractivity(false);
+    };
+
     if (!isSubmenu) {
       const currentScaleSq = modelRoot.scaling.lengthSquared();
       const targetScaleSq = settings.scaling
@@ -102,35 +135,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         activeCustomLabel = label;
 
         const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
-
-        setUiInteractivity(true); // 🔒 blocca pulsanti
-
-        for (let i = 0; i < steps.length; i++) {
-          const step = steps[i];
-          await handleInterpolatedTransform(
-            modelRoot,
-            modelRoot.getScene(),
-            step,
-            activeCamera ?? undefined
-          );
-          if (i === 0 && settings.hiddenNodes?.length) {
-            await handleCustomSequenceMidStep(
-              modelRoot,
-              modelRoot.getScene(),
-              settings,
-              previouslyHiddenNodes
-            );
-          }
-        }
-
-        await handleInterpolatedTransform(
-          modelRoot,
-          modelRoot.getScene(),
-          settings,
-          activeCamera ?? undefined
-        );
-
-        setUiInteractivity(false); // ✅ Sblocca pulsanti DOPO l’ultimo step
+        await runSequence(steps);
         return;
       }
     }
@@ -140,35 +145,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       activeCustomLabel = label;
 
       const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
-
-      setUiInteractivity(true); // 🔒 blocca pulsanti
-
-      for (let i = 0; i < steps.length; i++) {
-        const step = steps[i];
-        await handleInterpolatedTransform(
-          modelRoot,
-          modelRoot.getScene(),
-          step,
-          activeCamera ?? undefined
-        );
-        if (i === 0 && settings.hiddenNodes?.length) {
-          await handleCustomSequenceMidStep(
-            modelRoot,
-            modelRoot.getScene(),
-            settings,
-            previouslyHiddenNodes
-          );
-        }
-      }
-
-      await handleInterpolatedTransform(
-        modelRoot,
-        modelRoot.getScene(),
-        settings,
-        activeCamera ?? undefined
-      );
-
-      setUiInteractivity(false); // ✅ Sblocca pulsanti DOPO l’ultimo step
+      await runSequence(steps);
       return;
     }
 
