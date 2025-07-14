@@ -10,7 +10,7 @@ export class MaterialManager {
   }
 
   public configureGlassMaterial(): void {
-    const mat = this.scene.materials.find(m => m.name === "M_Car_Glass_01a");
+    const mat = this.scene.materials.find(m => m.name === "M_Car_Glass");
     if (!(mat instanceof BABYLON.PBRMaterial)) return;
 
     mat.alpha = 0;
