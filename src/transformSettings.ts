@@ -104,6 +104,16 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       position: new BABYLON.Vector3(-1.5, 1.5, -30),
       rotation: vec3DegToRad([0, 260, 0]),
       scaling: new BABYLON.Vector3(1.2, 1.2, 1.2),
+        exitIntermediate: [
+    {
+      position: new BABYLON.Vector3(0, 4, 0),
+      rotation: vec3DegToRad([0, 0, 0]),
+      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+      durationScale: 1.2,
+      durationPosRot: 2.2,
+    }
+  ]
+      
     },
     "Brakes": {
       position: new BABYLON.Vector3(0, 1.2, -28),
@@ -146,7 +156,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       },
       "Suspension & Exhaust System": {
         position: new BABYLON.Vector3(0, 1, -10),
-        rotation: vec3DegToRad([0, 90, 55]),
+        rotation: vec3DegToRad([-15, 90, 55]),
         scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       },
       /*"Suspension & Exhaust System": {
