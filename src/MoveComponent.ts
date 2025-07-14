@@ -93,7 +93,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
     ) => {
       setUiInteractivity(true);
 
-      // 🆕 Step iniziale prima degli intermediate
+      // 🆕 Esegui sequenceStartTransform (con triggerMidStep se presente)
       if (settings.sequenceStartTransform) {
         await handleInterpolatedTransform(
           modelRoot!,
@@ -101,8 +101,41 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           settings.sequenceStartTransform,
           activeCamera ?? undefined
         );
+
+        if (
+          settings.sequenceStartTransform.triggerMidStep &&
+          settings.hiddenNodes?.length
+        ) {
+          await handleCustomSequenceMidStep(
+            modelRoot!,
+            modelRoot!.getScene(),
+            settings,
+            previouslyHiddenNodes
+          );
+        }
+
+        // ✅ NUOVO: trigger FOV da sequenceStartTransform
+        if (
+          settings.sequenceStartTransform.triggerFovAdjust &&
+          activeCamera &&
+          typeof settings.finalCameraFov === "number"
+        ) {
+          const fovStep = {
+            finalCameraFov: settings.finalCameraFov,
+            durationCameraFov: settings.durationCameraFov ?? 1.5,
+            triggerFovAdjust: true,
+          };
+          await handleInterpolatedTransform(
+            modelRoot!,
+            modelRoot!.getScene(),
+            fovStep,
+            activeCamera
+          );
+        }
       }
 
+
+      // 🔄 Esegui steps intermedi
       for (const step of intermediateSteps) {
         await handleInterpolatedTransform(
           modelRoot!,
@@ -134,6 +167,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         }
       }
 
+      // 🎯 Step finale
       await handleInterpolatedTransform(
         modelRoot!,
         modelRoot!.getScene(),

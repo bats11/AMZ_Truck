@@ -88,19 +88,12 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
         {
           position: new BABYLON.Vector3(0, 1, -10),
           rotation: vec3DegToRad([0, 270, 0]),
-          scaling: new BABYLON.Vector3(0.1, 0.1, 0.1),
-          durationScale: 1.0,
-          durationPosRot: 2.0,
-        },
-      intermediate: [
-        {
-          position: new BABYLON.Vector3(0, 1, -10),
-          rotation: vec3DegToRad([0, 270, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
           durationPosRot: 2.0,
           triggerMidStep: true,
         },
+      intermediate: [
         {
           position: new BABYLON.Vector3(0, 0, -30.5),
           rotation: vec3DegToRad([0, 270, 0]),
