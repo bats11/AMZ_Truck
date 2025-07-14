@@ -12,6 +12,7 @@ export interface TransformSetting {
     durationScale?: number;
     durationPosRot?: number;
     triggerMidStep?: boolean;
+    triggerFovAdjust?: boolean;
   }[];
   exitIntermediate?: {
     position?: BABYLON.Vector3;
@@ -23,6 +24,7 @@ export interface TransformSetting {
   hiddenNodes?: string[];
   finalCameraFov?: number;
   durationCameraFov?: number;
+  triggerFovAdjust?: boolean;
 
   // ✅ Aggiunti per interpolazioni normali
   durationScale?: number;
@@ -72,6 +74,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       position: new BABYLON.Vector3(0.6, 0, -30.5),
       rotation: vec3DegToRad([0, 268, 15]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+      triggerFovAdjust: true,
       intermediate: [
         {
           position: new BABYLON.Vector3(0, 1, -10),
@@ -79,6 +82,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
           durationPosRot: 2.0,
+          triggerMidStep: true,
         },
         {
           position: new BABYLON.Vector3(0, 0, -30.5),
@@ -86,7 +90,6 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
           durationPosRot: 2.0,
-          triggerMidStep: true,
         },
       ],
       exitIntermediate: [

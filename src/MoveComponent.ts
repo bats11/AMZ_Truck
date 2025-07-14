@@ -1,4 +1,3 @@
-// MoveComponent.ts — versione aggiornata con triggerMidStep flessibile
 import * as BABYLON from "@babylonjs/core";
 import { setMoveCameraTo, setUiInteractivity } from "./babylonBridge";
 import { getTransformSetting, transformSettings } from "./transformSettings";
@@ -10,7 +9,6 @@ import {
 } from "./transformHandlers";
 import { handleCustomSequenceMidStep } from "./sequenceMidStep";
 import { playEntryAnimation } from "./entryAnimation";
-import { createAnimation } from "./utils";
 
 const typedSubmenuData = submenuData as Record<string, { isCustomSequence?: boolean }>;
 
@@ -59,7 +57,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
     label: string,
     opts?: { bypassBigToBig?: boolean; bypassCustomSequence?: boolean }
   ) => {
-
     if (!modelRoot) return;
 
     const isSubmenu = Object.values(submenuData).some((sub) => Object.keys(sub).includes(label));
@@ -89,7 +86,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
     animationCycle++;
 
-    const runSequence = async (steps: any[]) => {
+    const runSequence = async (steps: any[], finalStep: any) => {
       setUiInteractivity(true);
 
       for (const step of steps) {
@@ -100,7 +97,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           activeCamera ?? undefined
         );
 
-        // ✅ nuovo trigger flessibile
         if (step.triggerMidStep && settings.hiddenNodes?.length) {
           await handleCustomSequenceMidStep(
             modelRoot!,
@@ -109,14 +105,40 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
             previouslyHiddenNodes
           );
         }
+
+        if (step.triggerFovAdjust && activeCamera && settings.finalCameraFov !== undefined) {
+          const fovStep = {
+            finalCameraFov: settings.finalCameraFov,
+            durationCameraFov: settings.durationCameraFov ?? 1.5,
+          };
+          await handleInterpolatedTransform(
+            modelRoot!,
+            modelRoot!.getScene(),
+            fovStep,
+            activeCamera
+          );
+        }
       }
 
       await handleInterpolatedTransform(
         modelRoot!,
         modelRoot!.getScene(),
-        settings,
+        finalStep,
         activeCamera ?? undefined
       );
+
+      if (finalStep.triggerFovAdjust && activeCamera && settings.finalCameraFov !== undefined) {
+        const fovStep = {
+          finalCameraFov: settings.finalCameraFov,
+          durationCameraFov: settings.durationCameraFov ?? 1.5,
+        };
+        await handleInterpolatedTransform(
+          modelRoot!,
+          modelRoot!.getScene(),
+          fovStep,
+          activeCamera
+        );
+      }
 
       setUiInteractivity(false);
     };
@@ -135,7 +157,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         activeCustomLabel = label;
 
         const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
-        await runSequence(steps);
+        await runSequence(steps, settings);
         return;
       }
     }
@@ -145,7 +167,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       activeCustomLabel = label;
 
       const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
-      await runSequence(steps);
+      await runSequence(steps, settings);
       return;
     }
 

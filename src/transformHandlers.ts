@@ -54,6 +54,7 @@ export async function handleInterpolatedTransform(
     durationPosRot?: number;
     finalCameraFov?: number;
     durationCameraFov?: number;
+    triggerFovAdjust?: boolean; // ✅ per rendere il FOV dichiarativo
   },
   camera?: BABYLON.FreeCamera
 ): Promise<void> {
@@ -86,7 +87,13 @@ export async function handleInterpolatedTransform(
     posRotAnims.push(createQuaternionAnimation(currentQ, targetQ, 0, moveFrames, easing));
   }
 
-  if (camera && typeof step.finalCameraFov === "number") {
+  // ✅ Ora il FOV viene animato solo se triggerFovAdjust === true
+  if (
+    camera &&
+    typeof step.finalCameraFov === "number" &&
+    "triggerFovAdjust" in step &&
+    step.triggerFovAdjust === true
+  ) {
     const fovFrames = Math.ceil((step.durationCameraFov ?? 1.5) * frameRate);
     const fovAnim = createAnimation("fov", camera.fov, step.finalCameraFov, 0, fovFrames, easing);
     scene.beginDirectAnimation(camera, [fovAnim], 0, fovFrames, false, 1.0);
