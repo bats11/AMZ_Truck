@@ -1,20 +1,20 @@
 @font-face {
   font-family: 'EmberCondensedBold';
-  src: url('/assets/fonts/ember/EmberCdRC_Bd.ttf') format('truetype');
+  src: url('./assests/fonts/Ember/EmberCdRC_Bd.ttf') format('truetype');
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'EmberCondensed';
-  src: url('/assets/fonts/ember/EmberCdRC_Rg.ttf') format('truetype');
+  src: url('./assests/fonts/Ember/EmberCdRC_Rg.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'EmberLight';
-  src: url('/assets/fonts/ember/EmberCdRC_Lt.ttf') format('truetype');
+  src: url('./assests/fonts/Ember/EmberCdRC_Lt.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
 }
