@@ -1,7 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 import { setMoveCameraTo, setUiInteractivity } from "./babylonBridge";
 import { getTransformSetting, transformSettings } from "./transformSettings";
-import submenuData from "./data/submenuData.json";
+import submenuData from "./data/SubmenuData.json";
 import {
   handleClassicTransform,
   handleInterpolatedTransform,
