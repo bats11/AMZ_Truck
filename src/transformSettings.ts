@@ -111,7 +111,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
           durationPosRot: 2,
         },
       ],
-      hiddenNodes: ["SM_Driver_Seat_01a.001"],
+      hiddenNodes: ["SM_Driver_Seat_Rear"],
       finalCameraFov: BABYLON.Tools.ToRadians(60),
       durationCameraFov: 2,
     },

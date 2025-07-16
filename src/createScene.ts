@@ -37,7 +37,7 @@ export async function createScene() {
 
   loadModel(scene, (meshes, bounding) => {
 
-    console.log("📦 Nodi disponibili nella scena:");
+  console.log("📦 Nodi disponibili nella scena:");
   scene.meshes.forEach((m) => console.log(`Mesh: ${m.name}`));
   scene.transformNodes.forEach((n) => console.log(`Node: ${n.name}`));
 
