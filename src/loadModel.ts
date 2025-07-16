@@ -7,13 +7,25 @@ export interface BoundingInfoData {
   max: BABYLON.Vector3;
 }
 
+interface AnimationConfig {
+  autoPlay?: boolean;
+  stopAt?: "start" | "end";
+  loop?: boolean;
+}
+
+const animationConfigs: Record<string, AnimationConfig> = {
+  "TruckOnly.glb": { autoPlay: false },
+  "Back Door.glb": { autoPlay: false, stopAt: "start" },
+  "Inside Door.glb": { autoPlay: false, stopAt: "start" },
+};
+
 export function loadModel(
   scene: BABYLON.Scene,
   onLoadComplete: (meshes: BABYLON.AbstractMesh[], boundingInfo: BoundingInfoData) => void,
   onFinish?: () => void
 ) {
   const baseUrl = "/assets/";
-  const glbList = ["TruckOnly.glb","Back Door.glb"]; // Aggiungi altri glb qui
+  const glbList = ["TruckOnly.glb", "Back Door.glb", "Inside Door.glb"];
   const totalModels = glbList.length;
 
   const materialManager = new MaterialManager(scene, baseUrl);
@@ -24,12 +36,10 @@ export function loadModel(
   let globalMax: BABYLON.Vector3 | null = null;
 
   const onAllLoaded = () => {
-    // Calcola centro e crea il nodo root
     const center = globalMin!.add(globalMax!).scale(0.5);
     const root = new BABYLON.TransformNode("ModelRoot", scene);
     root.position = center;
 
-    // Applica parent e ricezione ombre
     for (const mesh of allMeshes) {
       mesh.receiveShadows = true;
       mesh.setParent(root, true);
@@ -60,14 +70,36 @@ export function loadModel(
 
         materialManager.prepareMaterialsForVisibility(meshes);
 
-        // Calcolo bounding box globale
-        for (const mesh of meshes) {
-          const bb = mesh.getBoundingInfo().boundingBox;
-          const min = bb.minimumWorld;
-          const max = bb.maximumWorld;
+        const config = animationConfigs[fileName] ?? {};
+        if (container.animationGroups.length > 0) {
+          for (const group of container.animationGroups) {
+            group.loopAnimation = config.loop ?? false;
 
-          globalMin = globalMin ? BABYLON.Vector3.Minimize(globalMin, min) : min.clone();
-          globalMax = globalMax ? BABYLON.Vector3.Maximize(globalMax, max) : max.clone();
+            if (config.autoPlay) {
+              group.play(true);
+            } else {
+              group.reset();
+              group.play(false); // forza i target
+              if (config.stopAt === "end") {
+                group.goToFrame(group.to);
+              } else if (config.stopAt === "start") {
+                group.goToFrame(group.from);
+              }
+              group.stop();
+            }
+          }
+        }
+
+        // ✅ Calcolo bounding box SOLO per "TruckOnly.glb"
+        if (fileName === "TruckOnly.glb") {
+          for (const mesh of meshes) {
+            const bb = mesh.getBoundingInfo().boundingBox;
+            const min = bb.minimumWorld;
+            const max = bb.maximumWorld;
+
+            globalMin = globalMin ? BABYLON.Vector3.Minimize(globalMin, min) : min.clone();
+            globalMax = globalMax ? BABYLON.Vector3.Maximize(globalMax, max) : max.clone();
+          }
         }
 
         modelsLoaded++;
