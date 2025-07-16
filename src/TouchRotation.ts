@@ -5,8 +5,6 @@ import { getTouchLocked } from "./babylonBridge";
 let rootNode: BABYLON.TransformNode | null = null;
 let isDragging = false;
 let lastX = 0;
-let lastY = 0;
-let velocityX = 0;
 let velocityY = 0;
 let animationFrame: number | null = null;
 
@@ -36,8 +34,6 @@ function onPointerDown(e: PointerEvent) {
 
   isDragging = true;
   lastX = e.clientX;
-  lastY = e.clientY;
-  velocityX = 0;
   velocityY = 0;
 
   // Assicura che rotationQuaternion sia attivo
@@ -50,26 +46,17 @@ function onPointerMove(e: PointerEvent) {
   if (!isDragging || !rootNode || getTouchLocked()) return;
 
   const deltaX = e.clientX - lastX;
-  const deltaY = e.clientY - lastY;
   lastX = e.clientX;
-  lastY = e.clientY;
 
   const rotY = deltaX * ROTATION_SPEED;
-  const rotX = deltaY * ROTATION_SPEED;
-
-  velocityX = rotX;
   velocityY = rotY;
 
-  const qDeltaX = BABYLON.Quaternion.FromEulerAngles(-rotX, 0, 0);
-  const qDeltaY = BABYLON.Quaternion.FromEulerAngles(0, -rotY, 0);
-  const qDelta = qDeltaX.multiply(qDeltaY);
-
+  const qDelta = BABYLON.Quaternion.FromEulerAngles(0, -rotY, 0);
   rootNode.rotationQuaternion = qDelta.multiply(rootNode.rotationQuaternion!);
 }
 
 function onPointerUp() {
   if (!rootNode) return;
-
   isDragging = false;
   applyInertia();
 }
@@ -79,14 +66,10 @@ function applyInertia() {
 
   let applied = false;
 
-  if (Math.abs(velocityX) > MIN_VELOCITY || Math.abs(velocityY) > MIN_VELOCITY) {
-    const qDeltaX = BABYLON.Quaternion.FromEulerAngles(-velocityX, 0, 0);
-    const qDeltaY = BABYLON.Quaternion.FromEulerAngles(0, -velocityY, 0);
-    const qDelta = qDeltaX.multiply(qDeltaY);
-
+  if (Math.abs(velocityY) > MIN_VELOCITY) {
+    const qDelta = BABYLON.Quaternion.FromEulerAngles(0, -velocityY, 0);
     rootNode.rotationQuaternion = qDelta.multiply(rootNode.rotationQuaternion!);
 
-    velocityX *= INERTIA_DECAY;
     velocityY *= INERTIA_DECAY;
     applied = true;
   }
