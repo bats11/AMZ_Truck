@@ -170,7 +170,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
         scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       },
       "Suspension & Exhaust System": {
-        position: new BABYLON.Vector3(0, 1, -10),
+        position: new BABYLON.Vector3(0, 1, -12),
         rotation: vec3DegToRad([-15, 90, 55]),
         scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       },
