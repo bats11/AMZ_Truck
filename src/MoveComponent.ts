@@ -8,6 +8,7 @@ import {
   handleExitSequence,
 } from "./transformHandlers";
 import { handleHideMeshes } from "./hideMeshes";
+import { handleAnimatedMeshes } from "./animatedMeshes";
 import { playEntryAnimation } from "./entryAnimation";
 
 const typedSubmenuData = submenuData as Record<string, { isCustomSequence?: boolean }>;
@@ -93,7 +94,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
     ) => {
       setUiInteractivity(true);
 
-      // 🆕 Esegui sequenceStartTransform (con hideMeshes se presente)
       if (settings.sequenceStartTransform) {
         await handleInterpolatedTransform(
           modelRoot!,
@@ -111,6 +111,14 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
             modelRoot!.getScene(),
             settings,
             previouslyHiddenNodes
+          );
+        }
+
+        if (settings.sequenceStartTransform.animateMeshes) {
+          await handleAnimatedMeshes(
+            modelRoot!,
+            modelRoot!.getScene(),
+            settings
           );
         }
 
@@ -133,7 +141,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         }
       }
 
-      // 🔄 Esegui steps intermedi
       for (const step of intermediateSteps) {
         await handleInterpolatedTransform(
           modelRoot!,
@@ -151,6 +158,14 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           );
         }
 
+        if (step.animateMeshes) {
+          await handleAnimatedMeshes(
+            modelRoot!,
+            modelRoot!.getScene(),
+            settings
+          );
+        }
+
         if (step.triggerFovAdjust && activeCamera && settings.finalCameraFov !== undefined) {
           const fovStep = {
             finalCameraFov: settings.finalCameraFov,
@@ -165,7 +180,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         }
       }
 
-      // 🎯 Step finale
       await handleInterpolatedTransform(
         modelRoot!,
         modelRoot!.getScene(),

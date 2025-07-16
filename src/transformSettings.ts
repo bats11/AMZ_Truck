@@ -13,6 +13,7 @@ export interface TransformSetting {
     durationPosRot?: number;
     triggerFovAdjust?: boolean;
     hideMeshes?: boolean;
+    animateMeshes?: boolean;
   };
   intermediate?: {
     position?: BABYLON.Vector3;
@@ -22,6 +23,7 @@ export interface TransformSetting {
     durationPosRot?: number;
     hideMeshes?: boolean;
     triggerFovAdjust?: boolean;
+    animateMeshes?: boolean;
   }[];
   exitIntermediate?: {
     position?: BABYLON.Vector3;
@@ -29,15 +31,18 @@ export interface TransformSetting {
     scaling?: BABYLON.Vector3;
     durationScale?: number;
     durationPosRot?: number;
+    animateMeshes?: boolean;
   }[];
   hiddenNodes?: string[];
   finalCameraFov?: number;
   durationCameraFov?: number;
   triggerFovAdjust?: boolean;
+  animateMeshes?: boolean;
 
   // ✅ Aggiunti per interpolazioni normali
   durationScale?: number;
   durationPosRot?: number;
+  hideMeshes?: boolean;
 }
 
 

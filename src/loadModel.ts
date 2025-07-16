@@ -1,3 +1,4 @@
+// loadModel.ts
 import * as BABYLON from "@babylonjs/core";
 import { MaterialManager } from "./materialManager";
 
@@ -12,63 +13,70 @@ export function loadModel(
   onFinish?: () => void
 ) {
   const baseUrl = "/assets/";
-  const materialManager = new MaterialManager(scene, baseUrl);
+  const glbList = ["TruckOnly.glb"]; // Aggiungi altri glb qui
+  const totalModels = glbList.length;
 
+  const materialManager = new MaterialManager(scene, baseUrl);
   let modelsLoaded = 0;
-  const totalModels = 1;
-  let firstMeshes: BABYLON.AbstractMesh[] = [];
-  let boundingInfo!: BoundingInfoData;
+
+  const allMeshes: BABYLON.AbstractMesh[] = [];
+  let globalMin: BABYLON.Vector3 | null = null;
+  let globalMax: BABYLON.Vector3 | null = null;
 
   const onAllLoaded = () => {
-    onLoadComplete(firstMeshes, boundingInfo);
+    // Calcola centro e crea il nodo root
+    const center = globalMin!.add(globalMax!).scale(0.5);
+    const root = new BABYLON.TransformNode("ModelRoot", scene);
+    root.position = center;
+
+    // Applica parent e ricezione ombre
+    for (const mesh of allMeshes) {
+      mesh.receiveShadows = true;
+      mesh.setParent(root, true);
+    }
+
+    materialManager.configureGlassMaterial();
+
+    const boundingInfo: BoundingInfoData = {
+      min: globalMin!,
+      max: globalMax!,
+    };
+
+    onLoadComplete(allMeshes, boundingInfo);
     if (onFinish) onFinish();
     (window as any).finishReactLoading?.();
   };
 
-  BABYLON.SceneLoader.LoadAssetContainer(
-    baseUrl, "TruckOnly.glb", scene,
-    (container) => {
-      container.addAllToScene();
+  for (const fileName of glbList) {
+    BABYLON.SceneLoader.LoadAssetContainer(
+      baseUrl,
+      fileName,
+      scene,
+      (container) => {
+        container.addAllToScene();
 
-      const meshes = container.meshes.filter(m => m.name !== "__root__");
-      firstMeshes = meshes;
+        const meshes = container.meshes.filter(m => m.name !== "__root__");
+        allMeshes.push(...meshes);
 
-      // ✅ Predisposizione materiali per visibility
-      materialManager.prepareMaterialsForVisibility(meshes);
+        materialManager.prepareMaterialsForVisibility(meshes);
 
-      /*for (const mesh of meshes) {
-        mesh.visibility = 0;
-      }*/
+        // Calcolo bounding box globale
+        for (const mesh of meshes) {
+          const bb = mesh.getBoundingInfo().boundingBox;
+          const min = bb.minimumWorld;
+          const max = bb.maximumWorld;
 
-      // Calcola bounding box prima del parenting
-      let min = meshes[0].getBoundingInfo().boundingBox.minimumWorld.clone();
-      let max = meshes[0].getBoundingInfo().boundingBox.maximumWorld.clone();
+          globalMin = globalMin ? BABYLON.Vector3.Minimize(globalMin, min) : min.clone();
+          globalMax = globalMax ? BABYLON.Vector3.Maximize(globalMax, max) : max.clone();
+        }
 
-      for (const mesh of meshes) {
-        const bb = mesh.getBoundingInfo().boundingBox;
-        min = BABYLON.Vector3.Minimize(min, bb.minimumWorld);
-        max = BABYLON.Vector3.Maximize(max, bb.maximumWorld);
+        modelsLoaded++;
+        if (modelsLoaded === totalModels) onAllLoaded();
+      },
+      undefined,
+      (err) => {
+        console.error(`❌ Error loading ${fileName}:`, err);
       }
-
-      const center = min.add(max).scale(0.5);
-      boundingInfo = { min, max };
-
-      const root = new BABYLON.TransformNode("ModelRoot", scene);
-      root.position = center;
-
-      for (const mesh of meshes) {
-        mesh.receiveShadows = true;
-        mesh.setParent(root, true);
-      }
-
-      materialManager.configureGlassMaterial();
-
-      modelsLoaded++;
-      if (modelsLoaded === totalModels) onAllLoaded();
-    },
-    undefined,
-    (err) => {
-      console.error("Error loading TruckOnly.glb:", err);
-    }
-  );
+    );
+  }
 }
