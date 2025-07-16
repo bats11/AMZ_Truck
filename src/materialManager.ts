@@ -23,4 +23,32 @@ export class MaterialManager {
     mat.subSurface.translucencyIntensity = 0.9;
     console.log("✔️ Glass material configured.");
   }
+
+  public prepareMaterialsForVisibility(meshes: BABYLON.AbstractMesh[]): void {
+    const updated = new Set<string>();
+
+    for (const mesh of meshes) {
+      const mat = mesh.material;
+
+      if (!mat || updated.has(mat.name)) continue;
+      if (mat.name === "M_Car_Glass") continue;
+
+      if (mat instanceof BABYLON.PBRMaterial) {
+        mat.alpha = 1;
+        mat.transparencyMode = BABYLON.PBRMaterial.PBRMATERIAL_ALPHABLEND;
+        mat.needDepthPrePass = true;
+        mat.forceDepthWrite = false;
+        mat.backFaceCulling = false;
+        updated.add(mat.name);
+        console.log(`✅ PBR material prepared: ${mat.name}`);
+      } else if (mat instanceof BABYLON.StandardMaterial) {
+        mat.alpha = 1;
+        mat.backFaceCulling = false;
+        updated.add(mat.name);
+        console.log(`✅ Standard material prepared: ${mat.name}`);
+      } else {
+        console.warn(`⚠️ Material not compatible: ${mat.name}`);
+      }
+    }
+  }
 }

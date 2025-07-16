@@ -133,14 +133,23 @@ export async function handleExitSequence(
       await handleInterpolatedTransform(modelRoot, scene, step, camera);
     }
   } else {
-    // ⚠ Assume che sequenceStartTransform sia sempre presente
     await handleInterpolatedTransform(modelRoot, scene, settings!.sequenceStartTransform!, camera);
   }
 
+  // 🔁 Fade-in delle mesh precedentemente nascoste
   for (const name of previouslyHiddenNodes) {
     const node = scene.getNodeByName(name);
     if (node && node instanceof BABYLON.AbstractMesh) {
-      node.isVisible = true;
+      BABYLON.Animation.CreateAndStartAnimation(
+        `fadeIn_${name}`,
+        node,
+        "visibility",
+        60, // fps
+        30, // durata frame (0.5s)
+        node.visibility,
+        1,
+        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+      );
     }
   }
 

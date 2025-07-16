@@ -21,8 +21,6 @@ export function loadModel(
 
   const onAllLoaded = () => {
     onLoadComplete(firstMeshes, boundingInfo);
-
-    // ✅ Fine caricamento — notifico React
     if (onFinish) onFinish();
     (window as any).finishReactLoading?.();
   };
@@ -34,6 +32,13 @@ export function loadModel(
 
       const meshes = container.meshes.filter(m => m.name !== "__root__");
       firstMeshes = meshes;
+
+      // ✅ Predisposizione materiali per visibility
+      materialManager.prepareMaterialsForVisibility(meshes);
+
+      /*for (const mesh of meshes) {
+        mesh.visibility = 0;
+      }*/
 
       // Calcola bounding box prima del parenting
       let min = meshes[0].getBoundingInfo().boundingBox.minimumWorld.clone();
