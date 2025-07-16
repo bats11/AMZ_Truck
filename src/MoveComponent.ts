@@ -7,7 +7,7 @@ import {
   handleInterpolatedTransform,
   handleExitSequence,
 } from "./transformHandlers";
-import { handleCustomSequenceMidStep } from "./sequenceMidStep";
+import { handleHideMeshes } from "./hideMeshes";
 import { playEntryAnimation } from "./entryAnimation";
 
 const typedSubmenuData = submenuData as Record<string, { isCustomSequence?: boolean }>;
@@ -106,7 +106,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           settings.sequenceStartTransform.triggerMidStep &&
           settings.hiddenNodes?.length
         ) {
-          await handleCustomSequenceMidStep(
+          await handleHideMeshes(
             modelRoot!,
             modelRoot!.getScene(),
             settings,
@@ -114,7 +114,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           );
         }
 
-        // ✅ NUOVO: trigger FOV da sequenceStartTransform
         if (
           settings.sequenceStartTransform.triggerFovAdjust &&
           activeCamera &&
@@ -134,7 +133,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         }
       }
 
-
       // 🔄 Esegui steps intermedi
       for (const step of intermediateSteps) {
         await handleInterpolatedTransform(
@@ -145,7 +143,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         );
 
         if (step.triggerMidStep && settings.hiddenNodes?.length) {
-          await handleCustomSequenceMidStep(
+          await handleHideMeshes(
             modelRoot!,
             modelRoot!.getScene(),
             settings,

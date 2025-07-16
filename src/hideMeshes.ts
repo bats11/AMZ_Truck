@@ -4,7 +4,7 @@ import { TransformSetting } from "./transformSettings";
 /**
  * Esegue un fade-out animato sulle mesh specificate da `settings.hiddenNodes`.
  */
-export async function handleCustomSequenceMidStep(
+export async function handleHideMeshes(
   node: BABYLON.TransformNode,
   scene: BABYLON.Scene,
   settings?: TransformSetting,
