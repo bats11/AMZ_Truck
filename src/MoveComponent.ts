@@ -93,7 +93,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
     ) => {
       setUiInteractivity(true);
 
-      // 🆕 Esegui sequenceStartTransform (con triggerMidStep se presente)
+      // 🆕 Esegui sequenceStartTransform (con hideMeshes se presente)
       if (settings.sequenceStartTransform) {
         await handleInterpolatedTransform(
           modelRoot!,
@@ -103,7 +103,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         );
 
         if (
-          settings.sequenceStartTransform.triggerMidStep &&
+          settings.sequenceStartTransform.hideMeshes &&
           settings.hiddenNodes?.length
         ) {
           await handleHideMeshes(
@@ -142,7 +142,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           activeCamera ?? undefined
         );
 
-        if (step.triggerMidStep && settings.hiddenNodes?.length) {
+        if (step.hideMeshes && settings.hiddenNodes?.length) {
           await handleHideMeshes(
             modelRoot!,
             modelRoot!.getScene(),

@@ -12,7 +12,7 @@ export interface TransformSetting {
     durationScale?: number;
     durationPosRot?: number;
     triggerFovAdjust?: boolean;
-    triggerMidStep?: boolean;
+    hideMeshes?: boolean;
   };
   intermediate?: {
     position?: BABYLON.Vector3;
@@ -20,7 +20,7 @@ export interface TransformSetting {
     scaling?: BABYLON.Vector3;
     durationScale?: number;
     durationPosRot?: number;
-    triggerMidStep?: boolean;
+    hideMeshes?: boolean;
     triggerFovAdjust?: boolean;
   }[];
   exitIntermediate?: {
@@ -91,7 +91,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
           durationPosRot: 2.0,
-          triggerMidStep: true,
+          hideMeshes: true,
         },
       intermediate: [
         {
