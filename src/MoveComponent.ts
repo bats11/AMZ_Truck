@@ -1,3 +1,4 @@
+// MoveComponent.ts
 import * as BABYLON from "@babylonjs/core";
 import { setMoveCameraTo, setUiInteractivity } from "./babylonBridge";
 import { getTransformSetting, transformSettings } from "./transformSettings";
@@ -118,7 +119,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           await handleAnimatedMeshes(
             modelRoot!,
             modelRoot!.getScene(),
-            settings
+            settings.sequenceStartTransform
           );
         }
 
@@ -162,7 +163,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           await handleAnimatedMeshes(
             modelRoot!,
             modelRoot!.getScene(),
-            settings
+            step
           );
         }
 

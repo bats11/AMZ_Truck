@@ -13,11 +13,15 @@ interface AnimationConfig {
   loop?: boolean;
 }
 
+// Configurazioni per ogni file GLB
 const animationConfigs: Record<string, AnimationConfig> = {
   "TruckOnly.glb": { autoPlay: false },
   "Back Door.glb": { autoPlay: false, stopAt: "start" },
   "Inside Door.glb": { autoPlay: false, stopAt: "start" },
 };
+
+// ✅ Mappa globale per accedere ai gruppi di animazione per nome
+export const animationGroupsByName: Record<string, BABYLON.AnimationGroup[]> = {};
 
 export function loadModel(
   scene: BABYLON.Scene,
@@ -71,22 +75,31 @@ export function loadModel(
         materialManager.prepareMaterialsForVisibility(meshes);
 
         const config = animationConfigs[fileName] ?? {};
-        if (container.animationGroups.length > 0) {
-          for (const group of container.animationGroups) {
-            group.loopAnimation = config.loop ?? false;
 
-            if (config.autoPlay) {
-              group.play(true);
-            } else {
-              group.reset();
-              group.play(false); // forza i target
-              if (config.stopAt === "end") {
-                group.goToFrame(group.to);
-              } else if (config.stopAt === "start") {
-                group.goToFrame(group.from);
-              }
-              group.stop();
+        // ✅ Rinomina base del file (senza estensione)
+        const baseKey = fileName.replace(".glb", "");
+
+        // ✅ Salva animazioni nella mappa
+        if (!animationGroupsByName[baseKey]) {
+          animationGroupsByName[baseKey] = [];
+        }
+
+        for (const group of container.animationGroups) {
+          animationGroupsByName[baseKey].push(group);
+
+          group.loopAnimation = config.loop ?? false;
+
+          if (config.autoPlay) {
+            group.play(true);
+          } else {
+            group.reset();
+            group.play(false);
+            if (config.stopAt === "end") {
+              group.goToFrame(group.to);
+            } else if (config.stopAt === "start") {
+              group.goToFrame(group.from);
             }
+            group.stop();
           }
         }
 

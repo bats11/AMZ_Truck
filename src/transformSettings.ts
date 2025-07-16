@@ -1,10 +1,13 @@
 // transformSettings.ts — ristrutturato con struttura gerarchica
 import * as BABYLON from "@babylonjs/core";
 
+// transformSettings.ts
+
 export interface TransformSetting {
   position: BABYLON.Vector3;
   rotation?: BABYLON.Vector3;
   scaling?: BABYLON.Vector3;
+
   sequenceStartTransform?: {
     position?: BABYLON.Vector3;
     rotation?: BABYLON.Vector3;
@@ -14,7 +17,9 @@ export interface TransformSetting {
     triggerFovAdjust?: boolean;
     hideMeshes?: boolean;
     animateMeshes?: boolean;
+    animatedMeshGroups?: string[]; // ✅ Aggiunto
   };
+
   intermediate?: {
     position?: BABYLON.Vector3;
     rotation?: BABYLON.Vector3;
@@ -24,7 +29,9 @@ export interface TransformSetting {
     hideMeshes?: boolean;
     triggerFovAdjust?: boolean;
     animateMeshes?: boolean;
+    animatedMeshGroups?: string[]; // ✅ Aggiunto
   }[];
+
   exitIntermediate?: {
     position?: BABYLON.Vector3;
     rotation?: BABYLON.Vector3;
@@ -32,18 +39,21 @@ export interface TransformSetting {
     durationScale?: number;
     durationPosRot?: number;
     animateMeshes?: boolean;
+    animatedMeshGroups?: string[]; // ✅ Aggiunto
   }[];
+
   hiddenNodes?: string[];
   finalCameraFov?: number;
   durationCameraFov?: number;
   triggerFovAdjust?: boolean;
   animateMeshes?: boolean;
+  animatedMeshGroups?: string[]; // ✅ Aggiunto
 
-  // ✅ Aggiunti per interpolazioni normali
   durationScale?: number;
   durationPosRot?: number;
   hideMeshes?: boolean;
 }
+
 
 
 function degToRad(deg: number): number {
@@ -97,6 +107,8 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
           durationScale: 1.0,
           durationPosRot: 2.0,
           hideMeshes: true,
+          animateMeshes: true,
+          animatedMeshGroups: ["Back Door"],
         },
       intermediate: [
         {
