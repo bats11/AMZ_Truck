@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { moveCameraTo } from "../babylonBridge";
 import { setActiveMenuForTransforms } from "../MoveComponent";
-import submenuData from "../data/submenuData.json";
+import submenuData from "../data/SubmenuData.json";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface SubmenuDetails {
