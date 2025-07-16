@@ -95,7 +95,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
 
   "IN CAB": {
     settings: {
-      position: new BABYLON.Vector3(0.6, 0, -30.5),
+      position: new BABYLON.Vector3(0.5, 0, -30.5),
       rotation: vec3DegToRad([0, 268, 15]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       triggerFovAdjust: true,
@@ -108,7 +108,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
           durationPosRot: 2.0,
           hideMeshes: true,
           animateMeshes: true,
-          animatedMeshGroups: ["Back Door"],
+          animatedMeshGroups: ["Back Door","Inside Door"],
         },
       intermediate: [
         {

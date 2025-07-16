@@ -4,7 +4,8 @@ import { TransformSetting } from "./transformSettings";
 import { animationGroupsByName } from "./loadModel";
 
 /**
- * Avvia le animazioni per i gruppi specificati in settings.animatedMeshGroups.
+ * Avvia le animazioni per i gruppi specificati in settings.animatedMeshGroups
+ * e attende la fine di tutte prima di restituire il controllo.
  */
 export async function handleAnimatedMeshes(
   node: BABYLON.TransformNode,
@@ -16,6 +17,8 @@ export async function handleAnimatedMeshes(
     return;
   }
 
+  const promises: Promise<void>[] = [];
+
   for (const groupKey of settings.animatedMeshGroups) {
     const groups = animationGroupsByName[groupKey];
     if (!groups || groups.length === 0) {
@@ -26,7 +29,19 @@ export async function handleAnimatedMeshes(
     console.log(`🎬 Avvio animazioni per: ${groupKey}`);
     for (const group of groups) {
       group.reset();
-      group.play(false); // false = non in loop, salvo override
+
+      const p = new Promise<void>((resolve) => {
+        const onEnd = () => {
+          group.onAnimationGroupEndObservable.removeCallback(onEnd);
+          resolve();
+        };
+        group.onAnimationGroupEndObservable.add(onEnd);
+      });
+
+      group.play(false);
+      promises.push(p);
     }
   }
+
+  await Promise.all(promises);
 }
