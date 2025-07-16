@@ -13,7 +13,7 @@ export function loadModel(
   onFinish?: () => void
 ) {
   const baseUrl = "/assets/";
-  const glbList = ["TruckOnly.glb"]; // Aggiungi altri glb qui
+  const glbList = ["TruckOnly.glb","Back Door.glb"]; // Aggiungi altri glb qui
   const totalModels = glbList.length;
 
   const materialManager = new MaterialManager(scene, baseUrl);
