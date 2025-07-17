@@ -10,6 +10,7 @@ import {
 } from "./transformHandlers";
 import { handleHideMeshes } from "./hideMeshes";
 import { handleAnimatedMeshes } from "./animatedMeshes";
+import { handleExitAnimations } from "./animatedMeshes";
 import { playEntryAnimation } from "./entryAnimation";
 import { resetDamageVisibility, showDamageMeshes } from "./damageManager";
 
@@ -86,6 +87,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         previouslyHiddenNodes,
         (lbl) => transformSettings[lbl]?.settings
       );
+      handleExitAnimations(scene);
       isInCustomSequence = false;
       activeCustomLabel = null;
     }

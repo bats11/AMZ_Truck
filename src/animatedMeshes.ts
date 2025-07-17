@@ -3,9 +3,11 @@ import * as BABYLON from "@babylonjs/core";
 import { TransformSetting } from "./transformSettings";
 import { animationGroupsByName } from "./loadModel";
 
+// 🔁 Traccia dei gruppi animati
+const playedAnimationGroups = new Set<string>();
+
 /**
- * Avvia le animazioni per i gruppi specificati in settings.animatedMeshGroups
- * e attende la fine di tutte prima di restituire il controllo.
+ * Avvia le animazioni per i gruppi specificati e attende la fine
  */
 export async function handleAnimatedMeshes(
   node: BABYLON.TransformNode,
@@ -27,6 +29,8 @@ export async function handleAnimatedMeshes(
     }
 
     console.log(`🎬 Avvio animazioni per: ${groupKey}`);
+    playedAnimationGroups.add(groupKey); // 👈 Salviamo il gruppo usato
+
     for (const group of groups) {
       group.reset();
 
@@ -38,10 +42,34 @@ export async function handleAnimatedMeshes(
         group.onAnimationGroupEndObservable.add(onEnd);
       });
 
-      group.play(false);
+      group.play(false); // normale
       promises.push(p);
     }
   }
 
   await Promise.all(promises);
 }
+
+/**
+ * Riproduce in reverse tutte le animazioni precedentemente giocate
+ */
+// animatedMeshes.ts
+
+export function handleExitAnimations(scene: BABYLON.Scene): void {
+  for (const groupKey of playedAnimationGroups) {
+    const groups = animationGroupsByName[groupKey];
+    if (!groups) continue;
+
+    console.log(`↩️ Reverse animazioni (non bloccanti) per: ${groupKey}`);
+
+    for (const group of groups) {
+      group.reset();
+      group.goToFrame(group.to);
+      group.speedRatio = -1;
+      group.play(false);
+    }
+  }
+
+  playedAnimationGroups.clear(); // 🧹 reset stato
+}
+

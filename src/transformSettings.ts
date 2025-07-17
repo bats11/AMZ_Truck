@@ -132,7 +132,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       exitIntermediate: [
         {
           position: new BABYLON.Vector3(0, 4, 0),
-          rotation: vec3DegToRad([0, 0, 0]),
+          rotation: vec3DegToRad([0, 268, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
           durationPosRot: 2,
