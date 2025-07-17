@@ -28,11 +28,15 @@ export async function handleAnimatedMeshes(
       continue;
     }
 
-    console.log(`🎬 Avvio animazioni per: ${groupKey}`);
-    playedAnimationGroups.add(groupKey); // 👈 Salviamo il gruppo usato
+    console.log(`🎬 Avvio animazioni FORWARD per: ${groupKey}`);
+    playedAnimationGroups.add(groupKey);
 
     for (const group of groups) {
+      // Forziamo lo stato di ripartenza
+      group.stop();
       group.reset();
+      group.speedRatio = 1;
+      group.goToFrame(group.from);
 
       const p = new Promise<void>((resolve) => {
         const onEnd = () => {
@@ -42,7 +46,7 @@ export async function handleAnimatedMeshes(
         group.onAnimationGroupEndObservable.add(onEnd);
       });
 
-      group.play(false); // normale
+      group.play(false); // play forward
       promises.push(p);
     }
   }
@@ -53,23 +57,21 @@ export async function handleAnimatedMeshes(
 /**
  * Riproduce in reverse tutte le animazioni precedentemente giocate
  */
-// animatedMeshes.ts
-
 export function handleExitAnimations(scene: BABYLON.Scene): void {
   for (const groupKey of playedAnimationGroups) {
     const groups = animationGroupsByName[groupKey];
     if (!groups) continue;
 
-    console.log(`↩️ Reverse animazioni (non bloccanti) per: ${groupKey}`);
+    console.log(`↩️ Reverse animazioni per: ${groupKey}`);
 
     for (const group of groups) {
+      group.stop();
       group.reset();
-      group.goToFrame(group.to);
       group.speedRatio = -1;
+      group.goToFrame(group.to);
       group.play(false);
     }
   }
 
-  playedAnimationGroups.clear(); // 🧹 reset stato
+  playedAnimationGroups.clear(); // 🧹 reset stato tracciato
 }
-
