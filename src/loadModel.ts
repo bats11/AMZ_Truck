@@ -13,7 +13,6 @@ interface AnimationConfig {
   loop?: boolean;
 }
 
-// Configurazioni per ogni file GLB
 const animationConfigs: Record<string, AnimationConfig> = {
   "TruckOnly.glb": { autoPlay: false },
   "Back Door.glb": { autoPlay: false, stopAt: "start" },
@@ -29,13 +28,14 @@ export function loadModel(
   onFinish?: () => void
 ) {
   const baseUrl = "/assets/";
-  const glbList = ["TruckOnly.glb", "Back Door.glb", "Inside Door.glb"];
+  const glbList = ["TruckOnly.glb", "Back Door.glb", "Inside Door.glb","damage_DuctTape.glb"];
   const totalModels = glbList.length;
 
   const materialManager = new MaterialManager(scene, baseUrl);
-  let modelsLoaded = 0;
-
   const allMeshes: BABYLON.AbstractMesh[] = [];
+  const hiddenDamageMeshNames: string[] = [];
+
+  let modelsLoaded = 0;
   let globalMin: BABYLON.Vector3 | null = null;
   let globalMax: BABYLON.Vector3 | null = null;
 
@@ -47,6 +47,14 @@ export function loadModel(
     for (const mesh of allMeshes) {
       mesh.receiveShadows = true;
       mesh.setParent(root, true);
+    }
+
+    // ✅ Nascondi le mesh damage_ raccolte in fase di caricamento
+    for (const name of hiddenDamageMeshNames) {
+      const mesh = scene.getNodeByName(name);
+      if (mesh && mesh instanceof BABYLON.AbstractMesh) {
+        mesh.visibility = 0;
+      }
     }
 
     materialManager.configureGlassMaterial();
@@ -74,19 +82,22 @@ export function loadModel(
 
         materialManager.prepareMaterialsForVisibility(meshes);
 
-        const config = animationConfigs[fileName] ?? {};
+        // ✅ Se il file è un "damage_", salva i nomi delle sue mesh
+        if (fileName.startsWith("damage_")) {
+          for (const mesh of meshes) {
+            hiddenDamageMeshNames.push(mesh.name);
+          }
+        }
 
-        // ✅ Rinomina base del file (senza estensione)
+        const config = animationConfigs[fileName] ?? {};
         const baseKey = fileName.replace(".glb", "");
 
-        // ✅ Salva animazioni nella mappa
         if (!animationGroupsByName[baseKey]) {
           animationGroupsByName[baseKey] = [];
         }
 
         for (const group of container.animationGroups) {
           animationGroupsByName[baseKey].push(group);
-
           group.loopAnimation = config.loop ?? false;
 
           if (config.autoPlay) {
@@ -103,7 +114,6 @@ export function loadModel(
           }
         }
 
-        // ✅ Calcolo bounding box SOLO per "TruckOnly.glb"
         if (fileName === "TruckOnly.glb") {
           for (const mesh of meshes) {
             const bb = mesh.getBoundingInfo().boundingBox;
