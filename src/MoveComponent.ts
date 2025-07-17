@@ -47,9 +47,9 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
   }
 
   initialTransform = {
-    position: new BABYLON.Vector3(0, 1, 0),
+    position: new BABYLON.Vector3(0, 2.5, 0),
     rotation: new BABYLON.Vector3(0, 0, 0),
-    scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+    scaling: new BABYLON.Vector3(1, 1, 1),
   };
 
   modelRoot.position = new BABYLON.Vector3(0, 3, 0);
