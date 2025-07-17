@@ -1,4 +1,4 @@
-// MoveComponent.ts
+// src/MoveComponent.ts
 import * as BABYLON from "@babylonjs/core";
 import { setMoveCameraTo, setUiInteractivity } from "./babylonBridge";
 import { getTransformSetting, transformSettings } from "./transformSettings";
@@ -11,6 +11,7 @@ import {
 import { handleHideMeshes } from "./hideMeshes";
 import { handleAnimatedMeshes } from "./animatedMeshes";
 import { playEntryAnimation } from "./entryAnimation";
+import { resetDamageVisibility, showDamageMeshes } from "./damageManager";
 
 const typedSubmenuData = submenuData as Record<string, { isCustomSequence?: boolean }>;
 
@@ -72,9 +73,12 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
     const isMainMenuTarget = transformSettings[label]?.settings !== undefined;
     const isSwitchingToAnotherMainMenu = isMainMenuTarget && activeCustomLabel !== label;
 
+    const scene = modelRoot.getScene();
+    resetDamageVisibility(scene);
+
     if (isInCustomSequence && isSwitchingToAnotherMainMenu) {
       await handleExitSequence(
-        modelRoot.getScene(),
+        scene,
         activeCamera!,
         modelRoot,
         activeCustomLabel!,
@@ -96,37 +100,21 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       setUiInteractivity(true);
 
       if (settings.sequenceStartTransform) {
-        await handleInterpolatedTransform(
-          modelRoot!,
-          modelRoot!.getScene(),
-          settings.sequenceStartTransform,
-          activeCamera ?? undefined
-        );
+        await handleInterpolatedTransform(modelRoot!, scene, settings.sequenceStartTransform, activeCamera ?? undefined);
 
         if (settings.sequenceStartTransform.triggerDamage && settings.sequenceStartTransform.damageNodes?.length) {
-          import("./damageManager").then(({ handleDamage }) => {
-            handleDamage(modelRoot!.getScene(), settings.sequenceStartTransform.damageNodes!);
-          });
+          showDamageMeshes(scene, settings.sequenceStartTransform.damageNodes);
         }
 
         if (
           settings.sequenceStartTransform.hideMeshes &&
           settings.hiddenNodes?.length
         ) {
-          await handleHideMeshes(
-            modelRoot!,
-            modelRoot!.getScene(),
-            settings,
-            previouslyHiddenNodes
-          );
+          await handleHideMeshes(modelRoot!, scene, settings, previouslyHiddenNodes);
         }
 
         if (settings.sequenceStartTransform.animateMeshes) {
-          await handleAnimatedMeshes(
-            modelRoot!,
-            modelRoot!.getScene(),
-            settings.sequenceStartTransform
-          );
+          await handleAnimatedMeshes(modelRoot!, scene, settings.sequenceStartTransform);
         }
 
         if (
@@ -139,44 +127,23 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
             durationCameraFov: settings.durationCameraFov ?? 1.5,
             triggerFovAdjust: true,
           };
-          await handleInterpolatedTransform(
-            modelRoot!,
-            modelRoot!.getScene(),
-            fovStep,
-            activeCamera
-          );
+          await handleInterpolatedTransform(modelRoot!, scene, fovStep, activeCamera);
         }
       }
 
       for (const step of intermediateSteps) {
-        await handleInterpolatedTransform(
-          modelRoot!,
-          modelRoot!.getScene(),
-          step,
-          activeCamera ?? undefined
-        );
+        await handleInterpolatedTransform(modelRoot!, scene, step, activeCamera ?? undefined);
 
         if (step.triggerDamage && step.damageNodes?.length) {
-          import("./damageManager").then(({ handleDamage }) => {
-            handleDamage(modelRoot!.getScene(), step.damageNodes!);
-          });
+          showDamageMeshes(scene, step.damageNodes);
         }
 
         if (step.hideMeshes && settings.hiddenNodes?.length) {
-          await handleHideMeshes(
-            modelRoot!,
-            modelRoot!.getScene(),
-            settings,
-            previouslyHiddenNodes
-          );
+          await handleHideMeshes(modelRoot!, scene, settings, previouslyHiddenNodes);
         }
 
         if (step.animateMeshes) {
-          await handleAnimatedMeshes(
-            modelRoot!,
-            modelRoot!.getScene(),
-            step
-          );
+          await handleAnimatedMeshes(modelRoot!, scene, step);
         }
 
         if (step.triggerFovAdjust && activeCamera && settings.finalCameraFov !== undefined) {
@@ -184,26 +151,14 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
             finalCameraFov: settings.finalCameraFov,
             durationCameraFov: settings.durationCameraFov ?? 1.5,
           };
-          await handleInterpolatedTransform(
-            modelRoot!,
-            modelRoot!.getScene(),
-            fovStep,
-            activeCamera
-          );
+          await handleInterpolatedTransform(modelRoot!, scene, fovStep, activeCamera);
         }
       }
 
-      await handleInterpolatedTransform(
-        modelRoot!,
-        modelRoot!.getScene(),
-        finalTransform,
-        activeCamera ?? undefined
-      );
+      await handleInterpolatedTransform(modelRoot!, scene, finalTransform, activeCamera ?? undefined);
 
       if (finalTransform.triggerDamage && finalTransform.damageNodes?.length) {
-        import("./damageManager").then(({ handleDamage }) => {
-          handleDamage(modelRoot!.getScene(), finalTransform.damageNodes!);
-        });
+        showDamageMeshes(scene, finalTransform.damageNodes);
       }
 
       if (finalTransform.triggerFovAdjust && activeCamera && settings.finalCameraFov !== undefined) {
@@ -211,12 +166,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           finalCameraFov: settings.finalCameraFov,
           durationCameraFov: settings.durationCameraFov ?? 1.5,
         };
-        await handleInterpolatedTransform(
-          modelRoot!,
-          modelRoot!.getScene(),
-          fovStep,
-          activeCamera
-        );
+        await handleInterpolatedTransform(modelRoot!, scene, fovStep, activeCamera);
       }
 
       setUiInteractivity(false);
@@ -224,9 +174,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
     if (!isSubmenu) {
       const currentScaleSq = modelRoot.scaling.lengthSquared();
-      const targetScaleSq = settings.scaling
-        ? settings.scaling.lengthSquared()
-        : currentScaleSq;
+      const targetScaleSq = settings.scaling ? settings.scaling.lengthSquared() : currentScaleSq;
       const isBigToBig = currentScaleSq > 5.0 && targetScaleSq > 5.0;
 
       if (isBigToBig && !opts?.bypassBigToBig) {
@@ -256,25 +204,17 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         durationScale: 1.0,
         durationPosRot: 1.5,
       };
-      await handleInterpolatedTransform(
-        modelRoot,
-        modelRoot.getScene(),
-        step,
-        activeCamera ?? undefined
-      );
+
+      await handleInterpolatedTransform(modelRoot, scene, step, activeCamera ?? undefined);
 
       if (settings.triggerDamage && settings.damageNodes?.length) {
-        import("./damageManager").then(({ handleDamage }) => {
-          handleDamage(modelRoot!.getScene(), settings.damageNodes!);
-        });
+        showDamageMeshes(scene, settings.damageNodes);
       }
     } else {
       await handleClassicTransform(modelRoot, settings);
 
       if (settings.triggerDamage && settings.damageNodes?.length) {
-        import("./damageManager").then(({ handleDamage }) => {
-          handleDamage(modelRoot!.getScene(), settings.damageNodes!);
-        });
+        showDamageMeshes(scene, settings.damageNodes);
       }
     }
   });

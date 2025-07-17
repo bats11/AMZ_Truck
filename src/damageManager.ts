@@ -1,25 +1,52 @@
 // src/damageManager.ts
-
 import * as BABYLON from "@babylonjs/core";
 
 /**
- * Esegue un fade-in (animazione su visibility) sulle mesh indicate.
- * Le mesh devono essere già presenti nella scena e avere visibility iniziale = 0.
+ * Stato interno delle mesh di danno attualmente visibili
  */
-export function handleDamage(scene: BABYLON.Scene, damageMeshNames: string[]): void {
-  for (const name of damageMeshNames) {
-    const node = scene.getNodeByName(name);
-    if (node && node instanceof BABYLON.AbstractMesh) {
+const currentlyVisibleDamageMeshes = new Set<string>();
+
+/**
+ * Nasconde tutte le damage mesh attive con un fade-out su visibility
+ */
+export function resetDamageVisibility(scene: BABYLON.Scene): void {
+  for (const name of currentlyVisibleDamageMeshes) {
+    const mesh = scene.getNodeByName(name);
+    if (mesh && mesh instanceof BABYLON.AbstractMesh) {
       BABYLON.Animation.CreateAndStartAnimation(
-        `fadeIn_${name}`,
-        node,
+        `fadeOut_${name}`,
+        mesh,
         "visibility",
         60, // fps
         30, // 0.5 secondi
-        node.visibility,
+        mesh.visibility,
+        0,
+        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+      );
+    }
+  }
+
+  currentlyVisibleDamageMeshes.clear();
+}
+
+/**
+ * Mostra una lista di damage mesh con un fade-in animato su visibility
+ */
+export function showDamageMeshes(scene: BABYLON.Scene, meshNames: string[]): void {
+  for (const name of meshNames) {
+    const mesh = scene.getNodeByName(name);
+    if (mesh && mesh instanceof BABYLON.AbstractMesh) {
+      BABYLON.Animation.CreateAndStartAnimation(
+        `fadeIn_${name}`,
+        mesh,
+        "visibility",
+        60, // fps
+        30, // 0.5 secondi
+        mesh.visibility,
         1,
         BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
       );
+      currentlyVisibleDamageMeshes.add(name);
     } else {
       console.warn(`⚠️ Mesh di danno non trovata nella scena: ${name}`);
     }
