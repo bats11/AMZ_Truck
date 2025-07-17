@@ -17,7 +17,8 @@ export interface TransformSetting {
     triggerFovAdjust?: boolean;
     hideMeshes?: boolean;
     animateMeshes?: boolean;
-    animatedMeshGroups?: string[]; // ✅ Aggiunto
+    animatedMeshGroups?: string[];
+    triggerDamage?: boolean; 
   };
 
   intermediate?: {
@@ -29,7 +30,8 @@ export interface TransformSetting {
     hideMeshes?: boolean;
     triggerFovAdjust?: boolean;
     animateMeshes?: boolean;
-    animatedMeshGroups?: string[]; // ✅ Aggiunto
+    animatedMeshGroups?: string[];
+    triggerDamage?: boolean;
   }[];
 
   exitIntermediate?: {
@@ -39,7 +41,8 @@ export interface TransformSetting {
     durationScale?: number;
     durationPosRot?: number;
     animateMeshes?: boolean;
-    animatedMeshGroups?: string[]; // ✅ Aggiunto
+    animatedMeshGroups?: string[];
+    triggerDamage?: boolean; 
   }[];
 
   hiddenNodes?: string[];
@@ -47,12 +50,14 @@ export interface TransformSetting {
   durationCameraFov?: number;
   triggerFovAdjust?: boolean;
   animateMeshes?: boolean;
-  animatedMeshGroups?: string[]; // ✅ Aggiunto
+  animatedMeshGroups?: string[];
 
   durationScale?: number;
   durationPosRot?: number;
   hideMeshes?: boolean;
+  triggerDamage?: boolean;
 }
+
 
 
 
@@ -87,7 +92,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       ],
     },
     "Lights & Light Covers": {
-      position: new BABYLON.Vector3(-1.7, 2.5, -15),
+      position: new BABYLON.Vector3(-1.3, 3, -13),
       rotation: vec3DegToRad([0, 90, 0]),
       scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
     },
@@ -240,6 +245,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
           position: new BABYLON.Vector3(-0.3, 0.5, -25),
           rotation: vec3DegToRad([0, 60, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+          triggerDamage: true,
         },
   },
 };

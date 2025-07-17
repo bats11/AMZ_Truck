@@ -103,6 +103,10 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           activeCamera ?? undefined
         );
 
+        if (settings.sequenceStartTransform.triggerDamage) {
+          import("./damageManager").then(({ handleDamage }) => handleDamage());
+        }
+
         if (
           settings.sequenceStartTransform.hideMeshes &&
           settings.hiddenNodes?.length
@@ -150,6 +154,10 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           activeCamera ?? undefined
         );
 
+        if (step.triggerDamage) {
+          import("./damageManager").then(({ handleDamage }) => handleDamage());
+        }
+
         if (step.hideMeshes && settings.hiddenNodes?.length) {
           await handleHideMeshes(
             modelRoot!,
@@ -187,6 +195,10 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         finalTransform,
         activeCamera ?? undefined
       );
+
+      if (finalTransform.triggerDamage) {
+        import("./damageManager").then(({ handleDamage }) => handleDamage());
+      }
 
       if (finalTransform.triggerFovAdjust && activeCamera && settings.finalCameraFov !== undefined) {
         const fovStep = {
@@ -246,8 +258,16 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         step,
         activeCamera ?? undefined
       );
+
+      if (settings.triggerDamage) {
+        import("./damageManager").then(({ handleDamage }) => handleDamage());
+      }
     } else {
       await handleClassicTransform(modelRoot, settings);
+
+      if (settings.triggerDamage) {
+        import("./damageManager").then(({ handleDamage }) => handleDamage());
+      }
     }
   });
 }
