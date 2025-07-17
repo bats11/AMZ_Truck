@@ -1,40 +1,27 @@
 // src/damageManager.ts
 
+import * as BABYLON from "@babylonjs/core";
+
 /**
- * Mostra una scritta temporanea a video per indicare che il danno è stato attivato.
+ * Esegue un fade-in (animazione su visibility) sulle mesh indicate.
+ * Le mesh devono essere già presenti nella scena e avere visibility iniziale = 0.
  */
-export function handleDamage(): void {
-  let existing = document.getElementById("damage-overlay");
-
-  if (!existing) {
-    existing = document.createElement("div");
-    existing.id = "damage-overlay";
-    existing.textContent = "damage visible triggered";
-    existing.style.position = "absolute";
-    existing.style.top = "50%";
-    existing.style.left = "50%";
-    existing.style.transform = "translate(-50%, -50%)";
-    existing.style.fontSize = "2.5rem";
-    existing.style.fontFamily = "EmberCondensedBold, sans-serif";
-    existing.style.color = "#d80000";
-    existing.style.backgroundColor = "rgba(255,255,255,0.95)";
-    existing.style.padding = "1rem 2rem";
-    existing.style.borderRadius = "1rem";
-    existing.style.boxShadow = "0 0 2rem rgba(0,0,0,0.4)";
-    existing.style.zIndex = "999";
-    existing.style.pointerEvents = "none";
-    document.body.appendChild(existing);
-  }
-
-  existing.style.opacity = "1";
-
-  setTimeout(() => {
-    if (existing) {
-      existing.style.transition = "opacity 1.2s ease";
-      existing.style.opacity = "0";
-      setTimeout(() => {
-        existing?.remove();
-      }, 1300);
+export function handleDamage(scene: BABYLON.Scene, damageMeshNames: string[]): void {
+  for (const name of damageMeshNames) {
+    const node = scene.getNodeByName(name);
+    if (node && node instanceof BABYLON.AbstractMesh) {
+      BABYLON.Animation.CreateAndStartAnimation(
+        `fadeIn_${name}`,
+        node,
+        "visibility",
+        60, // fps
+        30, // 0.5 secondi
+        node.visibility,
+        1,
+        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+      );
+    } else {
+      console.warn(`⚠️ Mesh di danno non trovata nella scena: ${name}`);
     }
-  }, 1000);
+  }
 }

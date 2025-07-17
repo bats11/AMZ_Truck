@@ -19,6 +19,7 @@ export interface TransformSetting {
     animateMeshes?: boolean;
     animatedMeshGroups?: string[];
     triggerDamage?: boolean; 
+    damageNodes?: string[];      // ✅ NUOVO CAMPO
   };
 
   intermediate?: {
@@ -32,6 +33,7 @@ export interface TransformSetting {
     animateMeshes?: boolean;
     animatedMeshGroups?: string[];
     triggerDamage?: boolean;
+    damageNodes?: string[];      // ✅ NUOVO CAMPO
   }[];
 
   exitIntermediate?: {
@@ -43,6 +45,7 @@ export interface TransformSetting {
     animateMeshes?: boolean;
     animatedMeshGroups?: string[];
     triggerDamage?: boolean; 
+    damageNodes?: string[];      // ✅ NUOVO CAMPO
   }[];
 
   hiddenNodes?: string[];
@@ -56,7 +59,9 @@ export interface TransformSetting {
   durationPosRot?: number;
   hideMeshes?: boolean;
   triggerDamage?: boolean;
+  damageNodes?: string[];        // ✅ NUOVO CAMPO anche al livello principale
 }
+
 
 
 
@@ -242,10 +247,14 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
         "Side Mirrors": {
-          position: new BABYLON.Vector3(-0.3, 0.5, -25),
-          rotation: vec3DegToRad([0, 60, 0]),
+          position: new BABYLON.Vector3(0, 4, 0),
+          rotation: vec3DegToRad([0, 180, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+          /*position: new BABYLON.Vector3(-0.3, 0.5, -25),
+          rotation: vec3DegToRad([0, 60, 0]),
+          scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),*/
           triggerDamage: true,
+          damageNodes: ["DuctTape"],
         },
   },
 };

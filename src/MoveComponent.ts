@@ -103,8 +103,10 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           activeCamera ?? undefined
         );
 
-        if (settings.sequenceStartTransform.triggerDamage) {
-          import("./damageManager").then(({ handleDamage }) => handleDamage());
+        if (settings.sequenceStartTransform.triggerDamage && settings.sequenceStartTransform.damageNodes?.length) {
+          import("./damageManager").then(({ handleDamage }) => {
+            handleDamage(modelRoot!.getScene(), settings.sequenceStartTransform.damageNodes!);
+          });
         }
 
         if (
@@ -154,8 +156,10 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           activeCamera ?? undefined
         );
 
-        if (step.triggerDamage) {
-          import("./damageManager").then(({ handleDamage }) => handleDamage());
+        if (step.triggerDamage && step.damageNodes?.length) {
+          import("./damageManager").then(({ handleDamage }) => {
+            handleDamage(modelRoot!.getScene(), step.damageNodes!);
+          });
         }
 
         if (step.hideMeshes && settings.hiddenNodes?.length) {
@@ -196,8 +200,10 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         activeCamera ?? undefined
       );
 
-      if (finalTransform.triggerDamage) {
-        import("./damageManager").then(({ handleDamage }) => handleDamage());
+      if (finalTransform.triggerDamage && finalTransform.damageNodes?.length) {
+        import("./damageManager").then(({ handleDamage }) => {
+          handleDamage(modelRoot!.getScene(), finalTransform.damageNodes!);
+        });
       }
 
       if (finalTransform.triggerFovAdjust && activeCamera && settings.finalCameraFov !== undefined) {
@@ -224,8 +230,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       const isBigToBig = currentScaleSq > 5.0 && targetScaleSq > 5.0;
 
       if (isBigToBig && !opts?.bypassBigToBig) {
-        console.log("📣 isBigToBig attivo — forzatura in modalità CustomSequence");
-
         isInCustomSequence = true;
         activeCustomLabel = label;
 
@@ -259,14 +263,18 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
         activeCamera ?? undefined
       );
 
-      if (settings.triggerDamage) {
-        import("./damageManager").then(({ handleDamage }) => handleDamage());
+      if (settings.triggerDamage && settings.damageNodes?.length) {
+        import("./damageManager").then(({ handleDamage }) => {
+          handleDamage(modelRoot!.getScene(), settings.damageNodes!);
+        });
       }
     } else {
       await handleClassicTransform(modelRoot, settings);
 
-      if (settings.triggerDamage) {
-        import("./damageManager").then(({ handleDamage }) => handleDamage());
+      if (settings.triggerDamage && settings.damageNodes?.length) {
+        import("./damageManager").then(({ handleDamage }) => {
+          handleDamage(modelRoot!.getScene(), settings.damageNodes!);
+        });
       }
     }
   });
