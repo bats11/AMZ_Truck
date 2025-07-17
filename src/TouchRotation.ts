@@ -12,8 +12,11 @@ const ROTATION_SPEED = 0.005;
 const INERTIA_DECAY = 0.97;
 const MIN_VELOCITY = 0.0001;
 
+let canvasRef: HTMLCanvasElement | null = null;
+
 export function enableTouchRotation(node: BABYLON.TransformNode, canvas: HTMLCanvasElement) {
   rootNode = node;
+  canvasRef = canvas;
 
   canvas.addEventListener("pointerdown", onPointerDown);
   canvas.addEventListener("pointermove", onPointerMove);
@@ -22,9 +25,19 @@ export function enableTouchRotation(node: BABYLON.TransformNode, canvas: HTMLCan
 }
 
 function onPointerDown(e: PointerEvent) {
-  if (!rootNode || getTouchLocked()) return;
+  if (!rootNode || getTouchLocked() || !canvasRef) return;
 
   const scene = rootNode.getScene();
+  const rect = canvasRef.getBoundingClientRect();
+
+  // Coordinate relative al canvas
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  const pickResult = scene.pick(x, y);
+
+  if (!pickResult?.hit || !isDescendantOf(pickResult.pickedMesh, rootNode)) return;
+
   scene.stopAnimation(rootNode);
 
   if (animationFrame !== null) {
@@ -36,7 +49,6 @@ function onPointerDown(e: PointerEvent) {
   lastX = e.clientX;
   velocityY = 0;
 
-  // Assicura che rotationQuaternion sia attivo
   if (!rootNode.rotationQuaternion) {
     rootNode.rotationQuaternion = BABYLON.Quaternion.FromEulerVector(rootNode.rotation.clone());
   }
@@ -79,4 +91,12 @@ function applyInertia() {
   } else {
     animationFrame = null;
   }
+}
+
+function isDescendantOf(mesh: BABYLON.AbstractMesh | null, parent: BABYLON.Node): boolean {
+  while (mesh) {
+    if (mesh === parent) return true;
+    mesh = mesh.parent as BABYLON.AbstractMesh;
+  }
+  return false;
 }
