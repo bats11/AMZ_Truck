@@ -249,7 +249,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
         "Side Mirrors": {
-          position: new BABYLON.Vector3(-0.3, 0.5, -25),
+          position: new BABYLON.Vector3(-0.3, 0, -22),
           rotation: vec3DegToRad([0, 60, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           triggerDamage: true,

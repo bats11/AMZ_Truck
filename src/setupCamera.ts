@@ -6,7 +6,7 @@ import * as BABYLON from "@babylonjs/core";
  */
 export function setupCamera(scene: BABYLON.Scene, canvas: HTMLCanvasElement): BABYLON.FreeCamera {
   // Posizione fissa della camera
-  const cameraPosition = new BABYLON.Vector3(0, 0.5, -30); // Regola altezza e distanza
+  const cameraPosition = new BABYLON.Vector3(0, 0, -30); // Regola altezza e distanza
   const target = new BABYLON.Vector3(0, -0.2, 0); // Punto che la camera guarda
 
   const camera = new BABYLON.FreeCamera("fixedCamera", cameraPosition, scene);
