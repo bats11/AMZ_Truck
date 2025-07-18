@@ -131,11 +131,11 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       ],
       exitIntermediate: [
         {
-          position: new BABYLON.Vector3(0, 4, 0),
-          rotation: vec3DegToRad([0, 268, 0]),
+          position: new BABYLON.Vector3(0, 1, -10),
+          rotation: vec3DegToRad([0, 270, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
-          durationPosRot: 2,
+          durationPosRot: 2.0,
         },
       ],
       hiddenNodes: ["SM_Driver_Seat_Rear"],
@@ -251,7 +251,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
           rotation: vec3DegToRad([0, 60, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           triggerDamage: true,
-          damageNodes: ["DuctTape"],
+          damageNodes: ["Damage_Duct"],
         },
   },
 };
