@@ -81,9 +81,9 @@ function vec3DegToRad(arr: [number, number, number]): BABYLON.Vector3 {
 export const transformSettings: Record<string, { settings?: TransformSetting; [subKey: string]: TransformSetting | undefined }> = {
   "FRONT SIDE": {
     settings: {
-      position: new BABYLON.Vector3(0, 2.5, 0),
-      rotation: vec3DegToRad([0, 90, 0]),
-      scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
+      position: new BABYLON.Vector3(1, 2.5, 0),
+      rotation: vec3DegToRad([0, 100, 0]),
+      scaling: new BABYLON.Vector3(1.9, 1.9, 1.9),
       durationScale: 1.0,
       durationPosRot: 1,
       intermediate: [
@@ -97,9 +97,9 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       ],
     },
     "Lights & Light Covers": {
-      position: new BABYLON.Vector3(-1.3, 3, -13),
-      rotation: vec3DegToRad([0, 90, 0]),
-      scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
+      position: new BABYLON.Vector3(3.5, 2.5, -14),
+      rotation: vec3DegToRad([0, 124.32, 0]),
+      scaling: new BABYLON.Vector3(1.9, 1.9, 1.9),
     },
   },
 
@@ -225,13 +225,15 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
 
   "BACK SIDE": {
     settings: {
-      position: new BABYLON.Vector3(0, 2.2, 0),
-      rotation: vec3DegToRad([0, 270, 0]),
-      scaling: new BABYLON.Vector3(2.3, 2.3, 2.3),
+      position: new BABYLON.Vector3(-1, 2.2, 0),
+      rotation: vec3DegToRad([0, 260, 0]),
+      scaling: new BABYLON.Vector3(1.9, 1.9, 1.9),
+      durationScale: 1.5,
+      durationPosRot: 1.5,
       intermediate: [
         {
           position: new BABYLON.Vector3(0, 2.2, 0),
-          rotation: vec3DegToRad([0, 270, 0]),
+          rotation: vec3DegToRad([0, 250, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 0.7,
           durationPosRot: 1.5,
