@@ -1,7 +1,8 @@
 // src/logic/transformHandlers.ts
 import * as BABYLON from "@babylonjs/core";
-import { animateTransformTo, createAnimation } from "../src/utils";
+import { createAnimation } from "../src/utils";
 import { TransformSetting } from "../src/transformSettings";
+import { setUiInteractivity } from "../src/babylonBridge"; // ✅ AGGIUNTO
 
 function createQuaternionAnimation(
   from: BABYLON.Quaternion,
@@ -23,24 +24,6 @@ function createQuaternionAnimation(
   ]);
   animation.setEasingFunction(easing);
   return animation;
-}
-
-export async function handleClassicTransform(
-  node: BABYLON.TransformNode,
-  settings: TransformSetting
-) {
-  await animateTransformTo(
-    node,
-    {
-      position: settings.position,
-      rotation: settings.rotation,
-      scaling: settings.scaling,
-    },
-    {
-      durationPosRot: settings.durationPosRot,
-      durationScale: settings.durationScale,
-    }
-  );
 }
 
 export async function handleInterpolatedTransform(
@@ -114,44 +97,50 @@ export async function handleExitSequence(
   previouslyHiddenNodes: Set<string>,
   getTransformSetting: (label: string) => TransformSetting | undefined
 ): Promise<void> {
-  const settings = getTransformSetting(fromLabel);
+  setUiInteractivity(true); // ✅ BLOCCA UI
 
-  const hasExitSteps = Array.isArray(settings?.exitIntermediate) && settings.exitIntermediate.length > 0;
+  try {
+    const settings = getTransformSetting(fromLabel);
 
-  if (camera.fov !== initialCameraFov) {
-    const easing = new BABYLON.CubicEase();
-    easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
-    const frameRate = 60;
-    const frames = 60;
+    const hasExitSteps = Array.isArray(settings?.exitIntermediate) && settings.exitIntermediate.length > 0;
 
-    const fovAnim = createAnimation("fov", camera.fov, initialCameraFov, 0, frames, easing);
-    scene.beginDirectAnimation(camera, [fovAnim], 0, frames, false);
-  }
+    if (camera.fov !== initialCameraFov) {
+      const easing = new BABYLON.CubicEase();
+      easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+      const frameRate = 60;
+      const frames = 60;
 
-  if (hasExitSteps) {
-    for (const step of settings!.exitIntermediate!) {
-      await handleInterpolatedTransform(modelRoot, scene, step, camera);
+      const fovAnim = createAnimation("fov", camera.fov, initialCameraFov, 0, frames, easing);
+      scene.beginDirectAnimation(camera, [fovAnim], 0, frames, false);
     }
-  } else {
-    await handleInterpolatedTransform(modelRoot, scene, settings!.sequenceStartTransform!, camera);
-  }
 
-  // 🔁 Fade-in delle mesh precedentemente nascoste
-  for (const name of previouslyHiddenNodes) {
-    const node = scene.getNodeByName(name);
-    if (node && node instanceof BABYLON.AbstractMesh) {
-      BABYLON.Animation.CreateAndStartAnimation(
-        `fadeIn_${name}`,
-        node,
-        "visibility",
-        60, // fps
-        30, // durata frame (0.5s)
-        node.visibility,
-        1,
-        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-      );
+    if (hasExitSteps) {
+      for (const step of settings!.exitIntermediate!) {
+        await handleInterpolatedTransform(modelRoot, scene, step, camera);
+      }
+    } else if (settings?.sequenceStartTransform) {
+      await handleInterpolatedTransform(modelRoot, scene, settings.sequenceStartTransform, camera);
     }
-  }
 
-  previouslyHiddenNodes.clear();
+    // 🔁 Fade-in delle mesh precedentemente nascoste
+    for (const name of previouslyHiddenNodes) {
+      const node = scene.getNodeByName(name);
+      if (node && node instanceof BABYLON.AbstractMesh) {
+        BABYLON.Animation.CreateAndStartAnimation(
+          `fadeIn_${name}`,
+          node,
+          "visibility",
+          60,
+          30,
+          node.visibility,
+          1,
+          BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+      }
+    }
+
+    previouslyHiddenNodes.clear();
+  } finally {
+    setUiInteractivity(false); // ✅ SBLOCCA UI
+  }
 }

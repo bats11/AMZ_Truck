@@ -15,10 +15,11 @@ interface SubmenuCategory {
   [subKey: string]: SubmenuDetails | string | boolean | undefined;
 }
 
-const typedSubmenuData: Record<string, SubmenuCategory> = submenuData as Record<
-  string,
-  SubmenuCategory
->;
+const typedSubmenuData: Record<string, SubmenuCategory> = submenuData as Record<string, SubmenuCategory>;
+
+// 🕒 Variabili per debounce manuale
+let lastClickTime = 0;
+const DEBOUNCE_DELAY = 700; // in ms
 
 interface CameraMenuProps {
   position: "left" | "right";
@@ -130,6 +131,10 @@ export default function CameraMenu({
   }
 
   function onMainClick(label: string) {
+    const now = Date.now();
+    if (now - lastClickTime < DEBOUNCE_DELAY) return; // ⛔ Ignora click troppo ravvicinati
+    lastClickTime = now;
+
     if (label === activeMenu) return;
 
     setActiveMenuForTransforms(label);

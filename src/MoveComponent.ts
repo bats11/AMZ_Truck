@@ -4,13 +4,11 @@ import { setMoveCameraTo, setUiInteractivity } from "./babylonBridge";
 import { getTransformSetting, transformSettings } from "./transformSettings";
 import submenuData from "./data/SubmenuData.json";
 import {
-  handleClassicTransform,
   handleInterpolatedTransform,
   handleExitSequence,
 } from "./transformHandlers";
 import { handleHideMeshes } from "./hideMeshes";
-import { handleAnimatedMeshes } from "./animatedMeshes";
-import { handleExitAnimations } from "./animatedMeshes";
+import { handleAnimatedMeshes, handleExitAnimations } from "./animatedMeshes";
 import { playEntryAnimation } from "./entryAnimation";
 import { resetDamageVisibility, showDamageMeshes } from "./damageManager";
 
@@ -198,26 +196,18 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       return;
     }
 
-    if (isSubmenu) {
-      const step = {
-        position: settings.position,
-        rotation: settings.rotation,
-        scaling: settings.scaling,
-        durationScale: 1.0,
-        durationPosRot: 1.5,
-      };
+    const transformStep = {
+      position: settings.position,
+      rotation: settings.rotation,
+      scaling: settings.scaling,
+      durationScale: settings.durationScale ?? 1.0,
+      durationPosRot: settings.durationPosRot ?? 1.5,
+    };
 
-      await handleInterpolatedTransform(modelRoot, scene, step, activeCamera ?? undefined);
+    await handleInterpolatedTransform(modelRoot, scene, transformStep, activeCamera ?? undefined);
 
-      if (settings.triggerDamage && settings.damageNodes?.length) {
-        showDamageMeshes(scene, settings.damageNodes);
-      }
-    } else {
-      await handleClassicTransform(modelRoot, settings);
-
-      if (settings.triggerDamage && settings.damageNodes?.length) {
-        showDamageMeshes(scene, settings.damageNodes);
-      }
+    if (settings.triggerDamage && settings.damageNodes?.length) {
+      showDamageMeshes(scene, settings.damageNodes);
     }
   });
 }
@@ -225,7 +215,13 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 export function resetModelTransform() {
   if (modelRoot && initialTransform) {
     animationCycle++;
-    handleClassicTransform(modelRoot, initialTransform);
+    handleInterpolatedTransform(modelRoot, modelRoot.getScene(), {
+      position: initialTransform.position,
+      rotation: initialTransform.rotation,
+      scaling: initialTransform.scaling,
+      durationScale: 1.0,
+      durationPosRot: 1.5,
+    }, activeCamera ?? undefined);
   }
 }
 
