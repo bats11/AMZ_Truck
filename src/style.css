@@ -271,7 +271,7 @@ html, body {
 
 .experience-selection {
   position: absolute;
-  top: 60%;
+  top: 63%;
   right: 5rem;
   z-index: 900;
   display: flex;
