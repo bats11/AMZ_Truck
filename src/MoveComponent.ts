@@ -15,7 +15,6 @@ import { resetDamageVisibility, showDamageMeshes } from "./damageManager";
 const typedSubmenuData = submenuData as Record<string, { isCustomSequence?: boolean }>;
 
 let modelRoot: BABYLON.TransformNode | null = null;
-let animationCycle = 0;
 let activeCamera: BABYLON.FreeCamera | null = null;
 let initialCameraFov: number | null = null;
 
@@ -31,6 +30,9 @@ interface TransformState {
 }
 
 let initialTransform: TransformState | null = null;
+
+// ✅ Ciclo di animazione incrementale per invalidare le animazioni precedenti
+let animationCycle = 0;
 
 export function setActiveMenuForTransforms(menu: string | null) {
   activeMenu = menu;
@@ -75,6 +77,9 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
     const scene = modelRoot.getScene();
     resetDamageVisibility(scene);
 
+    // ✅ Nuovo ciclo identificativo per questa richiesta
+    const currentCycle = ++animationCycle;
+
     if (isInCustomSequence && isSwitchingToAnotherMainMenu) {
       await handleExitSequence(
         scene,
@@ -90,8 +95,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       activeCustomLabel = null;
     }
 
-    animationCycle++;
-
     const runSequence = async (
       intermediateSteps: any[],
       finalTransform: any,
@@ -99,7 +102,9 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
     ) => {
       setUiInteractivity(true);
 
-      if (settings.sequenceStartTransform) {
+      const safe = () => currentCycle === animationCycle;
+
+      if (settings.sequenceStartTransform && safe()) {
         await handleInterpolatedTransform(modelRoot!, scene, settings.sequenceStartTransform, activeCamera ?? undefined);
 
         if (settings.sequenceStartTransform.triggerDamage && settings.sequenceStartTransform.damageNodes?.length) {
@@ -132,6 +137,8 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       }
 
       for (const step of intermediateSteps) {
+        if (!safe()) return;
+
         await handleInterpolatedTransform(modelRoot!, scene, step, activeCamera ?? undefined);
 
         if (step.triggerDamage && step.damageNodes?.length) {
@@ -154,6 +161,8 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
           await handleInterpolatedTransform(modelRoot!, scene, fovStep, activeCamera);
         }
       }
+
+      if (!safe()) return;
 
       await handleInterpolatedTransform(modelRoot!, scene, finalTransform, activeCamera ?? undefined);
 
@@ -204,7 +213,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       durationPosRot: settings.durationPosRot ?? 1.5,
     };
 
-    await handleInterpolatedTransform(modelRoot, scene, transformStep, activeCamera ?? undefined);
+    await handleInterpolatedTransform(modelRoot!, scene, transformStep, activeCamera ?? undefined);
 
     if (settings.triggerDamage && settings.damageNodes?.length) {
       showDamageMeshes(scene, settings.damageNodes);
@@ -213,16 +222,16 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 }
 
 export function resetModelTransform() {
-  if (modelRoot && initialTransform) {
-    animationCycle++;
-    handleInterpolatedTransform(modelRoot, modelRoot.getScene(), {
-      position: initialTransform.position,
-      rotation: initialTransform.rotation,
-      scaling: initialTransform.scaling,
-      durationScale: 1.0,
-      durationPosRot: 1.5,
-    }, activeCamera ?? undefined);
-  }
+  if (!modelRoot || !initialTransform) return;
+
+  animationCycle++; // ❌ Invalida animazioni precedenti
+  handleInterpolatedTransform(modelRoot, modelRoot.getScene(), {
+    position: initialTransform.position,
+    rotation: initialTransform.rotation,
+    scaling: initialTransform.scaling,
+    durationScale: 1.0,
+    durationPosRot: 1.5,
+  }, activeCamera ?? undefined);
 }
 
 export function setModelTransform(options: {
