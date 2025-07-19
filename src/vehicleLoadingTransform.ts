@@ -18,10 +18,10 @@ export async function animateToStartLoading() {
 
   // Potresti spostare questi valori anche in transformSettings.ts se vuoi configurarli
   const target = {
-    position: new BABYLON.Vector3(0, 2.5, 0),
-    rotation: new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(55.68), 0),
-    scaling: new BABYLON.Vector3(1, 1, 1),
-    durationScale: 1.0,
+    position: new BABYLON.Vector3(0, 2.2, 0),
+    rotation: new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(270), BABYLON.Tools.ToRadians(5)),
+    scaling: new BABYLON.Vector3(1.9, 1.9, 1.9),
+    durationScale: 3.0,
     durationPosRot: 1.5,
   };
 
