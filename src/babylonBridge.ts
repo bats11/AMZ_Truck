@@ -6,7 +6,7 @@ export let moveCameraTo = (
   console.warn("moveCameraTo not connected");
 };
 
-export function setMoveCameraTo(fn: (label: string) => void) {
+export function setMoveMode(fn: (label: string) => void) {
   moveCameraTo = fn;
 }
 

@@ -1,6 +1,6 @@
 // src/MoveComponent.ts
 import * as BABYLON from "@babylonjs/core";
-import { setMoveCameraTo, setUiInteractivity } from "./babylonBridge";
+import { setMoveMode, setUiInteractivity } from "./babylonBridge";
 import { getTransformSetting, transformSettings } from "./transformSettings";
 import submenuData from "./data/SubmenuData.json";
 import {
@@ -56,7 +56,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
   modelRoot.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
   setTimeout(() => playEntryAnimation(modelRoot!, scene, initialTransform!), 500);
 
-  setMoveCameraTo(async (
+  setMoveMode(async (
     label: string,
     opts?: { bypassBigToBig?: boolean; bypassCustomSequence?: boolean }
   ) => {

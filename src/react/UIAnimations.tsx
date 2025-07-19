@@ -1,7 +1,8 @@
-// ✅ UIAnimations.tsx aggiornato
+// src/react/UIAnimations.tsx
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CameraMenu from "./CameraMenu";
+import { vehicleLoadingManager } from "../vehicleLoadingManager"; // ✅ nuovo import
 
 interface UIAnimationsProps {
   appPhase: "loading" | "selection" | "transitioning" | "experience";
@@ -59,6 +60,10 @@ export default function UIAnimations({
 
             <motion.button
               className="exp-btn"
+              onClick={() => {
+                startExperience(); // ✅ transizione a fase "experience"
+                vehicleLoadingManager.enter(); // ✅ attiva vehicle loading
+              }}
               disabled={buttonsDisabled}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
