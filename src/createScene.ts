@@ -10,6 +10,7 @@ import { mountUI } from "./react/MainUI";
 import { setupMovementControls } from "./MoveComponent";
 import { enableTouchRotation } from "./TouchRotation";
 import { setupBackground } from "./setupBackground";
+import { setVehicleCamera } from "./vehicleLoadingTransform";
 
 export async function createScene() {
   const el = document.getElementById("renderCanvas");
@@ -28,6 +29,7 @@ export async function createScene() {
   const scene = new BABYLON.Scene(engine);
 
   const camera = setupCamera(scene, canvas);
+  setVehicleCamera(camera);
 
   const pipeline = new BABYLON.DefaultRenderingPipeline("defaultPipeline", true, scene, [camera]);
   pipeline.fxaaEnabled = true;

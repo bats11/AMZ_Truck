@@ -152,15 +152,27 @@ export default function UIAnimations({
               </>
             )}
 
-            {experienceType === "vehicle" &&
-              vehicleLoadingManager.getState() === "startLoading" && (
-                <VehicleLoadingUI
-                  onLeftClick={() =>
-                    vehicleLoadingManager.setState("leftSideLoading")
-                  }
-                  onRightClick={resetApp}
-                />
-              )}
+            {experienceType === "vehicle" && (
+              <>
+                {vehicleLoadingManager.getState() === "startLoading" && (
+                  <>
+                    <VehicleLoadingUI
+                      onLeftClick={() =>
+                        vehicleLoadingManager.setState("leftSideLoading")
+                      }
+                      onRightClick={resetApp}
+                    />
+                    {(() => {
+                      import("../vehicleLoadingTransform").then(({ animateToStartLoading }) =>
+                        animateToStartLoading()
+                      );
+                      return null;
+                    })()}
+                  </>
+                )}
+              </>
+            )}
+
           </motion.div>
         )}
       </AnimatePresence>
