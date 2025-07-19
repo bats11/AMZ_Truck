@@ -30,7 +30,7 @@
     }
   },
   "DRIVER SIDE": {
-    "_uiHeight": "60%",
+    "_uiHeight": "50%",
     "Back Tire, Wheel, & Rim": {
       "_uiHeight": "",
       "details": [
@@ -124,7 +124,7 @@
     }
   },
   "PASSENGER SIDE": {
-    "_uiHeight": "60%",
+    "_uiHeight": "50%",
     "Side Mirrors": {
       "_uiHeight": "40%",
       "details": [

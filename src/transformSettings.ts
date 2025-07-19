@@ -177,8 +177,8 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
 
   "DRIVER SIDE": {
     settings: {
-      position: new BABYLON.Vector3(0, 4, 0),
-      rotation: vec3DegToRad([0, 180, 0]),
+      position: new BABYLON.Vector3(0, 3, 0),
+      rotation: vec3DegToRad([10, 163, -5]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
       "Back Tire, Wheel, & Rim": {
@@ -246,8 +246,8 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
 
   "PASSENGER SIDE": {
     settings: {
-      position: new BABYLON.Vector3(0, 4, 0),
-      rotation: vec3DegToRad([0, 0, 0]),
+      position: new BABYLON.Vector3(0, 3, 0),
+      rotation: vec3DegToRad([-10, 35, -4]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
         "Side Mirrors": {
