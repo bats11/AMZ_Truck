@@ -197,9 +197,11 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
         scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       },
       "Suspension & Exhaust System": {
-        position: new BABYLON.Vector3(0, 1, -12),
-        rotation: vec3DegToRad([-15, 90, 55]),
+        position: new BABYLON.Vector3(2.7, 1.2, -18),
+        rotation: vec3DegToRad([15, 160, 7]),
         scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+        triggerDamage: true,
+        damageNodes: ["Damage_OilPuddle"],
       },
       /*"Suspension & Exhaust System": {
         position: new BABYLON.Vector3(0, 1.5, -20),
