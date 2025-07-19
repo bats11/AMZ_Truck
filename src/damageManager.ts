@@ -18,7 +18,7 @@ export function resetDamageVisibility(scene: BABYLON.Scene): void {
         mesh,
         "visibility",
         60, // fps
-        30, // 0.5 secondi
+        60, // 1 second
         mesh.visibility,
         0,
         BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT

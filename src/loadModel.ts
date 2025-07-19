@@ -28,7 +28,7 @@ export function loadModel(
   onFinish?: () => void
 ) {
   const baseUrl = "/assets/";
-  const glbList = ["TruckOnly.glb", "Back Door.glb", "Inside Door.glb","damage_DuctTape.glb","damage_OilLeak.glb"];
+  const glbList = ["TruckOnly.glb", "Back Door.glb", "Inside Door.glb","damage_DuctTape.glb","damage_OilLeak.glb","damage_OilLeakGround.glb"];
   const totalModels = glbList.length;
 
   const materialManager = new MaterialManager(scene, baseUrl);
