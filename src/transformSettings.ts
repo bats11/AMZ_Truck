@@ -255,6 +255,36 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
           triggerDamage: true,
           damageNodes: ["Damage_Duct"],
         },
+        "Front Tire, Wheel, & Rim": {
+          position: new BABYLON.Vector3(-0.3, 0, -22),
+          rotation: vec3DegToRad([0, 60, 0]),
+          scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+        },
+        "Lights & Light Covers": {
+          position: new BABYLON.Vector3(-0.3, 0, -22),
+          rotation: vec3DegToRad([0, 60, 0]),
+          scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+        },
+        "Body & Doors": {
+          position: new BABYLON.Vector3(-0.3, 0, -22),
+          rotation: vec3DegToRad([0, 60, 0]),
+          scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+        },
+        "Suspension & Exhaust System": {
+          position: new BABYLON.Vector3(-0.3, 0, -22),
+          rotation: vec3DegToRad([0, 60, 0]),
+          scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+        },
+        "EV system": {
+          position: new BABYLON.Vector3(-0.3, 0, -22),
+          rotation: vec3DegToRad([0, 60, 0]),
+          scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+        },
+        "Back Tire, Wheel, & Rim": {
+          position: new BABYLON.Vector3(-0.3, 0, -22),
+          rotation: vec3DegToRad([0, 60, 0]),
+          scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+        },        
   },
 };
 

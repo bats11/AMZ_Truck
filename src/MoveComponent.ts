@@ -22,6 +22,7 @@ let isInCustomSequence = false;
 let activeCustomLabel: string | null = null;
 let activeMenu: string | null = null;
 const previouslyHiddenNodes = new Set<string>();
+let lastDamageNodes: string[] = [];
 
 interface TransformState {
   position: BABYLON.Vector3;
@@ -30,8 +31,6 @@ interface TransformState {
 }
 
 let initialTransform: TransformState | null = null;
-
-// ✅ Ciclo di animazione incrementale per invalidare le animazioni precedenti
 let animationCycle = 0;
 
 export function setActiveMenuForTransforms(menu: string | null) {
@@ -77,7 +76,15 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
     const scene = modelRoot.getScene();
     resetDamageVisibility(scene);
 
-    // ✅ Nuovo ciclo identificativo per questa richiesta
+    // ✅ Nasconde le damage mesh precedenti
+    for (const name of lastDamageNodes) {
+      const node = scene.getNodeByName(name);
+      if (node && node instanceof BABYLON.AbstractMesh) {
+        node.visibility = 0;
+      }
+    }
+    lastDamageNodes = [];
+
     const currentCycle = ++animationCycle;
 
     if (isInCustomSequence && isSwitchingToAnotherMainMenu) {
@@ -101,7 +108,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       settings: any
     ) => {
       setUiInteractivity(true);
-
       const safe = () => currentCycle === animationCycle;
 
       if (settings.sequenceStartTransform && safe()) {
@@ -109,6 +115,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
         if (settings.sequenceStartTransform.triggerDamage && settings.sequenceStartTransform.damageNodes?.length) {
           showDamageMeshes(scene, settings.sequenceStartTransform.damageNodes);
+          lastDamageNodes = settings.sequenceStartTransform.damageNodes;
         }
 
         if (
@@ -143,6 +150,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
         if (step.triggerDamage && step.damageNodes?.length) {
           showDamageMeshes(scene, step.damageNodes);
+          lastDamageNodes = step.damageNodes;
         }
 
         if (step.hideMeshes && settings.hiddenNodes?.length) {
@@ -168,6 +176,7 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
       if (finalTransform.triggerDamage && finalTransform.damageNodes?.length) {
         showDamageMeshes(scene, finalTransform.damageNodes);
+        lastDamageNodes = finalTransform.damageNodes;
       }
 
       if (finalTransform.triggerFovAdjust && activeCamera && settings.finalCameraFov !== undefined) {
@@ -189,7 +198,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       if (isBigToBig && !opts?.bypassBigToBig) {
         isInCustomSequence = true;
         activeCustomLabel = label;
-
         const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
         await runSequence(steps, settings, settings);
         return;
@@ -199,7 +207,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
     if (isCustomSequence && isMainMenuTarget && !opts?.bypassCustomSequence) {
       isInCustomSequence = true;
       activeCustomLabel = label;
-
       const steps = Array.isArray(settings.intermediate) ? settings.intermediate : [];
       await runSequence(steps, settings, settings);
       return;
@@ -217,14 +224,14 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
     if (settings.triggerDamage && settings.damageNodes?.length) {
       showDamageMeshes(scene, settings.damageNodes);
+      lastDamageNodes = settings.damageNodes;
     }
   });
 }
 
 export function resetModelTransform() {
   if (!modelRoot || !initialTransform) return;
-
-  animationCycle++; // ❌ Invalida animazioni precedenti
+  animationCycle++;
   handleInterpolatedTransform(modelRoot, modelRoot.getScene(), {
     position: initialTransform.position,
     rotation: initialTransform.rotation,
