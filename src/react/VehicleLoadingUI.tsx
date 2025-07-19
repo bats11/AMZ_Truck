@@ -1,4 +1,3 @@
-// src/react/VehicleLoadingUI.tsx
 import React from "react";
 
 interface VehicleLoadingUIProps {
@@ -8,23 +7,12 @@ interface VehicleLoadingUIProps {
 
 export default function VehicleLoadingUI({ onLeftClick, onRightClick }: VehicleLoadingUIProps) {
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: "55%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        display: "flex",
-        gap: "4rem",
-        zIndex: 1000,
-        pointerEvents: "auto",
-      }}
-    >
-      <button className="exp-btn" onClick={onLeftClick}>
-        Load Left Side
+    <div className="vehicle-loading-ui">
+      <button className="vehicle-loading-btn primary" onClick={onLeftClick}>
+        Start Loading Vehicle
       </button>
-      <button className="exp-btn" onClick={onRightClick}>
-        Activity Menu
+      <button className="vehicle-loading-btn secondary" onClick={onRightClick}>
+        Return to Activity Menu
       </button>
     </div>
   );
