@@ -3,13 +3,14 @@ import React, { useEffect, useState } from "react";
 import LoadingOverlay from "./LoadingOverlay";
 import { setTouchLockedGetter } from "../babylonBridge";
 import { resetModelTransform } from "../MoveComponent";
-import submenuData from "../data/submenuData.json";
+import submenuData from "../data/SubmenuData.json";
 import UIAnimations from "./UIAnimations";
 import { setUiInteractivitySetter } from "../babylonBridge";
+import { vehicleLoadingManager } from "../vehicleLoadingManager";
 
 export default function App() {
   const [appPhase, setAppPhase] = useState<"loading" | "selection" | "transitioning" | "experience">("loading");
-  const [experienceType, setExperienceType] = useState<"dvic" | "vehicle" | null>(null); // ✅ nuovo stato
+  const [experienceType, setExperienceType] = useState<"dvic" | "cargoLoad" | null>(null); // ✅ nuovo stato
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [touchLocked, setTouchLocked] = useState<boolean>(false);
@@ -35,7 +36,7 @@ export default function App() {
     return () => window.removeEventListener("entry-animation-finished", onEntryDone);
   }, []);
 
-  const startExperience = (type: "dvic" | "vehicle") => {
+  const startExperience = (type: "dvic" | "cargoLoad") => {
     setExperienceType(type); // ✅ imposta il tipo di esperienza
     setAppPhase("transitioning");
     setTimeout(() => {
@@ -47,19 +48,24 @@ export default function App() {
   };
 
   const resetApp = () => {
+    if (experienceType === "cargoLoad") {
+      vehicleLoadingManager.exit(); // <--- pulizia sottostato
+    }
+
     resetModelTransform();
     setTouchLocked(false);
     setActiveMenu(null);
     setActiveSubmenu(null);
     setAppPhase("selection");
-    setSelectionKey((prev) => prev + 1); // ✅ forza remount dei pulsanti
-    setExperienceType(null); // ✅ resetta il tipo
+    setSelectionKey((prev) => prev + 1);
+    setExperienceType(null); // <--- smonta macro-esperienza
 
     const container = document.getElementById("app-container");
     if (container) {
       container.style.setProperty("--ui-height", initialUiHeight);
     }
   };
+
 
   return (
     <>

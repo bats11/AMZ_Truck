@@ -9,12 +9,14 @@ class VehicleLoadingManager {
     this.setState("startLoading");
   }
 
+  public exit() {
+    this.currentState = "startLoading"; // oppure un valore neutro se lo supporti in futuro
+    console.log("🚪 Uscita da cargo loading → reset stato interno");
+  }
+
   public setState(state: LoadingState) {
     this.currentState = state;
-    console.log(`🚚 Vehicle Loading: stato attivo → ${state}`);
-
-    // ⚠️ Rimosso: placeholder UI
-    // La gestione visiva è ora completamente affidata alla UI React
+    console.log(`🚚 Cargo Loading: stato attivo → ${state}`);
   }
 
   public getState(): LoadingState {

@@ -7,7 +7,7 @@ import { vehicleLoadingManager } from "../vehicleLoadingManager"; // ✅ già es
 
 interface UIAnimationsProps {
   appPhase: "loading" | "selection" | "transitioning" | "experience";
-  experienceType: "dvic" | "vehicle" | null;
+  experienceType: "dvic" | "cargoLoad" | null;
   activeMenu: string | null;
   activeSubmenu: string | null;
   setActiveMenu: (value: string | null) => void;
@@ -15,7 +15,7 @@ interface UIAnimationsProps {
   touchLocked: boolean;
   setTouchLocked: (value: boolean) => void;
   resetApp: () => void;
-  startExperience: (type: "dvic" | "vehicle") => void;
+  startExperience: (type: "dvic" | "cargoLoad") => void;
   entryDone: boolean;
   buttonsDisabled: boolean;
   setButtonsDisabled: (val: boolean) => void;
@@ -64,7 +64,7 @@ export default function UIAnimations({
             <motion.button
               className="exp-btn"
               onClick={() => {
-                startExperience("vehicle");
+                startExperience("cargoLoad");
                 vehicleLoadingManager.enter();
               }}
               disabled={buttonsDisabled}
@@ -152,7 +152,7 @@ export default function UIAnimations({
               </>
             )}
 
-            {experienceType === "vehicle" && (
+            {experienceType === "cargoLoad" && (
               <>
                 {vehicleLoadingManager.getState() === "startLoading" && (
                   <>
