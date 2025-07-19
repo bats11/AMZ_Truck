@@ -1,17 +1,18 @@
-// src/logic/vehicleLoadingManager.ts
-
 export type LoadingState = "startLoading" | "leftSideLoading" | "rightSideLoading";
 
 class VehicleLoadingManager {
   private currentState: LoadingState = "startLoading";
+  private firstEntry = true;
 
   public enter() {
     this.setState("startLoading");
+    this.firstEntry = true; // si entra nell’esperienza → abilita funzione iniziale
   }
 
   public exit() {
-    this.currentState = "startLoading"; // oppure un valore neutro se lo supporti in futuro
-    console.log("🚪 Uscita da cargo loading → reset stato interno");
+    this.currentState = "startLoading";
+    this.firstEntry = true; // reset per future sessioni
+    console.log("🚪 Exit cargo loading → stato pulito");
   }
 
   public setState(state: LoadingState) {
@@ -21,6 +22,14 @@ class VehicleLoadingManager {
 
   public getState(): LoadingState {
     return this.currentState;
+  }
+
+  public shouldRunInitialEntry(): boolean {
+    return this.firstEntry;
+  }
+
+  public markInitialEntryDone() {
+    this.firstEntry = false;
   }
 }
 
