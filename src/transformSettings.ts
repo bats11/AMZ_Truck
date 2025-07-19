@@ -82,7 +82,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
   "FRONT SIDE": {
     settings: {
       position: new BABYLON.Vector3(1, 2.5, 0),
-      rotation: vec3DegToRad([0, 100, 0]),
+      rotation: vec3DegToRad([0, 100, -3]),
       scaling: new BABYLON.Vector3(1.9, 1.9, 1.9),
       durationScale: 1.0,
       durationPosRot: 1,
@@ -105,7 +105,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
 
   "IN CAB": {
     settings: {
-      position: new BABYLON.Vector3(0.5, 0, -30.5),
+      position: new BABYLON.Vector3(0.5, -0.5, -30.5),
       rotation: vec3DegToRad([0, 268, 15]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       triggerFovAdjust: true,
@@ -227,9 +227,9 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
 
   "BACK SIDE": {
     settings: {
-      position: new BABYLON.Vector3(-1, 2.2, 0),
+      position: new BABYLON.Vector3(-0.5, 2.2, 0),
       rotation: vec3DegToRad([0, 260, 0]),
-      scaling: new BABYLON.Vector3(1.9, 1.9, 1.9),
+      scaling: new BABYLON.Vector3(2, 2, 2),
       durationScale: 1.5,
       durationPosRot: 1.5,
       intermediate: [
