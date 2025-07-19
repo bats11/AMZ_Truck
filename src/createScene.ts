@@ -65,5 +65,7 @@ export async function createScene() {
   window.addEventListener("resize", resizeCanvas);
   engine.resize();
 
+  (window as any)._BABYLON_SCENE = scene; // ✅ rende accessibile la scena
+
   engine.runRenderLoop(() => scene.render());
 }
