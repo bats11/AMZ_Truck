@@ -2,10 +2,12 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CameraMenu from "./CameraMenu";
-import { vehicleLoadingManager } from "../vehicleLoadingManager"; // ✅ nuovo import
+import VehicleLoadingUI from "./VehicleLoadingUI"; // ✅ nuovo import
+import { vehicleLoadingManager } from "../vehicleLoadingManager"; // ✅ già esistente
 
 interface UIAnimationsProps {
   appPhase: "loading" | "selection" | "transitioning" | "experience";
+  experienceType: "dvic" | "vehicle" | null;
   activeMenu: string | null;
   activeSubmenu: string | null;
   setActiveMenu: (value: string | null) => void;
@@ -13,7 +15,7 @@ interface UIAnimationsProps {
   touchLocked: boolean;
   setTouchLocked: (value: boolean) => void;
   resetApp: () => void;
-  startExperience: () => void;
+  startExperience: (type: "dvic" | "vehicle") => void;
   entryDone: boolean;
   buttonsDisabled: boolean;
   setButtonsDisabled: (val: boolean) => void;
@@ -22,6 +24,7 @@ interface UIAnimationsProps {
 
 export default function UIAnimations({
   appPhase,
+  experienceType,
   activeMenu,
   activeSubmenu,
   setActiveMenu,
@@ -48,7 +51,7 @@ export default function UIAnimations({
           >
             <motion.button
               className="exp-btn active"
-              onClick={startExperience}
+              onClick={() => startExperience("dvic")}
               disabled={buttonsDisabled}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -61,8 +64,8 @@ export default function UIAnimations({
             <motion.button
               className="exp-btn"
               onClick={() => {
-                startExperience(); // ✅ transizione a fase "experience"
-                vehicleLoadingManager.enter(); // ✅ attiva vehicle loading
+                startExperience("vehicle");
+                vehicleLoadingManager.enter();
               }}
               disabled={buttonsDisabled}
               initial={{ scale: 0 }}
@@ -87,63 +90,77 @@ export default function UIAnimations({
             exit={{ scaleY: 0, opacity: 0 }}
             transition={{ duration: 0.7, ease: [0.65, 0, 0.35, 1] }}
           >
-            <motion.div
-              style={{
-                flex: 6.5,
-                display: "flex",
-                flexDirection: "column",
-                pointerEvents: "auto",
-                padding: "2rem 2rem 3rem 2rem",
-              }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                delay: 0.15,
-                duration: 0.6,
-                ease: [0.65, 0, 0.35, 1],
-              }}
-            >
-              <CameraMenu
-                position="left"
-                appPhase={appPhase}
-                activeMenu={activeMenu}
-                activeSubmenu={activeSubmenu}
-                setActiveMenu={setActiveMenu}
-                setActiveSubmenu={setActiveSubmenu}
-                touchLocked={touchLocked}
-                setTouchLocked={setTouchLocked}
-                resetApp={resetApp}
-                buttonsDisabled={buttonsDisabled}
-              />
-            </motion.div>
+            {experienceType === "dvic" && (
+              <>
+                <motion.div
+                  style={{
+                    flex: 6.5,
+                    display: "flex",
+                    flexDirection: "column",
+                    pointerEvents: "auto",
+                    padding: "2rem 2rem 3rem 2rem",
+                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    delay: 0.15,
+                    duration: 0.6,
+                    ease: [0.65, 0, 0.35, 1],
+                  }}
+                >
+                  <CameraMenu
+                    position="left"
+                    appPhase={appPhase}
+                    activeMenu={activeMenu}
+                    activeSubmenu={activeSubmenu}
+                    setActiveMenu={setActiveMenu}
+                    setActiveSubmenu={setActiveSubmenu}
+                    touchLocked={touchLocked}
+                    setTouchLocked={setTouchLocked}
+                    resetApp={resetApp}
+                    buttonsDisabled={buttonsDisabled}
+                  />
+                </motion.div>
 
-            <motion.div
-              style={{
-                flex: 3.5,
-                pointerEvents: "auto",
-                padding: "2rem 0 0 0",
-              }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                delay: 0,
-                duration: 0.6,
-                ease: [0.65, 0, 0.35, 1],
-              }}
-            >
-              <CameraMenu
-                position="right"
-                appPhase={appPhase}
-                activeMenu={activeMenu}
-                activeSubmenu={activeSubmenu}
-                setActiveMenu={setActiveMenu}
-                setActiveSubmenu={setActiveSubmenu}
-                touchLocked={touchLocked}
-                setTouchLocked={setTouchLocked}
-                resetApp={resetApp}
-                buttonsDisabled={buttonsDisabled}
-              />
-            </motion.div>
+                <motion.div
+                  style={{
+                    flex: 3.5,
+                    pointerEvents: "auto",
+                    padding: "2rem 0 0 0",
+                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    delay: 0,
+                    duration: 0.6,
+                    ease: [0.65, 0, 0.35, 1],
+                  }}
+                >
+                  <CameraMenu
+                    position="right"
+                    appPhase={appPhase}
+                    activeMenu={activeMenu}
+                    activeSubmenu={activeSubmenu}
+                    setActiveMenu={setActiveMenu}
+                    setActiveSubmenu={setActiveSubmenu}
+                    touchLocked={touchLocked}
+                    setTouchLocked={setTouchLocked}
+                    resetApp={resetApp}
+                    buttonsDisabled={buttonsDisabled}
+                  />
+                </motion.div>
+              </>
+            )}
+
+            {experienceType === "vehicle" &&
+              vehicleLoadingManager.getState() === "startLoading" && (
+                <VehicleLoadingUI
+                  onLeftClick={() =>
+                    vehicleLoadingManager.setState("leftSideLoading")
+                  }
+                  onRightClick={resetApp}
+                />
+              )}
           </motion.div>
         )}
       </AnimatePresence>

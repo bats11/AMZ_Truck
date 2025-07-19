@@ -3,19 +3,19 @@ import React, { useEffect, useState } from "react";
 import LoadingOverlay from "./LoadingOverlay";
 import { setTouchLockedGetter } from "../babylonBridge";
 import { resetModelTransform } from "../MoveComponent";
-import submenuData from "../data/SubmenuData.json";
+import submenuData from "../data/submenuData.json";
 import UIAnimations from "./UIAnimations";
 import { setUiInteractivitySetter } from "../babylonBridge";
-import { resetDamageVisibility } from "../damageManager"; // ✅ nuovo import
 
 export default function App() {
   const [appPhase, setAppPhase] = useState<"loading" | "selection" | "transitioning" | "experience">("loading");
+  const [experienceType, setExperienceType] = useState<"dvic" | "vehicle" | null>(null); // ✅ nuovo stato
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [touchLocked, setTouchLocked] = useState<boolean>(false);
-  const [entryDone, setEntryDone] = useState(false);
-  const [selectionKey, setSelectionKey] = useState(0);
-  const [buttonsDisabled, setButtonsDisabled] = useState(false);
+  const [entryDone, setEntryDone] = useState(false); // ✅ entry animation completata
+  const [selectionKey, setSelectionKey] = useState(0); // ✅ forza remount
+  const [buttonsDisabled, setButtonsDisabled] = useState(false); // blocca pulsanti durante animazione
   const initialUiHeight = "50%";
 
   useEffect(() => {
@@ -35,26 +35,8 @@ export default function App() {
     return () => window.removeEventListener("entry-animation-finished", onEntryDone);
   }, []);
 
-  const resetApp = () => {
-    const scene = (window as any)._BABYLON_SCENE; // ✅ esposto da createScene
-    if (scene) {
-      resetDamageVisibility(scene); // ✅ nasconde eventuali damage mesh visibili
-    }
-
-    resetModelTransform();
-    setTouchLocked(false);
-    setActiveMenu(null);
-    setActiveSubmenu(null);
-    setAppPhase("selection");
-    setSelectionKey((prev) => prev + 1);
-
-    const container = document.getElementById("app-container");
-    if (container) {
-      container.style.setProperty("--ui-height", initialUiHeight);
-    }
-  };
-
-  const startExperience = () => {
+  const startExperience = (type: "dvic" | "vehicle") => {
+    setExperienceType(type); // ✅ imposta il tipo di esperienza
     setAppPhase("transitioning");
     setTimeout(() => {
       setActiveMenu(null);
@@ -64,11 +46,27 @@ export default function App() {
     }, 600);
   };
 
+  const resetApp = () => {
+    resetModelTransform();
+    setTouchLocked(false);
+    setActiveMenu(null);
+    setActiveSubmenu(null);
+    setAppPhase("selection");
+    setSelectionKey((prev) => prev + 1); // ✅ forza remount dei pulsanti
+    setExperienceType(null); // ✅ resetta il tipo
+
+    const container = document.getElementById("app-container");
+    if (container) {
+      container.style.setProperty("--ui-height", initialUiHeight);
+    }
+  };
+
   return (
     <>
       <LoadingOverlay />
       <UIAnimations
         appPhase={appPhase}
+        experienceType={experienceType} // ✅ passaggio del tipo
         activeMenu={activeMenu}
         activeSubmenu={activeSubmenu}
         setActiveMenu={setActiveMenu}
