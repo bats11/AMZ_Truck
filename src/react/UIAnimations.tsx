@@ -2,8 +2,9 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CameraMenu from "./CameraMenu";
-import VehicleLoadingUI from "./VehicleLoadingUI"; // ✅ nuovo import
-import { vehicleLoadingManager } from "../vehicleLoadingManager"; // ✅ già esistente
+import VehicleLoadingUI from "./VehicleLoadingUI";
+import { vehicleLoadingManager } from "../vehicleLoadingManager";
+import { useSyncExternalStore } from "react";
 
 interface UIAnimationsProps {
   appPhase: "loading" | "selection" | "transitioning" | "experience";
@@ -36,6 +37,11 @@ export default function UIAnimations({
   entryDone,
   buttonsDisabled,
 }: UIAnimationsProps) {
+  const loadingState = useSyncExternalStore(
+    vehicleLoadingManager.subscribe.bind(vehicleLoadingManager),
+    vehicleLoadingManager.getState.bind(vehicleLoadingManager)
+  );
+
   return (
     <>
       <AnimatePresence>
@@ -154,25 +160,41 @@ export default function UIAnimations({
 
             {experienceType === "cargoLoad" && (
               <>
-                {vehicleLoadingManager.getState() === "startLoading" && (
-                  <>
-                    <VehicleLoadingUI
-                      onLeftClick={() =>
-                        vehicleLoadingManager.setState("leftSideLoading")
-                      }
-                      onRightClick={resetApp}
-                    />
-                    {(() => {
-                      import("../vehicleLoadingTransform").then(({ animateToStartLoading }) =>
-                        animateToStartLoading()
-                      );
-                      return null;
-                    })()}
-                  </>
-                )}
+                <AnimatePresence mode="wait">
+                  {loadingState === "startLoading" && (
+                    <motion.div
+                      key="vehicle-loading-ui"
+                      initial={{ opacity: 0, y: 40 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -40 }}
+                      transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
+                      style={{
+                        position: "absolute",
+                        top: "40%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        zIndex: 1000,
+                      }}
+                    >
+                      <VehicleLoadingUI
+                        onLeftClick={() =>
+                          vehicleLoadingManager.setState("leftSideLoading")
+                        }
+                        onRightClick={resetApp}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {loadingState === "startLoading" &&
+                  (() => {
+                    import("../vehicleLoadingTransform").then(
+                      ({ animateToStartLoading }) => animateToStartLoading()
+                    );
+                    return null;
+                  })()}
               </>
             )}
-
           </motion.div>
         )}
       </AnimatePresence>
