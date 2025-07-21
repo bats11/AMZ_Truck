@@ -166,7 +166,7 @@ export default function UIAnimations({
                       key="vehicle-loading-ui"
                       initial={{ opacity: 0, y: 40 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -40 }}
+                      exit={{ opacity: 0, y: 40 }}
                       transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
                       style={{
                         position: "absolute",
