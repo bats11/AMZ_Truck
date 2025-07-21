@@ -16,9 +16,14 @@ class VehicleLoadingManager {
   }
 
   public setState(state: LoadingState) {
-    this.currentState = state;
-    console.log(`🚚 Cargo Loading: stato attivo → ${state}`);
+  this.currentState = state;
+  console.log(`🚚 Cargo Loading: stato attivo → ${state}`);
+
+  if (state === "leftSideLoading") {
+    console.log("🛠️ DEBUG: trigger clonazione cargo (fase leftSideLoading)");
   }
+}
+
 
   public getState(): LoadingState {
     return this.currentState;
