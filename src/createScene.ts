@@ -17,8 +17,8 @@ export async function createScene() {
   if (!(el instanceof HTMLCanvasElement)) {
     throw new Error("Element with id 'renderCanvas' is not a canvas element");
   }
-  const canvas: HTMLCanvasElement = el;
 
+  const canvas: HTMLCanvasElement = el;
   const engine = new BABYLON.Engine(canvas, true, {
     preserveDrawingBuffer: true,
     stencil: true,
@@ -35,14 +35,16 @@ export async function createScene() {
   pipeline.fxaaEnabled = true;
 
   const shadowGenerator = await setupLighting(scene);
+
+  // ✅ Rende accessibile il generatore di ombre ad altri moduli (es. CreateCarts)
+  scene.metadata = { shadowGenerator };
+
   setupBackground(scene);
 
   loadModel(scene, (meshes, bounding) => {
-
-  console.log("📦 Nodi disponibili nella scena:");
-  scene.meshes.forEach((m) => console.log(`Mesh: ${m.name}`));
-  scene.transformNodes.forEach((n) => console.log(`Node: ${n.name}`));
-
+    console.log("📦 Nodi disponibili nella scena:");
+    scene.meshes.forEach((m) => console.log(`Mesh: ${m.name}`));
+    scene.transformNodes.forEach((n) => console.log(`Node: ${n.name}`));
 
     for (const mesh of meshes) {
       mesh.receiveShadows = true;
@@ -56,7 +58,6 @@ export async function createScene() {
       enableTouchRotation(root, canvas);
     }
   }, () => {
-    // ✅ Notifica React al termine del caricamento
     window.dispatchEvent(new Event("model-loaded"));
   });
 
@@ -67,7 +68,7 @@ export async function createScene() {
   window.addEventListener("resize", resizeCanvas);
   engine.resize();
 
-  (window as any)._BABYLON_SCENE = scene; // ✅ rende accessibile la scena
+  (window as any)._BABYLON_SCENE = scene;
 
   engine.runRenderLoop(() => scene.render());
 }

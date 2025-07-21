@@ -1,10 +1,12 @@
+// src/vehicleLoadingManager.ts
+
 export type LoadingState = "startLoading" | "leftSideLoading" | "rightSideLoading";
 
 class VehicleLoadingManager {
   private currentState: LoadingState = "startLoading";
   private firstEntry = true;
 
-  // ✅ Sistema di listener per notifica a React
+  // ✅ Sistema di listener per React
   private listeners: (() => void)[] = [];
 
   public enter() {
@@ -22,10 +24,19 @@ class VehicleLoadingManager {
   public setState(state: LoadingState) {
     this.currentState = state;
     console.log(`🚚 Cargo Loading: stato attivo → ${state}`);
-    this.notify(); // 🔔 Notifica i listener (React incluso)
+    this.notify(); // 🔔 Notifica i listener React
 
     if (state === "leftSideLoading") {
-      console.log("🛠️ DEBUG: trigger clonazione cargo (fase leftSideLoading)");
+      // ✅ Esegui la creazione dei carrelli
+      import("./CreateCarts").then(({ CreateCarts }) => {
+        const scene = (window as any)._BABYLON_SCENE;
+        if (!scene) {
+          console.warn("⚠️ Scene Babylon non disponibile.");
+          return;
+        }
+        const carts = new CreateCarts(scene);
+        carts.spawnCarts();
+      });
     }
   }
 
@@ -41,7 +52,7 @@ class VehicleLoadingManager {
     this.firstEntry = false;
   }
 
-  // ✅ Per collegare React
+  // ✅ Permette a React di iscriversi
   public subscribe(listener: () => void): () => void {
     this.listeners.push(listener);
     return () => {
