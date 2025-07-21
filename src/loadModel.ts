@@ -19,7 +19,10 @@ const animationConfigs: Record<string, AnimationConfig> = {
   "Inside Door.glb": { autoPlay: false, stopAt: "start" },
 };
 
-// ✅ Mappa globale per accedere ai gruppi di animazione per nome
+// ✅ Prefab cargo mesh disponibili per clonazione
+export const cargoMeshesByName: Record<string, BABYLON.AbstractMesh> = {};
+
+// ✅ Gruppi di animazione per ciascun file
 export const animationGroupsByName: Record<string, BABYLON.AnimationGroup[]> = {};
 
 export function loadModel(
@@ -28,7 +31,15 @@ export function loadModel(
   onFinish?: () => void
 ) {
   const baseUrl = "/assets/";
-  const glbList = ["TruckOnly.glb", "Back Door.glb", "Inside Door.glb","damage_DuctTape.glb","damage_OilLeak.glb","damage_OilLeakGround.glb"];
+  const glbList = [
+    "TruckOnly.glb", 
+    "Back Door.glb", 
+    "Inside Door.glb",
+    "damage_DuctTape.glb",
+    "damage_OilLeak.glb",
+    "damage_OilLeakGround.glb",
+    "cargo_LoadingCart.glb" // ✅ cargo file di esempio
+  ];
   const totalModels = glbList.length;
 
   const materialManager = new MaterialManager(scene, baseUrl);
@@ -45,11 +56,12 @@ export function loadModel(
     root.position = center;
 
     for (const mesh of allMeshes) {
-      mesh.receiveShadows = true;
-      mesh.setParent(root, true);
+      if (!cargoMeshesByName[mesh.name]) {
+        mesh.receiveShadows = true;
+        mesh.setParent(root, true);
+      }
     }
 
-    // ✅ Nascondi le mesh damage_ raccolte in fase di caricamento
     for (const name of hiddenDamageMeshNames) {
       const mesh = scene.getNodeByName(name);
       if (mesh && mesh instanceof BABYLON.AbstractMesh) {
@@ -78,11 +90,25 @@ export function loadModel(
         container.addAllToScene();
 
         const meshes = container.meshes.filter(m => m.name !== "__root__");
+        const isCargo = fileName.startsWith("cargo_");
+
+        if (isCargo) {
+          for (const mesh of meshes) {
+            mesh.setEnabled(false);
+            mesh.isPickable = false;
+            mesh.checkCollisions = false;
+            cargoMeshesByName[mesh.name] = mesh;
+          }
+
+          modelsLoaded++;
+          if (modelsLoaded === totalModels) onAllLoaded();
+          return;
+        }
+
         allMeshes.push(...meshes);
 
         materialManager.prepareMaterialsForVisibility(meshes);
 
-        // ✅ Se il file è un "damage_", salva i nomi delle sue mesh
         if (fileName.startsWith("damage_")) {
           for (const mesh of meshes) {
             hiddenDamageMeshNames.push(mesh.name);
@@ -119,7 +145,6 @@ export function loadModel(
             const bb = mesh.getBoundingInfo().boundingBox;
             const min = bb.minimumWorld;
             const max = bb.maximumWorld;
-
             globalMin = globalMin ? BABYLON.Vector3.Minimize(globalMin, min) : min.clone();
             globalMax = globalMax ? BABYLON.Vector3.Maximize(globalMax, max) : max.clone();
           }
