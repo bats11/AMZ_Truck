@@ -26,14 +26,14 @@ export class CreateCarts {
 
     for (let i = 0; i < count; i++) {
       const position = new BABYLON.Vector3((i - Math.floor(count / 2)) * spacing, -4, 0);
-      const rotation = vec3DegToRad([0, -90, 0]);
+      const rotation = vec3DegToRad([0, 0, 0]);
 
       const cart = new CartEntity({
         prefab: base,
         id: `Cart_${i}`,
         position,
         rotation,
-        maxPackages: 9, // ✅ aggiornato
+        maxPackages: 9,
         shadowGen,
       });
 
@@ -52,7 +52,7 @@ export class CreateCarts {
 
     const rows = 3;
     const cols = 3;
-    const cellSize = new BABYLON.Vector3(0.35, 0.35, 0.35); // ✅ offset cella, puoi regolare
+    const cellSize = new BABYLON.Vector3(0.35, 0.35, 0.35);
 
     let bagIndex = 0;
 
@@ -61,23 +61,27 @@ export class CreateCarts {
         for (let col = cols - 1; col >= 0; col--) {
           if (bagIndex >= count || cart.isFull()) break;
 
+          // 🟢 Posizione assoluta della bag rispetto al carrello
           const offset = new BABYLON.Vector3(
             (col - 1) * cellSize.x,
             row * cellSize.y,
             0
           );
-          const position = cart.mesh.position.add(offset);
+          const worldPos = cart.mesh.position.add(offset);
           const rotation = vec3DegToRad([0, 0, 0]);
 
           const bag = new BagEntity({
             prefab: base,
             id: `Bag_${bagIndex}`,
-            position,
+            position: worldPos,
             rotation,
             shadowGen,
           });
 
-          cart.addBag(bag); // ✅ registrazione nel carrello
+          // 🟢 Imposta il carrello come genitore, mantenendo la posizione globale
+          bag.mesh.setParent(cart.mesh, true);
+
+          cart.addBag(bag);
           this.bags.push(bag);
           bagIndex++;
         }
