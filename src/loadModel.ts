@@ -97,7 +97,9 @@ export function loadModel(
             mesh.setEnabled(false);
             mesh.isPickable = false;
             mesh.checkCollisions = false;
-            cargoMeshesByName[mesh.name] = mesh;
+            if (mesh instanceof BABYLON.Mesh) {
+              cargoMeshesByName[mesh.name] = mesh;
+            }
           }
 
           modelsLoaded++;

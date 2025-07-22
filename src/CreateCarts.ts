@@ -9,7 +9,7 @@ export class CreateCarts {
     this.scene = scene;
   }
 
-  spawnCarts(count = 3, spacing = 2.5) {
+  spawnCarts(count = 3, spacing = 2.5, offset = 4) {
     const base = cargoMeshesByName["LoadingCart"];
     if (!base) {
       console.warn("⚠️ Mesh 'LoadingCart' non trovata tra i prefab.");
@@ -23,7 +23,7 @@ export class CreateCarts {
       if (!clone) continue;
 
       clone.setEnabled(true);
-      clone.position = new BABYLON.Vector3(i * -spacing, -4, 0);
+      clone.position = new BABYLON.Vector3(i * -spacing - offset, -4, 0);
       clone.rotation = new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(0), 0);
 
       if (shadowGen) shadowGen.addShadowCaster(clone, true); // ✅ ombre abilitate
