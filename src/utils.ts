@@ -47,3 +47,15 @@ export function createQuaternionAnimation(
   animation.setEasingFunction(easing);
   return animation;
 }
+
+export function degToRad(deg: number): number {
+  return (deg * Math.PI) / 180;
+}
+
+export function vec3DegToRad(arr: [number, number, number]): BABYLON.Vector3 {
+  return new BABYLON.Vector3(
+    degToRad(arr[0]),
+    degToRad(arr[1]),
+    degToRad(arr[2])
+  );
+}

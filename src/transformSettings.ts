@@ -1,5 +1,7 @@
 // transformSettings.ts — ristrutturato con struttura gerarchica
 import * as BABYLON from "@babylonjs/core";
+import { vec3DegToRad } from "./utils";
+
 
 // transformSettings.ts
 
@@ -19,7 +21,7 @@ export interface TransformSetting {
     animateMeshes?: boolean;
     animatedMeshGroups?: string[];
     triggerDamage?: boolean; 
-    damageNodes?: string[];      // ✅ NUOVO CAMPO
+    damageNodes?: string[];      
   };
 
   intermediate?: {
@@ -33,7 +35,7 @@ export interface TransformSetting {
     animateMeshes?: boolean;
     animatedMeshGroups?: string[];
     triggerDamage?: boolean;
-    damageNodes?: string[];      // ✅ NUOVO CAMPO
+    damageNodes?: string[];
   }[];
 
   exitIntermediate?: {
@@ -45,7 +47,7 @@ export interface TransformSetting {
     animateMeshes?: boolean;
     animatedMeshGroups?: string[];
     triggerDamage?: boolean; 
-    damageNodes?: string[];      // ✅ NUOVO CAMPO
+    damageNodes?: string[];      
   }[];
 
   hiddenNodes?: string[];
@@ -59,23 +61,7 @@ export interface TransformSetting {
   durationPosRot?: number;
   hideMeshes?: boolean;
   triggerDamage?: boolean;
-  damageNodes?: string[];        // ✅ NUOVO CAMPO anche al livello principale
-}
-
-
-
-
-
-function degToRad(deg: number): number {
-  return (deg * Math.PI) / 180;
-}
-
-function vec3DegToRad(arr: [number, number, number]): BABYLON.Vector3 {
-  return new BABYLON.Vector3(
-    degToRad(arr[0]),
-    degToRad(arr[1]),
-    degToRad(arr[2])
-  );
+  damageNodes?: string[];        
 }
 
 export const transformSettings: Record<string, { settings?: TransformSetting; [subKey: string]: TransformSetting | undefined }> = {

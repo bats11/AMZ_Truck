@@ -1,7 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 import { cargoMeshesByName } from "./loadModel";
 import { CartEntity } from "./CartEntity";
-import { vec3DegToRad } from "./transformSettings"; // ✅ usa funzione già definita
+import { vec3DegToRad } from "./utils"; // ✅ usa funzione già definita
 
 export class CreateCarts {
   private scene: BABYLON.Scene;
@@ -23,15 +23,15 @@ export class CreateCarts {
     const transforms = [
       {
         position: new BABYLON.Vector3(-3, -4, 0),
-        rotation: vec3DegToRad([0, -90, 0]),
+        rotation: vec3DegToRad([0, 0, 0]),
       },
       {
         position: new BABYLON.Vector3(0, -4, 0),
-        rotation: vec3DegToRad([0, -90, 0]),
+        rotation: vec3DegToRad([0, 0, 0]),
       },
       {
         position: new BABYLON.Vector3(3, -4, 0),
-        rotation: vec3DegToRad([0, -90, 0]),
+        rotation: vec3DegToRad([0, 0, 0]),
       },
     ];
 
