@@ -331,3 +331,6 @@ export function getTransformSetting(activeMenu: string | null, label: string): T
   }
   return undefined;
 }
+
+export { vec3DegToRad };
+

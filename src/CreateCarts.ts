@@ -1,15 +1,17 @@
 import * as BABYLON from "@babylonjs/core";
 import { cargoMeshesByName } from "./loadModel";
+import { CartEntity } from "./CartEntity";
+import { vec3DegToRad } from "./transformSettings"; // ✅ usa funzione già definita
 
 export class CreateCarts {
   private scene: BABYLON.Scene;
-  private carts: BABYLON.AbstractMesh[] = [];
+  private carts: CartEntity[] = [];
 
   constructor(scene: BABYLON.Scene) {
     this.scene = scene;
   }
 
-  spawnCarts(count = 3, spacing = 2.5, offset = 4) {
+  spawnCarts() {
     const base = cargoMeshesByName["LoadingCart"];
     if (!base) {
       console.warn("⚠️ Mesh 'LoadingCart' non trovata tra i prefab.");
@@ -18,21 +20,40 @@ export class CreateCarts {
 
     const shadowGen = this.scene.metadata?.shadowGenerator;
 
-    for (let i = 0; i < count; i++) {
-      const clone = base.clone(`LoadingCartClone_${i}`, null);
-      if (!clone) continue;
+    const transforms = [
+      {
+        position: new BABYLON.Vector3(-3, -4, 0),
+        rotation: vec3DegToRad([0, -90, 0]),
+      },
+      {
+        position: new BABYLON.Vector3(0, -4, 0),
+        rotation: vec3DegToRad([0, -90, 0]),
+      },
+      {
+        position: new BABYLON.Vector3(3, -4, 0),
+        rotation: vec3DegToRad([0, -90, 0]),
+      },
+    ];
 
-      clone.setEnabled(true);
-      clone.position = new BABYLON.Vector3(i * -spacing - offset, -4, 0);
-      clone.rotation = new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(0), 0);
+    transforms.forEach((cfg, index) => {
+      const cart = new CartEntity({
+        prefab: base,
+        id: `Cart_${index}`,
+        position: cfg.position,
+        rotation: cfg.rotation,
+        maxPackages: 5,
+        shadowGen: shadowGen,
+      });
 
-      if (shadowGen) shadowGen.addShadowCaster(clone, true); // ✅ ombre abilitate
-
-      this.carts.push(clone);
-    }
+      this.carts.push(cart);
+    });
   }
 
-  getClones() {
+  getCarts(): CartEntity[] {
     return this.carts;
+  }
+
+  getCartById(id: string): CartEntity | undefined {
+    return this.carts.find(c => c.id === id);
   }
 }
