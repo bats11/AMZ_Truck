@@ -26,14 +26,14 @@ export class CreateCarts {
 
     for (let i = 0; i < count; i++) {
       const position = new BABYLON.Vector3((i - Math.floor(count / 2)) * spacing, -4, 0);
-      const rotation = vec3DegToRad([0, 0, 0]);
+      const rotation = vec3DegToRad([0, -90, 0]);
 
       const cart = new CartEntity({
         prefab: base,
         id: `Cart_${i}`,
         position,
         rotation,
-        maxPackages: 5,
+        maxPackages: 9, // ✅ aggiornato
         shadowGen,
       });
 
@@ -49,21 +49,41 @@ export class CreateCarts {
     }
 
     const shadowGen = this.scene.metadata?.shadowGenerator;
-    const spacing = 1.2;
 
-    for (let i = 0; i < count; i++) {
-      const position = new BABYLON.Vector3(i * spacing, -3.8, 2.5);
-      const rotation = vec3DegToRad([0, 0, 0]);
+    const rows = 3;
+    const cols = 3;
+    const cellSize = new BABYLON.Vector3(0.35, 0.35, 0.35); // ✅ offset cella, puoi regolare
 
-      const bag = new BagEntity({
-        prefab: base,
-        id: `Bag_${i}`,
-        position,
-        rotation,
-        shadowGen,
-      });
+    let bagIndex = 0;
 
-      this.bags.push(bag);
+    for (const cart of this.carts) {
+      for (let row = 0; row < rows; row++) {
+        for (let col = cols - 1; col >= 0; col--) {
+          if (bagIndex >= count || cart.isFull()) break;
+
+          const offset = new BABYLON.Vector3(
+            (col - 1) * cellSize.x,
+            row * cellSize.y,
+            0
+          );
+          const position = cart.mesh.position.add(offset);
+          const rotation = vec3DegToRad([0, 0, 0]);
+
+          const bag = new BagEntity({
+            prefab: base,
+            id: `Bag_${bagIndex}`,
+            position,
+            rotation,
+            shadowGen,
+          });
+
+          cart.addBag(bag); // ✅ registrazione nel carrello
+          this.bags.push(bag);
+          bagIndex++;
+        }
+      }
+
+      if (bagIndex >= count) break;
     }
   }
 

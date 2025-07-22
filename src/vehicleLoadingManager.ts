@@ -36,7 +36,7 @@ class VehicleLoadingManager {
         }
         const carts = new CreateCarts(scene);
         carts.spawnCarts();
-        carts.spawnBags(10);
+        carts.spawnBags(20);
       });
     }
   }
