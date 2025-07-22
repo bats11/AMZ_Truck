@@ -38,7 +38,8 @@ export function loadModel(
     "damage_DuctTape.glb",
     "damage_OilLeak.glb",
     "damage_OilLeakGround.glb",
-    "cargo_LoadingCart.glb" // ✅ cargo file di esempio
+    "cargo_LoadingCart.glb",
+    "cargo_AmzBag.glb" // ✅ cargo file di esempio
   ];
   const totalModels = glbList.length;
 
