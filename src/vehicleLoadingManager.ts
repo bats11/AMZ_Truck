@@ -36,6 +36,7 @@ class VehicleLoadingManager {
         }
         const carts = new CreateCarts(scene);
         carts.spawnCarts();
+        carts.spawnBags(10);
       });
     }
   }
