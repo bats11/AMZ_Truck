@@ -3,11 +3,13 @@ import * as BABYLON from "@babylonjs/core";
 import { cargoMeshesByName } from "./loadModel";
 import { CartEntity } from "./CartEntity";
 import { BagEntity } from "./BagEntity";
+import { BAG_OFFSET_PRESET, BAG_OFFSET_PRESET_LAST } from "./bagOffsets";
 
 export class CreateCarts {
   private scene: BABYLON.Scene;
   private carts: CartEntity[] = [];
   private bags: BagEntity[] = [];
+
   constructor(scene: BABYLON.Scene) {
     this.scene = scene;
   }
@@ -24,7 +26,7 @@ export class CreateCarts {
 
     for (let i = 0; i < count; i++) {
       const id = `Cart_${i}`;
-      const position = new BABYLON.Vector3(i * spacing, -4, 0);
+      const position = new BABYLON.Vector3(i * spacing - 2.5, -4, 0);
       const rotation = new BABYLON.Vector3(0, 0, 0);
 
       const cart = new CartEntity({
@@ -48,24 +50,50 @@ export class CreateCarts {
     }
 
     const shadowGen = this.scene.metadata?.shadowGenerator;
-    const spacing = 1.2;
 
-    for (let i = 0; i < count; i++) {
-      const id = `Bag_${i}`;
-      const position = new BABYLON.Vector3(i * spacing, -3.6, -0.8); // Z=-0.8 per non sovrapporsi ai cart
-      const rotation = new BABYLON.Vector3(0, 0, 0);
+    // 🎨 Elenco colori per test (puoi sostituirlo dinamicamente)
+    const BAG_COLORS = [
+      "#fdd43b", "#aad169", "#3498db", "#f17850", "#3498db",
+      "#fdd43b", "#fdd43b", "#3498db", "#aad169", "#fdd43b",
+      "#aad169", "#3498db", "#f17850", "#3498db", "#fdd43b",
+      "#fdd43b", "#3498db", "#aad169", "#f17850", "#fdd43b",
+    ];
 
-      // Creazione del nodo wrapper + bag entity
-      const bag = new BagEntity({
-        id,
-        prefab,
-        position,
-        rotation,
-        shadowGen,
-      });
+    let bagIndex = 0;
 
-      this.bags.push(bag);
-      console.log(`📦 BagEntity ${id} creata con root: ${bag.root.name}`);
+    for (let cartIndex = 0; cartIndex < this.carts.length; cartIndex++) {
+      const cart = this.carts[cartIndex];
+      const isLastCart = cartIndex === this.carts.length - 1;
+      const offsetList = isLastCart ? BAG_OFFSET_PRESET_LAST : BAG_OFFSET_PRESET;
+
+      for (let i = 0; i < offsetList.length; i++) {
+        if (bagIndex >= count || cart.isFull()) break;
+
+        const offset = offsetList[i];
+        const id = `Bag_${bagIndex}`;
+        const color = BAG_COLORS[bagIndex % BAG_COLORS.length]; // 🎨 assegna colore ciclico
+
+        const bag = new BagEntity({
+          id,
+          prefab,
+          position: offset,
+          rotation: new BABYLON.Vector3(0, 0, 0),
+          parent: cart.root,
+          shadowGen,
+          color, // 🎨 passaggio colore
+        });
+
+        cart.addBag(bag);
+        this.bags.push(bag);
+
+        console.log(
+          `📦 BagEntity ${id} → ${cart.id} (${isLastCart ? "offset LAST" : "offset DEFAULT"}) → ${offset.toString()} → color ${color}`
+        );
+
+        bagIndex++;
+      }
+
+      if (bagIndex >= count) break;
     }
   }
 
@@ -77,11 +105,11 @@ export class CreateCarts {
     return this.carts.find(c => c.id === id);
   }
 
-  getBags(): any[] {
-    return [];
+  getBags(): BagEntity[] {
+    return this.bags;
   }
 
-  getBagById(id: string): any | undefined {
-    return undefined;
+  getBagById(id: string): BagEntity | undefined {
+    return this.bags.find(b => b.id === id);
   }
 }

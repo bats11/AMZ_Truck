@@ -8,6 +8,7 @@ interface BagOptions {
   rotation?: BABYLON.Vector3;
   parent?: BABYLON.TransformNode;
   shadowGen?: BABYLON.ShadowGenerator;
+  color?: string; // ✅ nuovo campo colore (hex string o css name)
 }
 
 export class BagEntity {
@@ -23,11 +24,12 @@ export class BagEntity {
       rotation = BABYLON.Vector3.Zero(),
       parent,
       shadowGen,
+      color,
     } = options;
 
     const scene = prefab.getScene();
 
-    // 🧱 Wrapper root node per la bag
+    // 🧱 Nodo root wrapper
     const wrapper = new BABYLON.TransformNode(`BagWrapper_${id}`, scene);
     wrapper.position = position.clone();
     wrapper.rotation = rotation.clone();
@@ -36,6 +38,7 @@ export class BagEntity {
       wrapper.parent = parent;
     }
 
+    // 🧱 Clona mesh prefab
     const clone = prefab.clone(id, null);
     if (!clone) throw new Error(`❌ Impossibile clonare prefab per ${id}`);
 
@@ -45,6 +48,12 @@ export class BagEntity {
     clone.scaling = new BABYLON.Vector3(1, 1, 1);
     clone.parent = wrapper;
 
+    // ✅ Applica colore se definito
+    if (color && clone.material && clone.material instanceof BABYLON.PBRMaterial) {
+  const clonedMat = clone.material.clone(`${id}_material`) as BABYLON.PBRMaterial;
+  clonedMat.albedoColor = BABYLON.Color3.FromHexString(color);
+  clone.material = clonedMat;
+}
     if (shadowGen) shadowGen.addShadowCaster(clone, true);
 
     this.id = id;

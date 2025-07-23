@@ -19,7 +19,7 @@ export async function animateToStartLoading() {
   const target = {
     position: new BABYLON.Vector3(0, 2.2, 0),
     rotation: new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(270), BABYLON.Tools.ToRadians(5)),
-    scaling: new BABYLON.Vector3(1.9, 1.9, 1.9),
+    scaling: new BABYLON.Vector3(1, 1, 1),
     durationScale: 3.0,
     durationPosRot: 1.5,
   };
