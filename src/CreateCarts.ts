@@ -4,6 +4,7 @@ import { cargoMeshesByName } from "./loadModel";
 import { CartEntity } from "./CartEntity";
 import { BagEntity } from "./BagEntity";
 import { vec3DegToRad } from "./utils";
+import { BAG_OFFSET_PRESET } from "./bagOffsets"; // ✅ import preset esterno
 
 export class CreateCarts {
   private scene: BABYLON.Scene;
@@ -38,6 +39,15 @@ export class CreateCarts {
       });
 
       this.carts.push(cart);
+
+      if (i === 0) {
+        console.log("🧭 DEBUG CART ORIENTATION");
+        console.log("📦 PREFAB ROTATION:", base.rotation.clone().scale(180 / Math.PI));
+        console.log("Rotation (deg):", cart.mesh.rotation.clone().scale(180 / Math.PI));
+        console.log("Local RIGHT:", cart.mesh.right);   // → dovrebbe essere (1,0,0) se ok
+        console.log("Local FORWARD:", cart.mesh.forward); // → dovrebbe essere (0,0,1) o (0,0,-1)
+      }
+
     }
   }
 
@@ -50,41 +60,28 @@ export class CreateCarts {
 
     const shadowGen = this.scene.metadata?.shadowGenerator;
 
-    const rows = 3;
-    const cols = 3;
-    const cellSize = new BABYLON.Vector3(0.35, 0.35, 0.35);
-
     let bagIndex = 0;
 
     for (const cart of this.carts) {
-      for (let row = 0; row < rows; row++) {
-        for (let col = cols - 1; col >= 0; col--) {
-          if (bagIndex >= count || cart.isFull()) break;
+      for (let i = 0; i < BAG_OFFSET_PRESET.length; i++) {
+        if (bagIndex >= count || cart.isFull()) break;
 
-          // 🟢 Posizione assoluta della bag rispetto al carrello
-          const offset = new BABYLON.Vector3(
-            (col - 1) * cellSize.x,
-            row * cellSize.y,
-            0
-          );
-          const worldPos = cart.mesh.position.add(offset);
-          const rotation = vec3DegToRad([0, 0, 0]);
+        const offset = BAG_OFFSET_PRESET[i];
+        const worldPos = cart.mesh.position.add(offset);
+        const rotation = vec3DegToRad([0, 0, 0]);
 
-          const bag = new BagEntity({
-            prefab: base,
-            id: `Bag_${bagIndex}`,
-            position: worldPos,
-            rotation,
-            shadowGen,
-          });
+        const bag = new BagEntity({
+          prefab: base,
+          id: `Bag_${bagIndex}`,
+          position: worldPos,
+          rotation,
+          shadowGen,
+        });
 
-          // 🟢 Imposta il carrello come genitore, mantenendo la posizione globale
-          bag.mesh.setParent(cart.mesh, true);
-
-          cart.addBag(bag);
-          this.bags.push(bag);
-          bagIndex++;
-        }
+        bag.mesh.setParent(cart.mesh, true); // ✅ mantiene posizione globale
+        cart.addBag(bag);
+        this.bags.push(bag);
+        bagIndex++;
       }
 
       if (bagIndex >= count) break;
