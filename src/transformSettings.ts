@@ -169,7 +169,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
   "DRIVER SIDE": {
     settings: {
       position: new BABYLON.Vector3(0, 3, 0),
-      rotation: vec3DegToRad([10, 163, -5]),
+      rotation: vec3DegToRad([7, 155, -4]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
       "Back Tire, Wheel, & Rim": {

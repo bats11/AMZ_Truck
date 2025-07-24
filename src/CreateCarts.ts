@@ -16,9 +16,11 @@ export class CreateCarts {
 
   spawnCarts(count: number = 3) {
     // ✅ Filtra tutte le mesh che compongono un carrello
-    const prefabMeshes = Object.values(cargoMeshesByName).filter(mesh =>
-      mesh.name.startsWith("Cart_")
+    const prefabMeshes = Object.values(cargoMeshesByName).filter(
+      (mesh): mesh is BABYLON.AbstractMesh => 
+        mesh instanceof BABYLON.AbstractMesh && mesh.name.startsWith("Cart_")
     );
+
 
     if (prefabMeshes.length === 0) {
       console.warn("⚠️ Nessuna mesh 'Cart_' trovata tra i prefab.");
@@ -98,6 +100,9 @@ export class CreateCarts {
 
       if (bagIndex >= count) break;
     }
+    
+    
+
   }
 
   getCarts(): CartEntity[] {

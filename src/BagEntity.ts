@@ -2,13 +2,13 @@
 import * as BABYLON from "@babylonjs/core";
 
 interface BagOptions {
-  prefab: BABYLON.AbstractMesh | BABYLON.AbstractMesh[]; // ✅ ora può essere singolo o array
+  prefab: BABYLON.AbstractMesh | BABYLON.AbstractMesh[];
   id: string;
   position?: BABYLON.Vector3;
   rotation?: BABYLON.Vector3;
   parent?: BABYLON.TransformNode;
   shadowGen?: BABYLON.ShadowGenerator;
-  color?: string; // ✅ usato solo se prefab è singolo
+  color?: string;
 }
 
 export class BagEntity {
@@ -31,9 +31,13 @@ export class BagEntity {
     const scene = sourceMeshes[0].getScene();
 
     const wrapper = new BABYLON.TransformNode(`BagWrapper_${id}`, scene);
+
+    // ✅ PRIMA il parenting
+    if (parent) wrapper.parent = parent;
+
+    // ✅ DOPO il parenting → applicato in spazio LOCALE
     wrapper.position = position.clone();
     wrapper.rotation = rotation.clone();
-    if (parent) wrapper.parent = parent;
 
     for (let i = 0; i < sourceMeshes.length; i++) {
       const source = sourceMeshes[i];
@@ -49,7 +53,7 @@ export class BagEntity {
       clone.rotation = BABYLON.Vector3.Zero();
       clone.scaling = new BABYLON.Vector3(1, 1, 1);
 
-      // Applica colore solo se c'è un solo prefab e materiale compatibile
+      // Applica colore solo se prefab è singolo e materiale è PBR
       if (!Array.isArray(prefab) && color && clone.material && clone.material instanceof BABYLON.PBRMaterial) {
         const clonedMat = clone.material.clone(`${id}_material`) as BABYLON.PBRMaterial;
         clonedMat.albedoColor = BABYLON.Color3.FromHexString(color);
