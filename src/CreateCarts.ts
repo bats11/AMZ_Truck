@@ -80,7 +80,7 @@ export class CreateCarts {
           id,
           prefab,
           position: offset,
-          rotation: new BABYLON.Vector3(0, 0, 0),
+          rotation: new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(90), 0),
           parent: cart.root,
           shadowGen,
           color,
