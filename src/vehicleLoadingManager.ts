@@ -1,5 +1,5 @@
 // src/vehicleLoadingManager.ts
-
+import { animateToLeftLoading } from "./vehicleLoadingTransform";
 export type LoadingState = "startLoading" | "leftSideLoading" | "rightSideLoading";
 
 class VehicleLoadingManager {
@@ -38,6 +38,7 @@ class VehicleLoadingManager {
         carts.spawnCarts();
         carts.spawnBags(20);
       });
+      animateToLeftLoading();
     }
   }
 
