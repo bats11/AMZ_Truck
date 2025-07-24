@@ -42,7 +42,7 @@ export function loadModel(
     "cargo_AmzBag.glb",
     "cargo_HeavyBox.glb",
     "cargo_OverszBox.glb",
-    "Cargo_Cut.glb"
+    "cargo_Cut.glb"
   ];
   const totalModels = glbList.length;
 
