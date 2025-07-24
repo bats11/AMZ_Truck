@@ -3,7 +3,7 @@ import * as BABYLON from "@babylonjs/core";
 import { BagEntity } from "./BagEntity";
 
 interface CartOptions {
-  prefab: BABYLON.AbstractMesh;
+  prefabs: BABYLON.AbstractMesh[]; // ✅ ora è un array di mesh
   id: string;
   position: BABYLON.Vector3;
   rotation?: BABYLON.Vector3;
@@ -13,39 +13,40 @@ interface CartOptions {
 
 export class CartEntity {
   public readonly id: string;
-  public readonly root: BABYLON.TransformNode; // ✅ wrapper node, non mesh diretta
+  public readonly root: BABYLON.TransformNode;
   public readonly maxPackages: number;
 
   private loadedBags: BagEntity[] = [];
 
   constructor(options: CartOptions) {
     const {
-      prefab,
+      prefabs,
       id,
       position,
-      rotation = new BABYLON.Vector3(0, 0, 0),
+      rotation = BABYLON.Vector3.Zero(),
       maxPackages = 9,
       shadowGen,
     } = options;
 
-    const scene = prefab.getScene();
+    const scene = prefabs[0].getScene();
 
     // 🧱 Wrapper principale
     const wrapper = new BABYLON.TransformNode(`CartWrapper_${id}`, scene);
     wrapper.position = position.clone();
     wrapper.rotation = rotation.clone();
 
-    // 🧱 Clona il prefab
-    const clone = prefab.clone(id, null);
-    if (!clone) throw new Error(`❌ Impossibile clonare prefab per ${id}`);
+    for (const mesh of prefabs) {
+      const clone = mesh.clone(`${id}_${mesh.name}`, null);
+      if (!clone) continue;
 
-    clone.setEnabled(true);
-    clone.parent = wrapper;
-    clone.position = BABYLON.Vector3.Zero();
-    clone.rotation = BABYLON.Vector3.Zero();
-    clone.scaling = new BABYLON.Vector3(1, 1, 1);
+      clone.setEnabled(true);
+      clone.parent = wrapper;
+      clone.position = BABYLON.Vector3.Zero();
+      clone.rotation = BABYLON.Vector3.Zero();
+      clone.scaling = new BABYLON.Vector3(1, 1, 1);
 
-    if (shadowGen) shadowGen.addShadowCaster(clone, true);
+      if (shadowGen) shadowGen.addShadowCaster(clone, true);
+    }
 
     this.id = id;
     this.root = wrapper;

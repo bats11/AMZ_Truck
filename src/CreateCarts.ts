@@ -15,9 +15,13 @@ export class CreateCarts {
   }
 
   spawnCarts(count: number = 3) {
-    const prefab = cargoMeshesByName["LoadingCart"];
-    if (!prefab) {
-      console.warn("⚠️ Prefab 'LoadingCart' non trovato.");
+    // ✅ Filtra tutte le mesh che compongono un carrello
+    const prefabMeshes = Object.values(cargoMeshesByName).filter(mesh =>
+      mesh.name.startsWith("Cart_")
+    );
+
+    if (prefabMeshes.length === 0) {
+      console.warn("⚠️ Nessuna mesh 'Cart_' trovata tra i prefab.");
       return;
     }
 
@@ -31,7 +35,7 @@ export class CreateCarts {
 
       const cart = new CartEntity({
         id,
-        prefab,
+        prefabs: prefabMeshes, // ✅ passa array di mesh
         position,
         rotation,
         shadowGen,
@@ -51,7 +55,6 @@ export class CreateCarts {
 
     const shadowGen = this.scene.metadata?.shadowGenerator;
 
-    // 🎨 Elenco colori per test (puoi sostituirlo dinamicamente)
     const BAG_COLORS = [
       "#fdd43b", "#aad169", "#3498db", "#f17850", "#3498db",
       "#fdd43b", "#fdd43b", "#3498db", "#aad169", "#fdd43b",
@@ -71,7 +74,7 @@ export class CreateCarts {
 
         const offset = offsetList[i];
         const id = `Bag_${bagIndex}`;
-        const color = BAG_COLORS[bagIndex % BAG_COLORS.length]; // 🎨 assegna colore ciclico
+        const color = BAG_COLORS[bagIndex % BAG_COLORS.length];
 
         const bag = new BagEntity({
           id,
@@ -80,7 +83,7 @@ export class CreateCarts {
           rotation: new BABYLON.Vector3(0, 0, 0),
           parent: cart.root,
           shadowGen,
-          color, // 🎨 passaggio colore
+          color,
         });
 
         cart.addBag(bag);
