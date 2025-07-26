@@ -83,7 +83,7 @@ export async function liftTruckAfterCartArrival() {
   const scene = modelRoot.getScene();
 
   const target = {
-    position: new BABYLON.Vector3(0, 3, 0),
+    position: new BABYLON.Vector3(1.1, 2.3, -12),
     rotation: vec3DegToRad([-5, 0, 0]),
     scaling: new BABYLON.Vector3(1, 1, 1),
     durationPosRot: 2,
@@ -97,19 +97,28 @@ export async function liftTruckAfterCartArrival() {
 // ✅ Nuova funzione adattiva per nascondere lato opposto
 export async function hideTruckSideMeshes(
   side: "left" | "right",
-  scene: BABYLON.Scene
+  scene: BABYLON.Scene,
+  alwaysHideList: string[] = []
 ) {
   const modelRoot = getModelRoot();
   if (!modelRoot) return;
 
   const targetSuffix = side === "left" ? "_right" : "_left";
 
-  const meshesToHide = modelRoot.getChildMeshes(false).filter((mesh) =>
+  // Mesh del lato opposto da nascondere (filtrate dal modelRoot)
+  const suffixMeshes = modelRoot.getChildMeshes(false).filter((mesh) =>
     mesh.name.toLowerCase().includes(targetSuffix)
   );
 
+  // Mesh da nascondere sempre (ricercate direttamente per nome nella scena)
+  const extraMeshes = alwaysHideList
+    .map((name) => scene.getMeshByName(name))
+    .filter((mesh): mesh is BABYLON.AbstractMesh => !!mesh);
+
+  const meshesToHide = [...suffixMeshes, ...extraMeshes];
+
   if (meshesToHide.length === 0) {
-    console.warn(`⚠️ Nessuna mesh trovata con suffisso ${targetSuffix}`);
+    console.warn(`⚠️ Nessuna mesh trovata da nascondere (lato: ${side})`);
     return;
   }
 
@@ -117,7 +126,7 @@ export async function hideTruckSideMeshes(
   easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
 
   const frameStart = 0;
-  const frameEnd = 120; // ⏱ aumentato per visibilità più fluida
+  const frameEnd = 120;
 
   const promises = meshesToHide.map((mesh) => {
     const anim = new BABYLON.Animation(
@@ -143,5 +152,7 @@ export async function hideTruckSideMeshes(
   });
 
   await Promise.all(promises);
-  console.log(`🎭 Mesh del lato opposto a "${side}" nascoste con dissolvenza.`);
+  console.log(
+    `🎭 Mesh nascoste: ${meshesToHide.length} (lato opposto + extra: [${alwaysHideList.join(", ")}])`
+  );
 }

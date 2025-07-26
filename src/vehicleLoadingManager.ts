@@ -1,5 +1,5 @@
 // src/vehicleLoadingManager.ts
-import { animateToLeftLoading, animateCartsIn, liftTruckAfterCartArrival, hideTruckSideMeshes } from "./vehicleLoadingTransform";
+import { animateToLeftLoading, animateCartsIn } from "./vehicleLoadingTransform";
 import type { ExtraBagConfig } from "./CreateCarts";
 import * as BABYLON from "@babylonjs/core";
 import { vec3DegToRad } from "./utils";
@@ -44,10 +44,10 @@ class VehicleLoadingManager {
         return;
       }
 
-      // 🟢 1. Muovi prima il truck
+      // 1️⃣ Muovi il truck lateralmente
       await animateToLeftLoading();
 
-      // 🟢 2. Poi crea carrelli e bag
+      // 2️⃣ Crea carrelli e bag
       const { CreateCarts } = await import("./CreateCarts");
       const carts = new CreateCarts(scene);
       carts.spawnCarts();
@@ -67,14 +67,15 @@ class VehicleLoadingManager {
 
       carts.spawnBags(20, extraBags);
 
-      // 🟢 3. Fai il loro ingresso animato
+      // 3️⃣ Salva carrelli per uso del controller
+      (window as any)._CART_ENTITIES = carts.getCarts();
+
+      // 4️⃣ Fai entrare i carrelli in scena con slide-in
       await animateCartsIn(carts.getCarts(), scene);
 
-      // 🟢 4 + 5. Solleva truck e nascondi lato opposto → IN PARALLELO
-      await Promise.all([
-        liftTruckAfterCartArrival(),
-        hideTruckSideMeshes("left", scene),
-      ]);
+      // 5️⃣ Innesca controller che solleva truck e posiziona carrelli
+      const { LoadTruckController } = await import("./LoadTruckController");
+      new LoadTruckController(scene, "left");
 
       this.isTransitioning = false;
     } else {
