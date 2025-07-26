@@ -51,7 +51,9 @@ export class BagEntity {
       clone.parent = wrapper;
       clone.position = BABYLON.Vector3.Zero();
       clone.rotation = BABYLON.Vector3.Zero();
-      clone.scaling = new BABYLON.Vector3(1, 1, 1);
+
+      // ✅ Mantieni la scala originale del prefab
+      clone.scaling = source.scaling.clone();
 
       // Applica colore solo se prefab è singolo e materiale è PBR
       if (!Array.isArray(prefab) && color && clone.material && clone.material instanceof BABYLON.PBRMaterial) {

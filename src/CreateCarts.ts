@@ -3,7 +3,17 @@ import * as BABYLON from "@babylonjs/core";
 import { cargoMeshesByName } from "./loadModel";
 import { CartEntity } from "./CartEntity";
 import { BagEntity } from "./BagEntity";
-import { BAG_OFFSET_PRESET, BAG_OFFSET_PRESET_LAST } from "./bagOffsets";
+import {
+  BAG_OFFSET_PRESET,
+  BAG_OFFSET_PRESET_LAST,
+  BAG_EXTRA_OFFSETS,
+} from "./bagOffsets";
+
+// ✅ Interfaccia per bag extra
+export interface ExtraBagConfig {
+  meshName: string;
+  count: number;
+}
 
 export class CreateCarts {
   private scene: BABYLON.Scene;
@@ -15,12 +25,10 @@ export class CreateCarts {
   }
 
   spawnCarts(count: number = 3) {
-    // ✅ Filtra tutte le mesh che compongono un carrello
     const prefabMeshes = Object.values(cargoMeshesByName).filter(
-      (mesh): mesh is BABYLON.AbstractMesh => 
+      (mesh): mesh is BABYLON.AbstractMesh =>
         mesh instanceof BABYLON.AbstractMesh && mesh.name.startsWith("Cart_")
     );
-
 
     if (prefabMeshes.length === 0) {
       console.warn("⚠️ Nessuna mesh 'Cart_' trovata tra i prefab.");
@@ -37,7 +45,7 @@ export class CreateCarts {
 
       const cart = new CartEntity({
         id,
-        prefabs: prefabMeshes, // ✅ passa array di mesh
+        prefabs: prefabMeshes,
         position,
         rotation,
         shadowGen,
@@ -48,7 +56,7 @@ export class CreateCarts {
     }
   }
 
-  spawnBags(count: number) {
+  spawnBags(normalCount: number, extraConfigs?: ExtraBagConfig[]) {
     const prefab = cargoMeshesByName["AmzBag"];
     if (!prefab) {
       console.warn("⚠️ Prefab 'AmzBag' non trovato.");
@@ -66,13 +74,14 @@ export class CreateCarts {
 
     let bagIndex = 0;
 
+    // 1️⃣ Bag normali nei carrelli
     for (let cartIndex = 0; cartIndex < this.carts.length; cartIndex++) {
       const cart = this.carts[cartIndex];
       const isLastCart = cartIndex === this.carts.length - 1;
       const offsetList = isLastCart ? BAG_OFFSET_PRESET_LAST : BAG_OFFSET_PRESET;
 
       for (let i = 0; i < offsetList.length; i++) {
-        if (bagIndex >= count || cart.isFull()) break;
+        if (bagIndex >= normalCount || cart.isFull()) break;
 
         const offset = offsetList[i];
         const id = `Bag_${bagIndex}`;
@@ -98,11 +107,43 @@ export class CreateCarts {
         bagIndex++;
       }
 
-      if (bagIndex >= count) break;
+      if (bagIndex >= normalCount) break;
     }
-    
-    
 
+    // 2️⃣ Bag extra con mesh custom
+    if (extraConfigs?.length) {
+      let extraIndex = 0;
+
+      for (const config of extraConfigs) {
+        const prefab = cargoMeshesByName[config.meshName];
+        if (!prefab) {
+          console.warn(`⚠️ Mesh '${config.meshName}' non trovata nei prefab.`);
+          continue;
+        }
+
+        for (let i = 0; i < config.count; i++) {
+          const offset = BAG_EXTRA_OFFSETS[extraIndex % BAG_EXTRA_OFFSETS.length];
+          const id = `ExtraBag_${config.meshName}_${i}`;
+
+          const bag = new BagEntity({
+            id,
+            prefab,
+            position: offset,
+            rotation: new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(90), 0),
+            parent: undefined, // puoi sostituire con getModelRoot() se necessario
+            shadowGen,
+          });
+
+          this.bags.push(bag);
+
+          console.log(
+            `📦 Bag EXTRA ${id} → ${config.meshName} → ${offset.toString()}`
+          );
+
+          extraIndex++;
+        }
+      }
+    }
   }
 
   getCarts(): CartEntity[] {

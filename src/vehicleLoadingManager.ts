@@ -1,5 +1,7 @@
 // src/vehicleLoadingManager.ts
 import { animateToLeftLoading } from "./vehicleLoadingTransform";
+import type { ExtraBagConfig } from "./CreateCarts";
+
 export type LoadingState = "startLoading" | "leftSideLoading" | "rightSideLoading";
 
 class VehicleLoadingManager {
@@ -27,17 +29,25 @@ class VehicleLoadingManager {
     this.notify(); // 🔔 Notifica i listener React
 
     if (state === "leftSideLoading") {
-      // ✅ Esegui la creazione dei carrelli
       import("./CreateCarts").then(({ CreateCarts }) => {
         const scene = (window as any)._BABYLON_SCENE;
         if (!scene) {
           console.warn("⚠️ Scene Babylon non disponibile.");
           return;
         }
+
         const carts = new CreateCarts(scene);
         carts.spawnCarts();
-        carts.spawnBags(20);
+
+        // ✅ Configurazione bag normali + bag extra
+        const extraBags: ExtraBagConfig[] = [
+          { meshName: "HeavyBox", count: 3 },
+          { meshName: "OverszBox", count: 2 },
+        ];
+
+        carts.spawnBags(20, extraBags);
       });
+
       animateToLeftLoading();
     }
   }
