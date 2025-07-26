@@ -11,6 +11,9 @@ class VehicleLoadingManager {
   private firstEntry = true;
   private listeners: (() => void)[] = [];
 
+  // ✅ Previene click multipli
+  private isTransitioning = false;
+
   public enter() {
     this.setState("startLoading");
     this.firstEntry = true;
@@ -19,11 +22,18 @@ class VehicleLoadingManager {
   public exit() {
     this.currentState = "startLoading";
     this.firstEntry = true;
+    this.isTransitioning = false;
     console.log("🚪 Exit cargo loading → stato pulito");
     this.notify();
   }
 
   public async setState(state: LoadingState) {
+    if (this.isTransitioning) {
+      console.warn("⛔ Ignorato click multiplo: già in transizione.");
+      return;
+    }
+
+    this.isTransitioning = true;
     this.currentState = state;
     console.log(`🚚 Cargo Loading: stato attivo → ${state}`);
     this.notify();
@@ -34,6 +44,7 @@ class VehicleLoadingManager {
       const scene = (window as any)._BABYLON_SCENE;
       if (!scene) {
         console.warn("⚠️ Scene Babylon non disponibile.");
+        this.isTransitioning = false;
         return;
       }
 
@@ -55,11 +66,12 @@ class VehicleLoadingManager {
 
       carts.spawnBags(20, extraBags);
 
-      // ✅ Slide-in dei carrelli da destra
       await animateCartsIn(carts.getCarts(), scene);
-
-      // ✅ Posizionamento finale camera e modello
       await animateToLeftLoading();
+
+      this.isTransitioning = false;
+    } else {
+      this.isTransitioning = false;
     }
   }
 
