@@ -42,7 +42,7 @@ class VehicleLoadingManager {
         // ✅ Configurazione bag normali + bag extra
         const extraBags: ExtraBagConfig[] = [
           { meshName: "HeavyBox", count: 3 },
-          { meshName: "OverszBox", count: 2 },
+          { meshName: "OverszBox", count: 3 },
         ];
 
         carts.spawnBags(20, extraBags);

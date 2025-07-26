@@ -9,7 +9,6 @@ import {
   BAG_EXTRA_OFFSETS,
 } from "./bagOffsets";
 
-// ✅ Interfaccia per bag extra
 export interface ExtraBagConfig {
   meshName: string;
   count: number;
@@ -110,9 +109,10 @@ export class CreateCarts {
       if (bagIndex >= normalCount) break;
     }
 
-    // 2️⃣ Bag extra con mesh custom
-    if (extraConfigs?.length) {
+    // 2️⃣ Bag extra con mesh custom, parentate all’ultimo carrello
+    if (extraConfigs?.length && this.carts.length > 0) {
       let extraIndex = 0;
+      const targetCart = this.carts[this.carts.length - 1];
 
       for (const config of extraConfigs) {
         const prefab = cargoMeshesByName[config.meshName];
@@ -130,14 +130,14 @@ export class CreateCarts {
             prefab,
             position: offset,
             rotation: new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(90), 0),
-            parent: undefined, // puoi sostituire con getModelRoot() se necessario
+            parent: targetCart.root, // ✅ ora le bag extra sono figlie del carrello
             shadowGen,
           });
 
           this.bags.push(bag);
 
           console.log(
-            `📦 Bag EXTRA ${id} → ${config.meshName} → ${offset.toString()}`
+            `📦 Bag EXTRA ${id} → ${config.meshName} → ${offset.toString()} → parent: ${targetCart.id}`
           );
 
           extraIndex++;
