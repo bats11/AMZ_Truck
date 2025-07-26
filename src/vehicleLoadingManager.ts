@@ -1,14 +1,15 @@
 // src/vehicleLoadingManager.ts
 import { animateToLeftLoading } from "./vehicleLoadingTransform";
 import type { ExtraBagConfig } from "./CreateCarts";
+import * as BABYLON from "@babylonjs/core";
+import { vec3DegToRad } from "./utils";
+
 
 export type LoadingState = "startLoading" | "leftSideLoading" | "rightSideLoading";
 
 class VehicleLoadingManager {
   private currentState: LoadingState = "startLoading";
   private firstEntry = true;
-
-  // ✅ Sistema di listener per React
   private listeners: (() => void)[] = [];
 
   public enter() {
@@ -26,7 +27,7 @@ class VehicleLoadingManager {
   public setState(state: LoadingState) {
     this.currentState = state;
     console.log(`🚚 Cargo Loading: stato attivo → ${state}`);
-    this.notify(); // 🔔 Notifica i listener React
+    this.notify();
 
     if (state === "leftSideLoading") {
       import("./CreateCarts").then(({ CreateCarts }) => {
@@ -39,10 +40,18 @@ class VehicleLoadingManager {
         const carts = new CreateCarts(scene);
         carts.spawnCarts();
 
-        // ✅ Configurazione bag normali + bag extra
+        // ✅ Configurazione bag extra con rotazioni
         const extraBags: ExtraBagConfig[] = [
-          { meshName: "HeavyBox", count: 3 },
-          { meshName: "OverszBox", count: 3 },
+          {
+            meshName: "HeavyBox",
+            count: 3,
+             rotation: vec3DegToRad([-90, 0, 0]),
+          },
+          {
+            meshName: "OverszBox",
+            count: 2,
+            rotation: vec3DegToRad([-90, 0, 0]),
+          },
         ];
 
         carts.spawnBags(20, extraBags);
@@ -64,7 +73,6 @@ class VehicleLoadingManager {
     this.firstEntry = false;
   }
 
-  // ✅ Permette a React di iscriversi
   public subscribe(listener: () => void): () => void {
     this.listeners.push(listener);
     return () => {

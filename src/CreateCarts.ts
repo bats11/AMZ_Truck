@@ -12,6 +12,7 @@ import {
 export interface ExtraBagConfig {
   meshName: string;
   count: number;
+  rotation?: BABYLON.Vector3; // ✅ nuova proprietà opzionale
 }
 
 export class CreateCarts {
@@ -109,7 +110,7 @@ export class CreateCarts {
       if (bagIndex >= normalCount) break;
     }
 
-    // 2️⃣ Bag extra con mesh custom, parentate all’ultimo carrello
+    // 2️⃣ Bag extra con mesh custom + rotazione per tipo
     if (extraConfigs?.length && this.carts.length > 0) {
       let extraIndex = 0;
       const targetCart = this.carts[this.carts.length - 1];
@@ -121,6 +122,8 @@ export class CreateCarts {
           continue;
         }
 
+        const rotation = config.rotation ?? new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(90), 0);
+
         for (let i = 0; i < config.count; i++) {
           const offset = BAG_EXTRA_OFFSETS[extraIndex % BAG_EXTRA_OFFSETS.length];
           const id = `ExtraBag_${config.meshName}_${i}`;
@@ -129,15 +132,15 @@ export class CreateCarts {
             id,
             prefab,
             position: offset,
-            rotation: new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(90), 0),
-            parent: targetCart.root, // ✅ ora le bag extra sono figlie del carrello
+            rotation,
+            parent: targetCart.root,
             shadowGen,
           });
 
           this.bags.push(bag);
 
           console.log(
-            `📦 Bag EXTRA ${id} → ${config.meshName} → ${offset.toString()} → parent: ${targetCart.id}`
+            `📦 Bag EXTRA ${id} → ${config.meshName} → ${offset.toString()} → rot: ${rotation.asArray()}`
           );
 
           extraIndex++;
