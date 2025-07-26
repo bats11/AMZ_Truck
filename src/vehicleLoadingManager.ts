@@ -1,5 +1,5 @@
 // src/vehicleLoadingManager.ts
-import { animateToLeftLoading, animateCartsIn } from "./vehicleLoadingTransform";
+import { animateToLeftLoading, animateCartsIn, moveCarts } from "./vehicleLoadingTransform";
 import type { ExtraBagConfig } from "./CreateCarts";
 import * as BABYLON from "@babylonjs/core";
 import { vec3DegToRad } from "./utils";
@@ -10,8 +10,6 @@ class VehicleLoadingManager {
   private currentState: LoadingState = "startLoading";
   private firstEntry = true;
   private listeners: (() => void)[] = [];
-
-  // ✅ Previene click multipli
   private isTransitioning = false;
 
   public enter() {
@@ -39,8 +37,6 @@ class VehicleLoadingManager {
     this.notify();
 
     if (state === "leftSideLoading") {
-      const { CreateCarts } = await import("./CreateCarts");
-
       const scene = (window as any)._BABYLON_SCENE;
       if (!scene) {
         console.warn("⚠️ Scene Babylon non disponibile.");
@@ -48,6 +44,11 @@ class VehicleLoadingManager {
         return;
       }
 
+      // 🟢 1. Muovi prima il truck
+      await animateToLeftLoading();
+
+      // 🟢 2. Poi crea carrelli e bag
+      const { CreateCarts } = await import("./CreateCarts");
       const carts = new CreateCarts(scene);
       carts.spawnCarts();
 
@@ -66,8 +67,10 @@ class VehicleLoadingManager {
 
       carts.spawnBags(20, extraBags);
 
+      // 🟢 3. Fai il loro ingresso animato
       await animateCartsIn(carts.getCarts(), scene);
-      await animateToLeftLoading();
+
+      await moveCarts(carts.getCarts(), scene);
 
       this.isTransitioning = false;
     } else {

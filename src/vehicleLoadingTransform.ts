@@ -76,3 +76,23 @@ export async function animateCartsIn(carts: CartEntity[], scene: BABYLON.Scene) 
 
   await Promise.all(promises);
 }
+
+// ✅ NUOVA FUNZIONE: spostamento dei carrelli in layout finale
+export async function moveCarts(carts: CartEntity[], scene: BABYLON.Scene) {
+  const Y_OFFSET = -1;
+
+  const promises = carts.map((cart) => {
+    const from = cart.root.position.clone();
+    const to = from.add(new BABYLON.Vector3(0, Y_OFFSET, 0));
+
+    return handleInterpolatedTransform(cart.root, scene, {
+      position: to,
+      rotation: cart.root.rotation,
+      durationPosRot: 1.5,
+    });
+  });
+
+  await Promise.all(promises);
+  console.log("✅ Carrelli spostati lungo Y.");
+}
+
