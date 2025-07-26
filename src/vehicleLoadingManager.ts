@@ -1,9 +1,8 @@
 // src/vehicleLoadingManager.ts
-import { animateToLeftLoading } from "./vehicleLoadingTransform";
+import { animateToLeftLoading, animateCartsIn } from "./vehicleLoadingTransform";
 import type { ExtraBagConfig } from "./CreateCarts";
 import * as BABYLON from "@babylonjs/core";
 import { vec3DegToRad } from "./utils";
-
 
 export type LoadingState = "startLoading" | "leftSideLoading" | "rightSideLoading";
 
@@ -24,40 +23,43 @@ class VehicleLoadingManager {
     this.notify();
   }
 
-  public setState(state: LoadingState) {
+  public async setState(state: LoadingState) {
     this.currentState = state;
     console.log(`🚚 Cargo Loading: stato attivo → ${state}`);
     this.notify();
 
     if (state === "leftSideLoading") {
-      import("./CreateCarts").then(({ CreateCarts }) => {
-        const scene = (window as any)._BABYLON_SCENE;
-        if (!scene) {
-          console.warn("⚠️ Scene Babylon non disponibile.");
-          return;
-        }
+      const { CreateCarts } = await import("./CreateCarts");
 
-        const carts = new CreateCarts(scene);
-        carts.spawnCarts();
+      const scene = (window as any)._BABYLON_SCENE;
+      if (!scene) {
+        console.warn("⚠️ Scene Babylon non disponibile.");
+        return;
+      }
 
-        // ✅ Configurazione bag extra con rotazioni
-        const extraBags: ExtraBagConfig[] = [
-          {
-            meshName: "HeavyBox",
-            count: 3,
-             rotation: vec3DegToRad([-90, 0, 0]),
-          },
-          {
-            meshName: "OverszBox",
-            count: 2,
-            rotation: vec3DegToRad([-90, 0, 0]),
-          },
-        ];
+      const carts = new CreateCarts(scene);
+      carts.spawnCarts();
 
-        carts.spawnBags(20, extraBags);
-      });
+      const extraBags: ExtraBagConfig[] = [
+        {
+          meshName: "HeavyBox",
+          count: 3,
+          rotation: vec3DegToRad([-90, 0, 0]),
+        },
+        {
+          meshName: "OverszBox",
+          count: 2,
+          rotation: vec3DegToRad([-90, 0, 0]),
+        },
+      ];
 
-      animateToLeftLoading();
+      carts.spawnBags(20, extraBags);
+
+      // ✅ Slide-in dei carrelli da destra
+      await animateCartsIn(carts.getCarts(), scene);
+
+      // ✅ Posizionamento finale camera e modello
+      await animateToLeftLoading();
     }
   }
 

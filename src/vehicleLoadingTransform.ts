@@ -2,7 +2,9 @@
 import * as BABYLON from "@babylonjs/core";
 import { handleInterpolatedTransform } from "./transformHandlers";
 import { getModelRoot } from "./MoveComponent";
-import { vehicleLoadingManager } from "./vehicleLoadingManager"; // ✅ già presente
+import { vehicleLoadingManager } from "./vehicleLoadingManager";
+import { CartEntity } from "./CartEntity";
+import { createAnimation } from "./utils";
 
 let activeCamera: BABYLON.FreeCamera | null = null;
 
@@ -32,7 +34,6 @@ export async function animateToStartLoading() {
   }
 }
 
-// ✅ NUOVA FUNZIONE DI ANIMAZIONE
 export async function animateToLeftLoading() {
   const modelRoot = getModelRoot();
   if (!modelRoot || !activeCamera) return;
@@ -40,7 +41,7 @@ export async function animateToLeftLoading() {
   const scene = modelRoot.getScene();
 
   const target = {
-    position: new BABYLON.Vector3(0, 1, 0), // ✅ leggero offset a sinistra
+    position: new BABYLON.Vector3(0, 1, 0),
     rotation: new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(0)),
     scaling: new BABYLON.Vector3(1, 1, 1),
     durationScale: 1.8,
@@ -52,4 +53,26 @@ export async function animateToLeftLoading() {
 
 export async function runInitialCargoEntry() {
   console.log("🎬 Placeholder: funzione eseguita solo al primo ingresso.");
+}
+
+// ✅ NUOVA FUNZIONE: animazione carrelli da destra
+export async function animateCartsIn(carts: CartEntity[], scene: BABYLON.Scene) {
+  const easing = new BABYLON.CubicEase();
+  easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEOUT);
+
+  const promises = carts.map((cart) => {
+    const node = cart.root;
+    const finalPos = node.position.clone();
+    const startPos = finalPos.add(new BABYLON.Vector3(5, 0, 0)); // fuori schermo a destra
+
+    node.position.copyFrom(startPos);
+
+    const anim = createAnimation("position", startPos, finalPos, 0, 60, easing);
+
+    return new Promise<void>((resolve) => {
+      scene.beginDirectAnimation(node, [anim], 0, 60, false, 1, () => resolve());
+    });
+  });
+
+  await Promise.all(promises);
 }
