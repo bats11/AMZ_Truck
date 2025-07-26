@@ -77,22 +77,21 @@ export async function animateCartsIn(carts: CartEntity[], scene: BABYLON.Scene) 
   await Promise.all(promises);
 }
 
-// ✅ NUOVA FUNZIONE: spostamento dei carrelli in layout finale
-export async function moveCarts(carts: CartEntity[], scene: BABYLON.Scene) {
-  const Y_OFFSET = -1;
+import { vec3DegToRad } from "./utils";
 
-  const promises = carts.map((cart) => {
-    const from = cart.root.position.clone();
-    const to = from.add(new BABYLON.Vector3(0, Y_OFFSET, 0));
+export async function liftTruckAfterCartArrival() {
+  const modelRoot = getModelRoot();
+  if (!modelRoot || !activeCamera) return;
 
-    return handleInterpolatedTransform(cart.root, scene, {
-      position: to,
-      rotation: cart.root.rotation,
-      durationPosRot: 1.5,
-    });
-  });
+  const scene = modelRoot.getScene();
 
-  await Promise.all(promises);
-  console.log("✅ Carrelli spostati lungo Y.");
+  const target = {
+    position: new BABYLON.Vector3(0, 3, 0), 
+    rotation: vec3DegToRad([-5, 0, 0]),   
+    durationPosRot: 1.2,
+  };
+
+  await handleInterpolatedTransform(modelRoot, scene, target, activeCamera);
+  //console.log("⬆️ Truck spostato con transform fisso (Y + rotazione).");
 }
 

@@ -1,5 +1,5 @@
 // src/vehicleLoadingManager.ts
-import { animateToLeftLoading, animateCartsIn, moveCarts } from "./vehicleLoadingTransform";
+import { animateToLeftLoading, animateCartsIn,  } from "./vehicleLoadingTransform";
 import type { ExtraBagConfig } from "./CreateCarts";
 import * as BABYLON from "@babylonjs/core";
 import { vec3DegToRad } from "./utils";
@@ -69,8 +69,8 @@ class VehicleLoadingManager {
 
       // 🟢 3. Fai il loro ingresso animato
       await animateCartsIn(carts.getCarts(), scene);
-
-      await moveCarts(carts.getCarts(), scene);
+      const { liftTruckAfterCartArrival } = await import("./vehicleLoadingTransform");
+      await liftTruckAfterCartArrival();
 
       this.isTransitioning = false;
     } else {
