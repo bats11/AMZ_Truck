@@ -46,7 +46,6 @@ export class LoadTruckController {
     console.log("🛒 Carrelli e truck posizionati con interpolazione.");
     window.dispatchEvent(new CustomEvent("show-slot-overlay"));
 
-    // ✅ Avvia caricamento dal primo carrello
     await this.iterateBagsInCart(this.carts[0]);
   }
 
@@ -66,21 +65,36 @@ export class LoadTruckController {
       slotManager.setActiveBag(bag);
 
       await slotManager.waitForAssignment();
+
+      // 🔒 Se tutti gli slot sono pieni, blocca e valida
+      if (slotManager.isFull()) {
+        console.log("🟨 Slot completati. Eseguo validazione...");
+
+        const result = slotManager.validate();
+
+        if (result.isValid) {
+          console.log("✅ Validazione completata: tutti i pacchi corretti!");
+        } else {
+          console.warn("❌ Validazione fallita. Errori trovati:");
+          result.errors.forEach((err) => {
+            console.warn(`🛑 Slot ${err.slot}: atteso ${err.expected}, trovato ${err.actual}`);
+          });
+        }
+
+        return; // 🔁 Interrompe il ciclo delle bag
+      }
     }
 
     console.log(`✅ Tutte le bag del carrello ${cart.id} sono state caricate.`);
 
-    // 🔁 Passaggio al carrello successivo
-    this.carts.push(this.carts.shift()!); // ruota i carrelli
+    this.carts.push(this.carts.shift()!);
 
-    // ✅ Sposta i carrelli contemporaneamente
     await Promise.all([
       this.moveCartTo(this.carts[0], FOCUS_POS),
       this.moveCartTo(this.carts[1], WAIT_POS_1),
       this.moveCartTo(this.carts[2], WAIT_POS_2),
     ]);
 
-    // Se il prossimo carrello ha bag, continua
     const nextBags = this.carts[0].getLoadedBags();
     if (nextBags.length > 0) {
       await this.iterateBagsInCart(this.carts[0]);

@@ -1,7 +1,7 @@
 // src/SlotManager.ts
 import { BagEntity } from "./BagEntity";
 import { handleInterpolatedTransform } from "./transformHandlers";
-import { BAG_SLOT_POSITIONS_LEFT } from "./slotPositions"; // ✅ usa i preset
+import { BAG_SLOT_POSITIONS_LEFT } from "./slotPositions";
 import { getModelRoot } from "./MoveComponent";
 import * as BABYLON from "@babylonjs/core";
 
@@ -43,7 +43,7 @@ class SlotManager {
     const localPos = BABYLON.Vector3.TransformCoordinates(worldPos, modelRoot.getWorldMatrix().invert());
     bag.root.position.copyFrom(localPos);
 
-    const targetPos = BAG_SLOT_POSITIONS_LEFT[slotIndex]; // ✅ nuova sorgente
+    const targetPos = BAG_SLOT_POSITIONS_LEFT[slotIndex];
     const transform = {
       position: targetPos,
       rotation: bag.root.rotation.clone(),
@@ -92,6 +92,28 @@ class SlotManager {
 
   public getCorrectBagOrder(): BagEntity[] {
     return [...this.correctBagOrder];
+  }
+
+  public validate(): { isValid: boolean; errors: { slot: number; expected: string; actual: string }[] } {
+    const errors: { slot: number; expected: string; actual: string }[] = [];
+
+    for (let i = 0; i < this.correctBagOrder.length; i++) {
+      const expectedBag = this.correctBagOrder[i];
+      const actualBag = this.slotMap.get(i);
+
+      if (!actualBag || actualBag.id !== expectedBag.id) {
+        errors.push({
+          slot: i,
+          expected: expectedBag.id,
+          actual: actualBag?.id ?? "vuoto",
+        });
+      }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
   }
 
   public reset() {
