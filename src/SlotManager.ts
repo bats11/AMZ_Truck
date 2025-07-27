@@ -2,6 +2,7 @@
 import { BagEntity } from "./BagEntity";
 import { handleInterpolatedTransform } from "./transformHandlers";
 import { SLOT_POSITIONS_LEFT } from "./slotPositions";
+import { getModelRoot } from "./MoveComponent";
 import * as BABYLON from "@babylonjs/core";
 
 class SlotManager {
@@ -36,7 +37,23 @@ class SlotManager {
     this.slotMap.set(slotIndex, bag);
     this.currentBag = null;
 
-    // ✅ Calcola la posizione target dello slot
+    const modelRoot = getModelRoot();
+    if (!modelRoot) {
+      console.warn("⛔ ModelRoot (truck) non trovato.");
+      return;
+    }
+
+    // ✅ 1. Calcola la posizione globale attuale della bag
+    const worldPos = bag.root.getAbsolutePosition();
+
+    // ✅ 2. Imposta il truck come nuovo parent
+    bag.root.setParent(modelRoot);
+
+    // ✅ 3. Calcola la posizione locale corrispondente per mantenere la posizione visiva
+    const localPos = BABYLON.Vector3.TransformCoordinates(worldPos, modelRoot.getWorldMatrix().invert());
+    bag.root.position.copyFrom(localPos);
+
+    // ✅ 4. Calcola la destinazione finale (slot)
     const targetPos = SLOT_POSITIONS_LEFT[slotIndex];
     const transform = {
       position: targetPos,
@@ -46,59 +63,37 @@ class SlotManager {
       durationScale: 0,
     };
 
-    // ✅ Esegui animazione
     const scene = bag.root.getScene();
     await handleInterpolatedTransform(bag.root, scene, transform);
 
-    console.log(`✅ Bag ${bag.id} animata verso slot ${slotIndex}`);
+    console.log(`✅ Bag ${bag.id} assegnata e animata verso slot ${slotIndex}`);
   }
 
-  /**
-   * Verifica se tutti gli slot sono pieni
-   */
   public isFull(): boolean {
     return this.slotMap.size >= this.slotCapacity;
   }
 
-  /**
-   * Verifica se uno slot è libero
-   */
   public isSlotAvailable(slotIndex: number): boolean {
     return !this.slotMap.has(slotIndex);
   }
 
-  /**
-   * Ritorna la bag assegnata a uno slot, se presente
-   */
   public getBagInSlot(slotIndex: number): BagEntity | undefined {
     return this.slotMap.get(slotIndex);
   }
 
-  /**
-   * Ritorna tutte le assegnazioni attuali
-   */
   public getAssignments(): Map<number, BagEntity> {
     return new Map(this.slotMap);
   }
 
-  /**
-   * Registra l’ordine corretto delle bag (bag iterata → slot i)
-   */
   public registerCorrectBag(bag: BagEntity) {
     this.correctBagOrder.push(bag);
     console.log(`🎯 Ordine corretto: slot ${this.correctBagOrder.length - 1} → ${bag.id}`);
   }
 
-  /**
-   * Ritorna l’ordine corretto delle bag
-   */
   public getCorrectBagOrder(): BagEntity[] {
     return [...this.correctBagOrder];
   }
 
-  /**
-   * Resetta tutto lo stato interno
-   */
   public reset() {
     this.slotMap.clear();
     this.currentBag = null;
