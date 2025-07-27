@@ -34,6 +34,7 @@ export class LoadTruckController {
     this.carts = allCarts;
 
     const alwaysHide = [""];
+
     await Promise.all([
       liftTruckAfterCartArrival(),
       hideTruckSideMeshes(this.side, this.scene, alwaysHide),
@@ -45,7 +46,7 @@ export class LoadTruckController {
     console.log("🛒 Carrelli e truck posizionati con interpolazione.");
     window.dispatchEvent(new CustomEvent("show-slot-overlay"));
 
-    // ✅ Avvia caricamento automatico delle bag
+    // ✅ Avvia caricamento dal primo carrello
     await this.iterateBagsInCart(this.carts[0]);
   }
 
@@ -53,25 +54,39 @@ export class LoadTruckController {
     const bags = cart.getLoadedBags().slice().reverse();
 
     for (const bag of bags) {
-      // 1. Disimparenta e mantieni posizione globale
       const worldMatrix = bag.root.getWorldMatrix();
       const worldPos = worldMatrix.getTranslation();
 
       bag.root.setParent(null);
       bag.root.position.copyFrom(worldPos);
 
-      // 2. Sposta in staging
       await this.moveBagTo(bag, BAG_STAGING_POS);
 
-      // 3. Notifica SlotManager
       slotManager.registerCorrectBag(bag);
       slotManager.setActiveBag(bag);
 
-      // 4. Attendi che l’utente assegni la bag a uno slot
       await slotManager.waitForAssignment();
     }
 
-    console.log("✅ Tutte le bag del primo carrello sono state caricate.");
+    console.log(`✅ Tutte le bag del carrello ${cart.id} sono state caricate.`);
+
+    // 🔁 Passaggio al carrello successivo
+    this.carts.push(this.carts.shift()!); // ruota i carrelli
+
+    // ✅ Sposta i carrelli contemporaneamente
+    await Promise.all([
+      this.moveCartTo(this.carts[0], FOCUS_POS),
+      this.moveCartTo(this.carts[1], WAIT_POS_1),
+      this.moveCartTo(this.carts[2], WAIT_POS_2),
+    ]);
+
+    // Se il prossimo carrello ha bag, continua
+    const nextBags = this.carts[0].getLoadedBags();
+    if (nextBags.length > 0) {
+      await this.iterateBagsInCart(this.carts[0]);
+    } else {
+      console.log("🛑 Fine ciclo: nessuna bag nel carrello successivo.");
+    }
   }
 
   private async moveCartTo(cart: CartEntity, target: BABYLON.Vector3) {

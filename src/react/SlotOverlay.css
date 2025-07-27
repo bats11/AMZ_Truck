@@ -17,9 +17,8 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background-color: rgba(0, 127, 255, 0.15);
-  border: 2px solid white;
-  border: 2px solid white;
+  background-color: rgba(0, 127, 255, 0.75);
+  border: 2px solid rgb(255, 255, 255);
   border-radius: 0.5rem;
   color: white;
   font-family: 'EmberCondensedBold', sans-serif;
