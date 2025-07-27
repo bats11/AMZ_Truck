@@ -1,84 +1,110 @@
 // src/SlotManager.ts
-import * as BABYLON from "@babylonjs/core";
 import { BagEntity } from "./BagEntity";
+import { handleInterpolatedTransform } from "./transformHandlers";
+import { SLOT_POSITIONS_LEFT } from "./slotPositions";
+import * as BABYLON from "@babylonjs/core";
 
-export type SlotSide = "left" | "right";
+class SlotManager {
+  private slotMap: Map<number, BagEntity> = new Map();
+  private currentBag: BagEntity | null = null;
+  private slotCapacity: number = 12;
+  private correctBagOrder: BagEntity[] = [];
 
-interface SlotData {
-  index: number;
-  position: BABYLON.Vector3;
-  assignedBagId: string | null;
-}
-
-export class SlotManager {
-  private slots: SlotData[] = [];
-
-  constructor() {
-    // Vuoto: creazione a parte
+  /**
+   * Imposta quale bag è attualmente in fase di staging
+   */
+  public setActiveBag(bag: BagEntity) {
+    this.currentBag = bag;
+    console.log(`📥 Bag attiva impostata: ${bag.id}`);
   }
 
   /**
-   * Crea gli slot per un determinato lato (es. sinistro o destro)
-   * @param count numero di slot (es. 12 per lato)
-   * @param side "left" o "right"
+   * Assegna la bag attiva a uno slot, se disponibile, con animazione
    */
-  createSlots(count: number, side: SlotSide) {
-    this.slots = [];
-
-    for (let i = 0; i < count; i++) {
-      const pos = this.computePositionForSlot(i, side);
-      this.slots.push({
-        index: i,
-        position: pos,
-        assignedBagId: null,
-      });
+  public async assignToSlot(slotIndex: number) {
+    if (!this.currentBag) {
+      console.warn("⛔ Nessuna bag attiva da assegnare.");
+      return;
     }
 
-    console.log(`🧩 ${count} slot creati per il lato "${side}"`);
-  }
-
-  assignBagToSlot(slotIndex: number, bag: BagEntity) {
-    const slot = this.slots[slotIndex];
-    if (slot) {
-      slot.assignedBagId = bag.id;
+    if (this.slotMap.has(slotIndex)) {
+      console.warn(`⛔ Slot ${slotIndex} è già occupato.`);
+      return;
     }
-  }
 
-  clearAssignments() {
-    for (const slot of this.slots) {
-      slot.assignedBagId = null;
-    }
-  }
+    const bag = this.currentBag;
+    this.slotMap.set(slotIndex, bag);
+    this.currentBag = null;
 
-  getSlots(): SlotData[] {
-    return this.slots;
-  }
+    // ✅ Calcola la posizione target dello slot
+    const targetPos = SLOT_POSITIONS_LEFT[slotIndex];
+    const transform = {
+      position: targetPos,
+      rotation: bag.root.rotation.clone(),
+      scaling: bag.root.scaling.clone(),
+      durationPosRot: 1.5,
+      durationScale: 0,
+    };
 
-  getSlotByIndex(index: number): SlotData | undefined {
-    return this.slots[index];
-  }
+    // ✅ Esegui animazione
+    const scene = bag.root.getScene();
+    await handleInterpolatedTransform(bag.root, scene, transform);
 
-  getAssignedBagId(index: number): string | null {
-    return this.slots[index]?.assignedBagId ?? null;
-  }
-
-  getSlotTargetPosition(index: number): BABYLON.Vector3 {
-    return this.slots[index]?.position.clone() ?? BABYLON.Vector3.Zero();
+    console.log(`✅ Bag ${bag.id} animata verso slot ${slotIndex}`);
   }
 
   /**
-   * Calcola la posizione 3D target per uno slot dato l'indice e il lato
+   * Verifica se tutti gli slot sono pieni
    */
-  private computePositionForSlot(index: number, side: SlotSide): BABYLON.Vector3 {
-    // Layout a 6 colonne x 2 righe
-    const cols = 6;
-    const col = index % cols;
-    const row = Math.floor(index / cols);
+  public isFull(): boolean {
+    return this.slotMap.size >= this.slotCapacity;
+  }
 
-    const x = (col - (cols - 1) / 2) * 0.5; // centrato
-    const y = row * 0.6 + 0.4;
-    const z = side === "left" ? -0.5 : 0.5; // profondo nel truck
+  /**
+   * Verifica se uno slot è libero
+   */
+  public isSlotAvailable(slotIndex: number): boolean {
+    return !this.slotMap.has(slotIndex);
+  }
 
-    return new BABYLON.Vector3(x, y, z);
+  /**
+   * Ritorna la bag assegnata a uno slot, se presente
+   */
+  public getBagInSlot(slotIndex: number): BagEntity | undefined {
+    return this.slotMap.get(slotIndex);
+  }
+
+  /**
+   * Ritorna tutte le assegnazioni attuali
+   */
+  public getAssignments(): Map<number, BagEntity> {
+    return new Map(this.slotMap);
+  }
+
+  /**
+   * Registra l’ordine corretto delle bag (bag iterata → slot i)
+   */
+  public registerCorrectBag(bag: BagEntity) {
+    this.correctBagOrder.push(bag);
+    console.log(`🎯 Ordine corretto: slot ${this.correctBagOrder.length - 1} → ${bag.id}`);
+  }
+
+  /**
+   * Ritorna l’ordine corretto delle bag
+   */
+  public getCorrectBagOrder(): BagEntity[] {
+    return [...this.correctBagOrder];
+  }
+
+  /**
+   * Resetta tutto lo stato interno
+   */
+  public reset() {
+    this.slotMap.clear();
+    this.currentBag = null;
+    this.correctBagOrder = [];
+    console.log("🔁 SlotManager resettato.");
   }
 }
+
+export const slotManager = new SlotManager();

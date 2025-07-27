@@ -1,15 +1,16 @@
 // src/react/SlotOverlay.tsx
 import React from "react";
 import "./SlotOverlay.css";
+import { slotManager } from "../SlotManager"; // ✅ Importa il manager
 
 interface SlotOverlayProps {
   slotCount: number;
-  onClickSlot: (index: number) => void;
-  slotSize?: string;              // es. "4rem"
+  onClickSlot?: (index: number) => void; // 🔄 reso opzionale
+  slotSize?: string;
   positionStyle?: React.CSSProperties;
-  rowGap?: string;                // es. "0.5rem"
-  columnGap?: string;             // es. "0.2rem"
-  direction?: "ltr" | "rtl";      // ✅ nuova prop per direzione visuale
+  rowGap?: string;
+  columnGap?: string;
+  direction?: "ltr" | "rtl";
 }
 
 export default function SlotOverlay({
@@ -19,7 +20,7 @@ export default function SlotOverlay({
   positionStyle = {},
   rowGap = "0.5rem",
   columnGap = "0.5rem",
-  direction = "rtl",              // ✅ default: da destra verso sinistra
+  direction = "rtl",
 }: SlotOverlayProps) {
   const gridStyle: React.CSSProperties = {
     gridTemplateColumns: `repeat(6, ${slotSize})`,
@@ -39,7 +40,11 @@ export default function SlotOverlay({
           key={index}
           className="slot-button"
           style={{ width: slotSize, height: slotSize, lineHeight: slotSize }}
-          onClick={() => onClickSlot(index)}
+          onClick={() => {
+            // ✅ Logica di interazione integrata con SlotManager
+            slotManager.assignToSlot(index);
+            if (onClickSlot) onClickSlot(index); // opzionale callback esterna
+          }}
         >
           {index + 1}
         </button>

@@ -6,10 +6,13 @@ import {
 } from "./vehicleLoadingTransform";
 import { handleInterpolatedTransform } from "./transformHandlers";
 import { CartEntity } from "./CartEntity";
+import { BagEntity } from "./BagEntity";
+import { slotManager } from "./SlotManager";
 
 const FOCUS_POS = new BABYLON.Vector3(0, -2, -12);
 const WAIT_POS_1 = new BABYLON.Vector3(-3, -6, 1);
 const WAIT_POS_2 = new BABYLON.Vector3(3, -6, 1);
+const BAG_STAGING_POS = new BABYLON.Vector3(0, 1, -12);
 
 export class LoadTruckController {
   private scene: BABYLON.Scene;
@@ -23,7 +26,6 @@ export class LoadTruckController {
   }
 
   private async begin() {
-    // 1️⃣ Recupera carrelli
     const allCarts = (window as any)._CART_ENTITIES as CartEntity[] | undefined;
     if (!allCarts || allCarts.length !== 3) {
       console.warn("⚠️ Carrelli non trovati o incompleti.");
@@ -31,7 +33,6 @@ export class LoadTruckController {
     }
     this.carts = allCarts;
 
-    // 2️⃣ In parallelo: truck + carrelli + nascondi lato opposto
     const alwaysHide = [""];
 
     await Promise.all([
@@ -43,9 +44,34 @@ export class LoadTruckController {
     ]);
 
     console.log("🛒 Carrelli e truck posizionati con interpolazione.");
-
-    // 3️⃣ Comunica a React di mostrare la griglia slot
     window.dispatchEvent(new CustomEvent("show-slot-overlay"));
+
+    const stagingCart = this.carts[0];
+    const bags = stagingCart.getLoadedBags().slice().reverse(); // ✅ Iterazione inversa
+
+    if (bags.length === 0) {
+      console.warn("⚠️ Nessuna bag disponibile nel primo carrello.");
+      return;
+    }
+
+    const firstBag = bags[0];
+
+    // ✅ Calcola posizione globale
+    const worldMatrix = firstBag.root.getWorldMatrix();
+    const worldPosition = worldMatrix.getTranslation();
+
+    // ✅ Disimparenta mantenendo la posizione visiva
+    firstBag.root.setParent(null);
+    firstBag.root.position.copyFrom(worldPosition);
+
+    // ✅ Sposta con animazione verso zona staging
+    await this.moveBagTo(firstBag, BAG_STAGING_POS);
+
+    // ✅ Notifica SlotManager
+    slotManager.setActiveBag(firstBag);
+    slotManager.registerCorrectBag(firstBag);
+
+    console.log(`📦 Bag ${firstBag.id} disimparentata e spostata in staging.`);
   }
 
   private async moveCartTo(cart: CartEntity, target: BABYLON.Vector3) {
@@ -58,5 +84,17 @@ export class LoadTruckController {
     };
 
     await handleInterpolatedTransform(cart.root, this.scene, transform);
+  }
+
+  private async moveBagTo(bag: BagEntity, target: BABYLON.Vector3) {
+    const transform = {
+      position: target,
+      rotation: bag.root.rotation.clone(),
+      scaling: bag.root.scaling.clone(),
+      durationPosRot: 1.5,
+      durationScale: 0,
+    };
+
+    await handleInterpolatedTransform(bag.root, this.scene, transform);
   }
 }
