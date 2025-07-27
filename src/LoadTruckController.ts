@@ -7,9 +7,9 @@ import {
 import { handleInterpolatedTransform } from "./transformHandlers";
 import { CartEntity } from "./CartEntity";
 
-const FOCUS_POS = new BABYLON.Vector3(0, -2, -12);
-const WAIT_POS_1 = new BABYLON.Vector3(-3, -6, 1);
-const WAIT_POS_2 = new BABYLON.Vector3(3, -6, 1);
+const FOCUS_POS = new BABYLON.Vector3(0, -3, -12);
+const WAIT_POS_1 = new BABYLON.Vector3(-3, -7, 1);
+const WAIT_POS_2 = new BABYLON.Vector3(3, -7, 1);
 
 export class LoadTruckController {
   private scene: BABYLON.Scene;

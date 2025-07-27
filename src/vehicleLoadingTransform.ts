@@ -83,7 +83,7 @@ export async function liftTruckAfterCartArrival() {
   const scene = modelRoot.getScene();
 
   const target = {
-    position: new BABYLON.Vector3(1.1, 2.3, -12),
+    position: new BABYLON.Vector3(0, 3.5, -3),
     rotation: vec3DegToRad([-5, 0, 0]),
     scaling: new BABYLON.Vector3(1, 1, 1),
     durationPosRot: 2,
