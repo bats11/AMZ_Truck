@@ -1,7 +1,7 @@
 // src/SlotManager.ts
 import { BagEntity } from "./BagEntity";
 import { handleInterpolatedTransform } from "./transformHandlers";
-import { SLOT_POSITIONS_LEFT } from "./slotPositions";
+import { BAG_SLOT_POSITIONS_LEFT } from "./slotPositions"; // ✅ usa i preset
 import { getModelRoot } from "./MoveComponent";
 import * as BABYLON from "@babylonjs/core";
 
@@ -10,7 +10,7 @@ class SlotManager {
   private currentBag: BagEntity | null = null;
   private slotCapacity: number = 12;
   private correctBagOrder: BagEntity[] = [];
-  private slotAssignedResolver: (() => void) | null = null; // ✅ nuovo
+  private slotAssignedResolver: (() => void) | null = null;
 
   public setActiveBag(bag: BagEntity) {
     this.currentBag = bag;
@@ -43,7 +43,7 @@ class SlotManager {
     const localPos = BABYLON.Vector3.TransformCoordinates(worldPos, modelRoot.getWorldMatrix().invert());
     bag.root.position.copyFrom(localPos);
 
-    const targetPos = SLOT_POSITIONS_LEFT[slotIndex];
+    const targetPos = BAG_SLOT_POSITIONS_LEFT[slotIndex]; // ✅ nuova sorgente
     const transform = {
       position: targetPos,
       rotation: bag.root.rotation.clone(),
@@ -57,7 +57,6 @@ class SlotManager {
 
     console.log(`✅ Bag ${bag.id} assegnata e animata verso slot ${slotIndex}`);
 
-    // ✅ risolve la promise in attesa
     if (this.slotAssignedResolver) {
       this.slotAssignedResolver();
       this.slotAssignedResolver = null;
