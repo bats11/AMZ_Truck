@@ -1,0 +1,34 @@
+/* src/react/SlotOverlay.css */
+
+.slot-overlay {
+  position: absolute;
+  display: grid;
+  z-index: 2000;
+  pointer-events: auto;
+  justify-content: center;
+  align-content: start;
+}
+
+.slot-button {
+  width: 100%;
+  height: 100%;
+  line-height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: rgba(0, 127, 255, 0.75);
+  border: 2px solid white;
+  border-radius: 0.5rem;
+  color: white;
+  font-family: 'EmberCondensedBold', sans-serif;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.slot-button:hover {
+  background-color: rgba(0, 127, 255, 1);
+  transform: scale(1.05);
+}

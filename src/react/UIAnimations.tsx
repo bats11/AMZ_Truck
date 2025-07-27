@@ -1,27 +1,11 @@
 // src/react/UIAnimations.tsx
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CameraMenu from "./CameraMenu";
 import VehicleLoadingUI from "./VehicleLoadingUI";
 import { vehicleLoadingManager } from "../vehicleLoadingManager";
 import { useSyncExternalStore } from "react";
-
-interface UIAnimationsProps {
-  appPhase: "loading" | "selection" | "transitioning" | "experience";
-  experienceType: "dvic" | "cargoLoad" | null;
-  activeMenu: string | null;
-  activeSubmenu: string | null;
-  setActiveMenu: (value: string | null) => void;
-  setActiveSubmenu: (value: string | null) => void;
-  touchLocked: boolean;
-  setTouchLocked: (value: boolean) => void;
-  resetApp: () => void;
-  startExperience: (type: "dvic" | "cargoLoad") => void;
-  entryDone: boolean;
-  buttonsDisabled: boolean;
-  setButtonsDisabled: (val: boolean) => void;
-  selectionKey: number;
-}
+import SlotOverlay from "./SlotOverlay";
 
 export default function UIAnimations({
   appPhase,
@@ -36,11 +20,35 @@ export default function UIAnimations({
   startExperience,
   entryDone,
   buttonsDisabled,
-}: UIAnimationsProps) {
+}: any) {
   const loadingState = useSyncExternalStore(
     vehicleLoadingManager.subscribe.bind(vehicleLoadingManager),
     vehicleLoadingManager.getState.bind(vehicleLoadingManager)
   );
+
+  const [showOverlay, setShowOverlay] = useState(false);
+  const originalUiHeightRef = useRef<string | null>(null); // ✅ memoria ui-height originale
+
+  useEffect(() => {
+    const handler = () => {
+      const container = document.getElementById("app-container");
+      if (container) {
+        // ✅ Salva valore attuale solo la prima volta
+        if (originalUiHeightRef.current === null) {
+          const current = getComputedStyle(container).getPropertyValue("--ui-height").trim();
+          originalUiHeightRef.current = current || null;
+        }
+
+        // ✅ Imposta nuovo valore
+        container.style.setProperty("--ui-height", "100%");
+      }
+
+      setShowOverlay(true);
+    };
+
+    window.addEventListener("show-slot-overlay", handler);
+    return () => window.removeEventListener("show-slot-overlay", handler);
+  }, []);
 
   return (
     <>
@@ -185,6 +193,21 @@ export default function UIAnimations({
                     </motion.div>
                   )}
                 </AnimatePresence>
+
+                {showOverlay && (
+                  <SlotOverlay
+                    slotCount={12}
+                    slotSize="4rem"
+                    positionStyle={{
+                      top: "21.45rem",
+                      left: "21.7rem",
+                      transform: "translateX(-50%)",
+                    }}
+                    onClickSlot={(i) =>
+                      console.log(`🟦 Slot ${i + 1} cliccato`)
+                    }
+                  />
+                )}
 
                 {loadingState === "startLoading" &&
                   (() => {
