@@ -34,7 +34,6 @@ export class LoadTruckController {
     this.carts = allCarts;
 
     const alwaysHide = [""];
-
     await Promise.all([
       liftTruckAfterCartArrival(),
       hideTruckSideMeshes(this.side, this.scene, alwaysHide),
@@ -46,32 +45,33 @@ export class LoadTruckController {
     console.log("🛒 Carrelli e truck posizionati con interpolazione.");
     window.dispatchEvent(new CustomEvent("show-slot-overlay"));
 
-    const stagingCart = this.carts[0];
-    const bags = stagingCart.getLoadedBags().slice().reverse(); // ✅ Iterazione inversa
+    // ✅ Avvia caricamento automatico delle bag
+    await this.iterateBagsInCart(this.carts[0]);
+  }
 
-    if (bags.length === 0) {
-      console.warn("⚠️ Nessuna bag disponibile nel primo carrello.");
-      return;
+  private async iterateBagsInCart(cart: CartEntity) {
+    const bags = cart.getLoadedBags().slice().reverse();
+
+    for (const bag of bags) {
+      // 1. Disimparenta e mantieni posizione globale
+      const worldMatrix = bag.root.getWorldMatrix();
+      const worldPos = worldMatrix.getTranslation();
+
+      bag.root.setParent(null);
+      bag.root.position.copyFrom(worldPos);
+
+      // 2. Sposta in staging
+      await this.moveBagTo(bag, BAG_STAGING_POS);
+
+      // 3. Notifica SlotManager
+      slotManager.registerCorrectBag(bag);
+      slotManager.setActiveBag(bag);
+
+      // 4. Attendi che l’utente assegni la bag a uno slot
+      await slotManager.waitForAssignment();
     }
 
-    const firstBag = bags[0];
-
-    // ✅ Calcola posizione globale
-    const worldMatrix = firstBag.root.getWorldMatrix();
-    const worldPosition = worldMatrix.getTranslation();
-
-    // ✅ Disimparenta mantenendo la posizione visiva
-    firstBag.root.setParent(null);
-    firstBag.root.position.copyFrom(worldPosition);
-
-    // ✅ Sposta con animazione verso zona staging
-    await this.moveBagTo(firstBag, BAG_STAGING_POS);
-
-    // ✅ Notifica SlotManager
-    slotManager.setActiveBag(firstBag);
-    slotManager.registerCorrectBag(firstBag);
-
-    console.log(`📦 Bag ${firstBag.id} disimparentata e spostata in staging.`);
+    console.log("✅ Tutte le bag del primo carrello sono state caricate.");
   }
 
   private async moveCartTo(cart: CartEntity, target: BABYLON.Vector3) {

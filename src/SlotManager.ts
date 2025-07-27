@@ -10,18 +10,13 @@ class SlotManager {
   private currentBag: BagEntity | null = null;
   private slotCapacity: number = 12;
   private correctBagOrder: BagEntity[] = [];
+  private slotAssignedResolver: (() => void) | null = null; // ✅ nuovo
 
-  /**
-   * Imposta quale bag è attualmente in fase di staging
-   */
   public setActiveBag(bag: BagEntity) {
     this.currentBag = bag;
     console.log(`📥 Bag attiva impostata: ${bag.id}`);
   }
 
-  /**
-   * Assegna la bag attiva a uno slot, se disponibile, con animazione
-   */
   public async assignToSlot(slotIndex: number) {
     if (!this.currentBag) {
       console.warn("⛔ Nessuna bag attiva da assegnare.");
@@ -43,17 +38,11 @@ class SlotManager {
       return;
     }
 
-    // ✅ 1. Calcola la posizione globale attuale della bag
     const worldPos = bag.root.getAbsolutePosition();
-
-    // ✅ 2. Imposta il truck come nuovo parent
     bag.root.setParent(modelRoot);
-
-    // ✅ 3. Calcola la posizione locale corrispondente per mantenere la posizione visiva
     const localPos = BABYLON.Vector3.TransformCoordinates(worldPos, modelRoot.getWorldMatrix().invert());
     bag.root.position.copyFrom(localPos);
 
-    // ✅ 4. Calcola la destinazione finale (slot)
     const targetPos = SLOT_POSITIONS_LEFT[slotIndex];
     const transform = {
       position: targetPos,
@@ -67,6 +56,18 @@ class SlotManager {
     await handleInterpolatedTransform(bag.root, scene, transform);
 
     console.log(`✅ Bag ${bag.id} assegnata e animata verso slot ${slotIndex}`);
+
+    // ✅ risolve la promise in attesa
+    if (this.slotAssignedResolver) {
+      this.slotAssignedResolver();
+      this.slotAssignedResolver = null;
+    }
+  }
+
+  public async waitForAssignment(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this.slotAssignedResolver = resolve;
+    });
   }
 
   public isFull(): boolean {
@@ -98,6 +99,7 @@ class SlotManager {
     this.slotMap.clear();
     this.currentBag = null;
     this.correctBagOrder = [];
+    this.slotAssignedResolver = null;
     console.log("🔁 SlotManager resettato.");
   }
 }

@@ -8,7 +8,7 @@ const STEP_X = 0.5;   // distanza tra colonne
 const STEP_Y = 0.55;  // distanza tra righe
 
 // 📍 Origini griglia lato sinistro e destro (modifica se necessario)
-const ORIGIN_LEFT = new BABYLON.Vector3(1.5, 1, -11);   // angolo in basso a destra (vista RTL)
+const ORIGIN_LEFT = new BABYLON.Vector3(0.67, 0.1727, 0.7554);   // angolo in basso a destra (vista RTL)
 const ORIGIN_RIGHT = new BABYLON.Vector3(-1.5, 1, -11); // angolo in basso a sinistra (vista LTR)
 
 // 📦 Funzione generatrice di posizioni slot
