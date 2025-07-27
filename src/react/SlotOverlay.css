@@ -3,6 +3,7 @@
 .slot-overlay {
   position: absolute;
   display: grid;
+  grid-auto-flow: column; /* ↕️ Colonne prima delle righe */
   z-index: 2000;
   pointer-events: auto;
   justify-content: center;

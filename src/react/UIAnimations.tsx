@@ -198,6 +198,7 @@ export default function UIAnimations({
                   <SlotOverlay
                     slotCount={12}
                     slotSize="4rem"
+                    direction={loadingState === "rightSideLoading" ? "ltr" : "rtl"} // ✅ questa è la modifica!
                     positionStyle={{
                       top: "21.45rem",
                       left: "21.7rem",
@@ -208,6 +209,7 @@ export default function UIAnimations({
                     }
                   />
                 )}
+
 
                 {loadingState === "startLoading" &&
                   (() => {

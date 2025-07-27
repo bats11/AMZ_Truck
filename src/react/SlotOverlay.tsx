@@ -9,6 +9,7 @@ interface SlotOverlayProps {
   positionStyle?: React.CSSProperties;
   rowGap?: string;                // es. "0.5rem"
   columnGap?: string;             // es. "0.2rem"
+  direction?: "ltr" | "rtl";      // ✅ nuova prop per direzione visuale
 }
 
 export default function SlotOverlay({
@@ -16,8 +17,9 @@ export default function SlotOverlay({
   onClickSlot,
   slotSize = "4rem",
   positionStyle = {},
-  rowGap = "0.2rem",
-  columnGap = "0.1rem",
+  rowGap = "0.5rem",
+  columnGap = "0.5rem",
+  direction = "rtl",              // ✅ default: da destra verso sinistra
 }: SlotOverlayProps) {
   const gridStyle: React.CSSProperties = {
     gridTemplateColumns: `repeat(6, ${slotSize})`,
@@ -26,6 +28,8 @@ export default function SlotOverlay({
     columnGap,
     alignContent: "start",
     justifyContent: "center",
+    gridAutoFlow: "column",
+    direction,
   };
 
   return (
