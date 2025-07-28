@@ -19,7 +19,7 @@ export default function SlotOverlay({
   slotSize = "4rem",
   positionStyle = {},
   rowGap = "0.5rem",
-  columnGap = "0.5rem",
+  columnGap = "0.7rem",
   direction = "rtl",
 }: SlotOverlayProps) {
   const gridStyle: React.CSSProperties = {
@@ -39,7 +39,12 @@ export default function SlotOverlay({
         <button
           key={index}
           className="slot-button"
-          style={{ width: slotSize, height: slotSize, lineHeight: slotSize }}
+          style={{
+            width: "4.8rem",
+            height: "4rem",
+            lineHeight: "4rem"
+          }}
+
           onClick={() => {
             // ✅ Logica di interazione integrata con SlotManager
             slotManager.assignToSlot(index);

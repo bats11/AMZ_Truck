@@ -402,3 +402,8 @@ html, body {
   text-align: center;
 }
 
+.validation-error-count {
+  color: #c40000;
+  font-weight: bold;
+}
+

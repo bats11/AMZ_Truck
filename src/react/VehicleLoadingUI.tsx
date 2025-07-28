@@ -20,10 +20,6 @@ export default function VehicleLoadingUI() {
   const isValid = validation?.isValid ?? false;
   const errorCount = validation?.errorCount ?? 0;
 
-  const message = isValid
-    ? "Great job! You loaded the driver side perfectly! Let’s finish the last two carts on the passenger side."
-    : `Not quite. You have ${errorCount} bag${errorCount !== 1 ? "s" : ""} out of place. Remember, lower numbers should be closest to the driver’s seat.`;
-
   const buttonText = isValid ? "Start Passenger Side" : "Try Again?";
 
   return (
@@ -114,7 +110,17 @@ export default function VehicleLoadingUI() {
               exit={{ opacity: 0, y: 40 }}
               transition={{ duration: 0.5 }}
             >
-              {message}
+              {isValid ? (
+                "Great job! You loaded the driver side perfectly! Let’s finish the last two carts on the passenger side."
+              ) : (
+                <>
+                  Not quite. You have{" "}
+                  <span className="validation-error-count">
+                    {errorCount} bag{errorCount !== 1 ? "s" : ""}
+                  </span>{" "}
+                  out of place. Remember, lower numbers should be closest to the driver’s seat.
+                </>
+              )}
             </motion.div>
 
             <motion.button

@@ -174,7 +174,7 @@ export default function UIAnimations({
                     direction={loadingState === "rightSideLoading" ? "ltr" : "rtl"}
                     positionStyle={{
                       top: "21.45rem",
-                      left: "21.7rem",
+                      left: "21.25rem",
                       transform: "translateX(-50%)",
                     }}
                     onClickSlot={(i) => console.log(`🟦 Slot ${i + 1} cliccato`)}
