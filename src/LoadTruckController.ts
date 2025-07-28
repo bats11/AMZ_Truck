@@ -33,7 +33,7 @@ export class LoadTruckController {
     }
     this.carts = allCarts;
 
-    const alwaysHide = [""];
+    const alwaysHide: string[] = [];
 
     await Promise.all([
       liftTruckAfterCartArrival(),
@@ -66,11 +66,16 @@ export class LoadTruckController {
 
       await slotManager.waitForAssignment();
 
-      // 🔒 Se tutti gli slot sono pieni, blocca e valida
       if (slotManager.isFull()) {
         console.log("🟨 Slot completati. Eseguo validazione...");
 
         const result = slotManager.validate();
+
+        // ✅ Espone il risultato per VehicleLoadingUI
+        (window as any)._UI_VALIDATION_RESULT = {
+          isValid: result.isValid,
+          errorCount: result.errors.length,
+        };
 
         if (result.isValid) {
           console.log("✅ Validazione completata: tutti i pacchi corretti!");
@@ -81,7 +86,10 @@ export class LoadTruckController {
           });
         }
 
-        return; // 🔁 Interrompe il ciclo delle bag
+        // ✅ Attiva stato UI "leftResults"
+        (window as any).setVehicleUiStage?.("leftResults");
+
+        return;
       }
     }
 

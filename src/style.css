@@ -344,6 +344,8 @@ html, body {
   text-transform: uppercase;
 }
 
+
+
 .vehicle-loading-btn.primary {
   width: 100%;
   padding: 2rem 0;
@@ -370,5 +372,33 @@ html, body {
   text-align: center;
   cursor: pointer;
   text-transform: inherit
+}
+
+/* Estende il contenitore UI centrale */
+.vehicle-loading-ui.wide {
+  width: 40rem;
+}
+
+/* Pulsanti centrati con larghezza fissa */
+.vehicle-loading-btn.fixed {
+  width: 25rem;
+  align-self: center;
+}
+
+/* Textbox informativo nello stato "confirm" */
+.vehicle-loading-textbox {
+  font-family: 'EmberCondensed', sans-serif;
+  font-size: 1.8rem;
+  color: #000000ff;
+  background: #ebf7ff;
+  border: 0.2rem solid white;
+  padding: 2rem;
+  border-radius: 0.8rem;
+  box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.1);
+  line-height: 1.4;
+  margin-bottom: 1rem;
+  text-transform: none;
+  width: 100%;
+  text-align: center;
 }
 

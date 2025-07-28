@@ -27,19 +27,16 @@ export default function UIAnimations({
   );
 
   const [showOverlay, setShowOverlay] = useState(false);
-  const originalUiHeightRef = useRef<string | null>(null); // ✅ memoria ui-height originale
+  const originalUiHeightRef = useRef<string | null>(null);
 
   useEffect(() => {
     const handler = () => {
       const container = document.getElementById("app-container");
       if (container) {
-        // ✅ Salva valore attuale solo la prima volta
         if (originalUiHeightRef.current === null) {
           const current = getComputedStyle(container).getPropertyValue("--ui-height").trim();
           originalUiHeightRef.current = current || null;
         }
-
-        // ✅ Imposta nuovo valore
         container.style.setProperty("--ui-height", "100%");
       }
 
@@ -168,48 +165,21 @@ export default function UIAnimations({
 
             {experienceType === "cargoLoad" && (
               <>
-                <AnimatePresence mode="wait">
-                  {loadingState === "startLoading" && (
-                    <motion.div
-                      key="vehicle-loading-ui"
-                      initial={{ opacity: 0, y: 40 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 40 }}
-                      transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
-                      style={{
-                        position: "absolute",
-                        top: "40%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        zIndex: 1000,
-                      }}
-                    >
-                      <VehicleLoadingUI
-                        onLeftClick={() =>
-                          vehicleLoadingManager.setState("leftSideLoading")
-                        }
-                        onRightClick={resetApp}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <VehicleLoadingUI />
 
                 {showOverlay && (
                   <SlotOverlay
                     slotCount={12}
                     slotSize="4rem"
-                    direction={loadingState === "rightSideLoading" ? "ltr" : "rtl"} // ✅ questa è la modifica!
+                    direction={loadingState === "rightSideLoading" ? "ltr" : "rtl"}
                     positionStyle={{
                       top: "21.45rem",
                       left: "21.7rem",
                       transform: "translateX(-50%)",
                     }}
-                    onClickSlot={(i) =>
-                      console.log(`🟦 Slot ${i + 1} cliccato`)
-                    }
+                    onClickSlot={(i) => console.log(`🟦 Slot ${i + 1} cliccato`)}
                   />
                 )}
-
 
                 {loadingState === "startLoading" &&
                   (() => {
