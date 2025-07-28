@@ -20,8 +20,8 @@ export async function animateToStartLoading() {
 
   const target = {
     position: new BABYLON.Vector3(0, 2.2, 0),
-    rotation: vec3DegToRad([0, 270, 5]),
-    scaling: new BABYLON.Vector3(1, 1, 1),
+    rotation: vec3DegToRad([0, 270, 1.5]),
+    scaling: new BABYLON.Vector3(1.7, 1.7, 1.7),
     durationScale: 3.0,
     durationPosRot: 1.5,
   };
@@ -41,9 +41,9 @@ export async function animateToLeftLoading() {
   const scene = modelRoot.getScene();
 
   const target = {
-    position: new BABYLON.Vector3(0, 1, 0),
-    rotation: vec3DegToRad([0, 0, 0]),
-    scaling: new BABYLON.Vector3(1, 1, 1),
+    position: new BABYLON.Vector3(0, 3, 0),
+    rotation: vec3DegToRad([1, 265, 2.5]),
+    scaling: new BABYLON.Vector3(1.7, 1.7, 1.7),
     durationScale: 1.8,
     durationPosRot: 2.5,
   };

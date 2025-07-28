@@ -74,8 +74,8 @@ class VehicleLoadingManager {
       await animateCartsIn(carts.getCarts(), scene);
 
       // 5️⃣ Innesca controller che solleva truck e posiziona carrelli
-      const { LoadTruckController } = await import("./LoadTruckController");
-      new LoadTruckController(scene, "left");
+      //const { LoadTruckController } = await import("./LoadTruckController");
+      //new LoadTruckController(scene, "left");
 
       this.isTransitioning = false;
     } else {
