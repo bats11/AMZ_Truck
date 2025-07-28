@@ -52,8 +52,8 @@ export class BagEntity {
       clone.position = source.position.clone();
       clone.rotation = source.rotation.clone();
       clone.scaling = source.scaling.clone();
-      // Applica colore solo se prefab è singolo e materiale è PBR
-      if (!Array.isArray(prefab) && color && clone.material && clone.material instanceof BABYLON.PBRMaterial) {
+      // Applica colore se presente e se il materiale è PBR, anche per array di mesh
+      if (color && clone.material && clone.material instanceof BABYLON.PBRMaterial) {
         const clonedMat = clone.material.clone(`${id}_material`) as BABYLON.PBRMaterial;
         clonedMat.albedoColor = BABYLON.Color3.FromHexString(color);
         clone.material = clonedMat;

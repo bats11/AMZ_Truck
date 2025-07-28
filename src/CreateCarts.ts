@@ -57,9 +57,12 @@ export class CreateCarts {
   }
 
   spawnBags(normalCount: number, extraConfigs?: ExtraBagConfig[]) {
-    const prefab = cargoMeshesByName["AmzBag"];
-    if (!prefab) {
-      console.warn("⚠️ Prefab 'AmzBag' non trovato.");
+    const prefabs = Object.values(cargoMeshesByName).filter(
+      (mesh): mesh is BABYLON.AbstractMesh =>
+        mesh instanceof BABYLON.AbstractMesh && mesh.name.startsWith("AmzBag_")
+    );
+    if (prefabs.length === 0) {
+      console.warn("⚠️ Nessun prefab con prefisso 'AmzBag_' trovato.");
       return;
     }
 
@@ -86,6 +89,8 @@ export class CreateCarts {
         const offset = offsetList[i];
         const id = `Bag_${bagIndex}`;
         const color = BAG_COLORS[bagIndex % BAG_COLORS.length];
+        // Passa l'intero array di mesh ad ogni BagEntity
+        const prefab = prefabs;
 
         const bag = new BagEntity({
           id,
