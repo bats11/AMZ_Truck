@@ -52,10 +52,20 @@ export class BagEntity {
       clone.position = source.position.clone();
       clone.rotation = source.rotation.clone();
       clone.scaling = source.scaling.clone();
-      // Applica colore se presente e se il materiale è PBR, anche per array di mesh
+
+      // ✅ Applica colore SEMPRE se materiale è PBR, mantenendo normal/roughness
       if (color && clone.material && clone.material instanceof BABYLON.PBRMaterial) {
         const clonedMat = clone.material.clone(`${id}_material`) as BABYLON.PBRMaterial;
-        clonedMat.albedoColor = BABYLON.Color3.FromHexString(color);
+
+        clonedMat.albedoTexture = null; // ✅ Rimuove solo la texture colore
+        clonedMat.albedoColor = BABYLON.Color3.FromHexString(color).toLinearSpace();
+ // ✅ Colore pieno
+
+        // 🔒 Protezione da trasparenza inattesa
+        clonedMat.useAlphaFromAlbedoTexture = false;
+        clonedMat.alpha = 1;
+        clonedMat.transparencyMode = BABYLON.PBRMaterial.PBRMATERIAL_OPAQUE;
+
         clone.material = clonedMat;
       }
 
