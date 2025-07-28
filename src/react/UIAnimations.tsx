@@ -27,16 +27,19 @@ export default function UIAnimations({
   );
 
   const [showOverlay, setShowOverlay] = useState(false);
-  const originalUiHeightRef = useRef<string | null>(null);
+  const originalUiHeightRef = useRef<string | null>(null); // ✅ memoria ui-height originale
 
   useEffect(() => {
     const handler = () => {
       const container = document.getElementById("app-container");
       if (container) {
+        // ✅ Salva valore attuale solo la prima volta
         if (originalUiHeightRef.current === null) {
           const current = getComputedStyle(container).getPropertyValue("--ui-height").trim();
           originalUiHeightRef.current = current || null;
         }
+
+        // ✅ Imposta nuovo valore
         container.style.setProperty("--ui-height", "100%");
       }
 
@@ -191,66 +194,22 @@ export default function UIAnimations({
                   )}
                 </AnimatePresence>
 
-                {loadingState === "leftSideLoading" && (
-                  <motion.div
-                    key="instruction-ui"
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
-                    style={{
-                      position: "absolute",
-                      top: "40%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      zIndex: 1000,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: "2rem",
-                      textAlign: "center",
-                      width: "26rem",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontFamily: "EmberCondensed",
-                        fontSize: "1.6rem",
-                        color: "#004f6c",
-                        background: "white",
-                        padding: "2rem",
-                        borderRadius: "0.8rem",
-                        boxShadow: "0 0.4rem 1.2rem rgba(0,0,0,0.1)",
-                        lineHeight: "1.4",
-                      }}
-                    >
-                      You have 3 carts to load into your vehicle. Check the carts below to see what’s coming next. Bags will come off the cart from left to right on each row.
-                    </div>
-
-                    <button
-                      className="vehicle-loading-btn primary"
-                      onClick={() => {
-                        console.log("🚀 Secondo pulsante cliccato");
-                        // Inserisci qui la logica effettiva di avvio caricamento
-                      }}
-                    >
-                      Start Loading Vehicle
-                    </button>
-                  </motion.div>
-                )}
-
                 {showOverlay && (
                   <SlotOverlay
                     slotCount={12}
                     slotSize="4rem"
-                    direction={loadingState === "rightSideLoading" ? "ltr" : "rtl"}
+                    direction={loadingState === "rightSideLoading" ? "ltr" : "rtl"} // ✅ questa è la modifica!
                     positionStyle={{
                       top: "21.45rem",
                       left: "21.7rem",
                       transform: "translateX(-50%)",
                     }}
-                    onClickSlot={(i) => console.log(`🟦 Slot ${i + 1} cliccato`)}
+                    onClickSlot={(i) =>
+                      console.log(`🟦 Slot ${i + 1} cliccato`)
+                    }
                   />
                 )}
+
 
                 {loadingState === "startLoading" &&
                   (() => {
