@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { vehicleLoadingManager } from "../vehicleLoadingManager";
 import { liftTruckAfterCartArrival } from "../vehicleLoadingTransform";
+import { slotManager } from "../SlotManager";
+
 
 type UIStage = "start" | "confirm" | "instructions" | "leftResults" | "none";
 
@@ -15,6 +17,15 @@ export default function VehicleLoadingUI() {
       setUiStage(stage);
     };
   }, []);
+
+  useEffect(() => {
+    const container = document.getElementById("app-container");
+    if (container) {
+      container.style.setProperty("--ui-height", "100%");
+      console.log("📐 UI height impostata a 100% per fase cargo");
+    }
+  }, []);
+
 
   useEffect(() => {
     if (uiStage === "instructions") {
@@ -163,7 +174,8 @@ export default function VehicleLoadingUI() {
                 if (isValid) {
                   console.log("➡️ Avvio lato passeggero (da implementare)");
                 } else {
-                  console.log("🔁 Riprova lato sinistro (da implementare)");
+                  console.log("🔁 Riprova lato sinistro: reset dello SlotManager");
+                  slotManager.reset();
                 }
               }}
             >
