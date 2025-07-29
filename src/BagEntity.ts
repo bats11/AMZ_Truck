@@ -54,20 +54,24 @@ export class BagEntity {
       clone.scaling = source.scaling.clone();
 
       // ✅ Applica colore SEMPRE se materiale è PBR, mantenendo normal/roughness
-      if (color && clone.material && clone.material instanceof BABYLON.PBRMaterial) {
+      if (
+        color &&
+        source.name === "AmzBag_BodyColor" && // ✅ Controlla sul nome ORIGINALE
+        clone.material &&
+        clone.material instanceof BABYLON.PBRMaterial
+      ) {
         const clonedMat = clone.material.clone(`${id}_material`) as BABYLON.PBRMaterial;
 
-        clonedMat.albedoTexture = null; // ✅ Rimuove solo la texture colore
+        clonedMat.albedoTexture = null;
         clonedMat.albedoColor = BABYLON.Color3.FromHexString(color).toLinearSpace();
- // ✅ Colore pieno
-
-        // 🔒 Protezione da trasparenza inattesa
         clonedMat.useAlphaFromAlbedoTexture = false;
         clonedMat.alpha = 1;
         clonedMat.transparencyMode = BABYLON.PBRMaterial.PBRMATERIAL_OPAQUE;
 
         clone.material = clonedMat;
       }
+
+
 
       if (shadowGen) shadowGen.addShadowCaster(clone, true);
     }

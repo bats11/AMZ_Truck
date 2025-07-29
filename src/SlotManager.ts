@@ -1,7 +1,7 @@
 // src/SlotManager.ts
 import { BagEntity } from "./BagEntity";
 import { handleInterpolatedTransform } from "./transformHandlers";
-import { BAG_SLOT_POSITIONS_LEFT } from "./slotPositions";
+import { BAG_SLOT_TRANSFORMS_LEFT } from "./slotPositions"; // 🔄 importa slot con rotazione
 import { getModelRoot } from "./MoveComponent";
 import * as BABYLON from "@babylonjs/core";
 
@@ -43,10 +43,11 @@ class SlotManager {
     const localPos = BABYLON.Vector3.TransformCoordinates(worldPos, modelRoot.getWorldMatrix().invert());
     bag.root.position.copyFrom(localPos);
 
-    const targetPos = BAG_SLOT_POSITIONS_LEFT[slotIndex];
+    const slotTransform = BAG_SLOT_TRANSFORMS_LEFT[slotIndex]; // 🔄 usa posizione + rotazione
+
     const transform = {
-      position: targetPos,
-      rotation: bag.root.rotation.clone(),
+      position: slotTransform.position,
+      rotation: slotTransform.rotation, // ✅ nuova rotazione usata
       scaling: bag.root.scaling.clone(),
       durationPosRot: 1.5,
       durationScale: 0,
