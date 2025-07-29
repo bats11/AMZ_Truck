@@ -170,7 +170,22 @@ export default function VehicleLoadingUI() {
               transition={{ duration: 0.5 }}
               onClick={async () => {
                 if (isValid) {
-                  console.log("➡️ Avvio lato passeggero (da implementare)");
+                  console.log("➡️ Avvio lato passeggero");
+
+                  window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+                  slotManager.reset();
+
+                  const scene = (window as any)._BABYLON_SCENE;
+                  if (!scene) {
+                    console.warn("⚠️ Scene Babylon non disponibile.");
+                    return;
+                  }
+
+                  vehicleLoadingManager.setState("rightSideLoading");
+
+                  const { LoadTruckController } = await import("../LoadTruckController");
+                  new LoadTruckController(scene, "right");
+                  setUiStage("none");
                 } else {
                   console.log("🔁 Riprova completa: reset + animazioni + ritorno a stato iniziale");
 
