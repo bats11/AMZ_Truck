@@ -1,10 +1,8 @@
-// src/react/VehicleLoadingUI.tsx
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { vehicleLoadingManager } from "../vehicleLoadingManager";
 import { liftTruckAfterCartArrival } from "../vehicleLoadingTransform";
 import { slotManager } from "../SlotManager";
-
 
 type UIStage = "start" | "confirm" | "instructions" | "leftResults" | "none";
 
@@ -26,7 +24,6 @@ export default function VehicleLoadingUI() {
     }
   }, []);
 
-
   useEffect(() => {
     if (uiStage === "instructions") {
       const timeout = setTimeout(async () => {
@@ -41,7 +38,7 @@ export default function VehicleLoadingUI() {
 
         const { LoadTruckController } = await import("../LoadTruckController");
         new LoadTruckController(scene, "left");
-      }, 4000); // ⏳ durata istruzioni
+      }, 4000);
 
       return () => clearTimeout(timeout);
     }
@@ -114,11 +111,11 @@ export default function VehicleLoadingUI() {
               onClick={async () => {
                 console.log("📨 Conferma → transizione a 'instructions'");
                 const scene = (window as any)._BABYLON_SCENE;
-              if (!scene) {
-                console.warn("⚠️ Scene Babylon non disponibile.");
-              } else {
-                await liftTruckAfterCartArrival(); // ✅ Sposta il truck prima dell'istruzione
-              }
+                if (!scene) {
+                  console.warn("⚠️ Scene Babylon non disponibile.");
+                } else {
+                  await liftTruckAfterCartArrival();
+                }
                 setUiStage("instructions");
               }}
             >
@@ -170,12 +167,19 @@ export default function VehicleLoadingUI() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 40 }}
               transition={{ duration: 0.5 }}
-              onClick={() => {
+              onClick={async () => {
                 if (isValid) {
                   console.log("➡️ Avvio lato passeggero (da implementare)");
                 } else {
-                  console.log("🔁 Riprova lato sinistro: reset dello SlotManager");
+                  console.log("🔁 Riprova lato sinistro: reset + animazione uscita");
+
                   slotManager.reset();
+
+                  const { animateBagsExit } = await import("../animateBagsExit");
+                  await animateBagsExit();
+
+                  // prossimamente: trigger per ricaricare esperienza o UI
+                  // setUiStage("start");
                 }
               }}
             >
