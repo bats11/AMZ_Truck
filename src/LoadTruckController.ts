@@ -1,9 +1,6 @@
 // src/LoadTruckController.ts
 import * as BABYLON from "@babylonjs/core";
-import {
-  liftTruckAfterCartArrival,
-  hideTruckSideMeshes,
-} from "./vehicleLoadingTransform";
+import {  hideTruckSideMeshes,} from "./vehicleLoadingTransform";
 import { handleInterpolatedTransform } from "./transformHandlers";
 import { CartEntity } from "./CartEntity";
 import { BagEntity } from "./BagEntity";
@@ -38,7 +35,6 @@ export class LoadTruckController {
     const alwaysHide: string[] = [];
 
     await Promise.all([
-      liftTruckAfterCartArrival(),
       hideTruckSideMeshes(this.side, this.scene, alwaysHide),
       this.moveCartTo(this.carts[0], FOCUS_POS),
       this.moveCartTo(this.carts[1], WAIT_POS_1),

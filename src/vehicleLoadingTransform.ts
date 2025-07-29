@@ -82,10 +82,15 @@ export async function liftTruckAfterCartArrival() {
 
   const scene = modelRoot.getScene();
 
+  const currentScaling = modelRoot.scaling.clone();
+  const currentRotation = modelRoot.rotationQuaternion
+    ? modelRoot.rotationQuaternion.toEulerAngles()
+    : modelRoot.rotation.clone();
+
   const target = {
     position: new BABYLON.Vector3(0, 3.5, -3),
     rotation: vec3DegToRad([-5, 0, 0]),
-    scaling: new BABYLON.Vector3(1, 1, 1),
+    scaling: currentScaling, // ✅ usa scaling corrente
     durationPosRot: 2,
     durationScale: 0,
   };
@@ -93,6 +98,7 @@ export async function liftTruckAfterCartArrival() {
   await handleInterpolatedTransform(modelRoot, scene, target, activeCamera);
   console.log("⬆️ Truck spostato con transform fisso (Y + rotazione).");
 }
+
 
 // ✅ Nuova funzione adattiva per nascondere lato opposto
 export async function hideTruckSideMeshes(
