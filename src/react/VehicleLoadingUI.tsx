@@ -1,3 +1,4 @@
+// src/react/VehicleLoadingUI.tsx
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { vehicleLoadingManager } from "../vehicleLoadingManager";
@@ -176,12 +177,18 @@ export default function VehicleLoadingUI() {
                   slotManager.reset();
 
                   const { animateBagsExit } = await import("../animateBagsExit");
-                  await animateBagsExit();
+                  const { animateCartsExit } = await import("../animateCartsExit");
+                  const { animateToLeftLoading } = await import("../vehicleLoadingTransform");
 
-                  // prossimamente: trigger per ricaricare esperienza o UI
-                  // setUiStage("start");
+                  await animateBagsExit();   // ⬅️ Prima bags
+                  await animateCartsExit();  // ⬅️ Poi carrelli
+
+                  await animateToLeftLoading(); // ⬅️ Riporta truck alla posizione iniziale di caricamento
+
+                  setUiStage("confirm");     // ⬅️ Torna allo stato di conferma
                 }
               }}
+
             >
               {buttonText}
             </motion.button>
