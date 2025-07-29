@@ -109,8 +109,8 @@ export async function liftTruckAfterCartArrival() {
     : modelRoot.rotation.clone();
 
   const target = {
-    position: new BABYLON.Vector3(0, 3.5, -3),
-    rotation: vec3DegToRad([-5, 0, 0]),
+    position: new BABYLON.Vector3(0.1, 3.5, -3),
+    rotation: vec3DegToRad([10, 0, 0]),
     scaling: new BABYLON.Vector3(1, 1, 1),
     durationPosRot: 2,
     durationScale: 1.5,

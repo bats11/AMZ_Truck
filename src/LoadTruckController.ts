@@ -6,10 +6,10 @@ import { CartEntity } from "./CartEntity";
 import { BagEntity } from "./BagEntity";
 import { slotManager } from "./SlotManager";
 
-const FOCUS_POS = new BABYLON.Vector3(0, -2, -12);
+const FOCUS_POS = new BABYLON.Vector3(0, -1, -10);
 const WAIT_POS_1 = new BABYLON.Vector3(-3, -6, 1);
 const WAIT_POS_2 = new BABYLON.Vector3(3, -6, 1);
-const BAG_STAGING_POS = new BABYLON.Vector3(0, 1, -12);
+const BAG_STAGING_POS = new BABYLON.Vector3(0, 3.7, -12);
 const STAGING_ROTATION = new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(0), 0);
 
 
