@@ -172,20 +172,23 @@ export default function VehicleLoadingUI() {
                 if (isValid) {
                   console.log("➡️ Avvio lato passeggero (da implementare)");
                 } else {
-                  console.log("🔁 Riprova lato sinistro: reset + animazione uscita");
+                  console.log("🔁 Riprova completa: reset + animazioni + ritorno a stato iniziale");
 
                   slotManager.reset();
 
                   const { animateBagsExit } = await import("../animateBagsExit");
                   const { animateCartsExit } = await import("../animateCartsExit");
-                  const { animateToLeftLoading } = await import("../vehicleLoadingTransform");
+                  const { animateToStartLoading } = await import("../vehicleLoadingTransform");
+                  const { vehicleLoadingManager } = await import("../vehicleLoadingManager");
 
-                  await animateBagsExit();   // ⬅️ Prima bags
+                  await animateBagsExit();   // ⬅️ Prima bag
                   await animateCartsExit();  // ⬅️ Poi carrelli
 
-                  await animateToLeftLoading(); // ⬅️ Riporta truck alla posizione iniziale di caricamento
+                  await animateToStartLoading(); // ⬅️ Torna al transform iniziale del truck
 
-                  setUiStage("confirm");     // ⬅️ Torna allo stato di conferma
+                  vehicleLoadingManager.setState("startLoading"); // ⬅️ Aggiorna stato logico interno
+
+                  setUiStage("start"); // ⬅️ UI torna allo stato iniziale
                 }
               }}
 
