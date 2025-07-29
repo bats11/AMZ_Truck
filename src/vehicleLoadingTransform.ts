@@ -90,9 +90,9 @@ export async function liftTruckAfterCartArrival() {
   const target = {
     position: new BABYLON.Vector3(0, 3.5, -3),
     rotation: vec3DegToRad([-5, 0, 0]),
-    scaling: currentScaling, // ✅ usa scaling corrente
+    scaling: new BABYLON.Vector3(1, 1, 1),
     durationPosRot: 2,
-    durationScale: 0,
+    durationScale: 1.5,
   };
 
   await handleInterpolatedTransform(modelRoot, scene, target, activeCamera);
