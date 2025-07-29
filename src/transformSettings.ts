@@ -67,8 +67,8 @@ export interface TransformSetting {
 export const transformSettings: Record<string, { settings?: TransformSetting; [subKey: string]: TransformSetting | undefined }> = {
   "FRONT SIDE": {
     settings: {
-      position: new BABYLON.Vector3(1, 2.5, 0),
-      rotation: vec3DegToRad([0, 100, -3]),
+      position: new BABYLON.Vector3(1.26, 2.57, -1.22),
+      rotation: vec3DegToRad([-3.25, 110, 8.85]),
       scaling: new BABYLON.Vector3(1.9, 1.9, 1.9),
       durationScale: 1.0,
       durationPosRot: 1,
@@ -82,48 +82,49 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
         },
       ],
     },
-    "Lights & Light Covers": {
-      position: new BABYLON.Vector3(3.5, 2.5, -14),
-      rotation: vec3DegToRad([0, 124.32, 0]),
-      scaling: new BABYLON.Vector3(1.9, 1.9, 1.9)
-    },
-    "Suspension & Exhaust System": {
-      position: new BABYLON.Vector3(0, 2.1, -8),
-      rotation: vec3DegToRad([0, 90, -15]),
-      scaling: new BABYLON.Vector3(1.9, 1.9, 1.9)
-    },
-    "Electric Vehicle (EV)": {
-      position: new BABYLON.Vector3(4.3, 2.4, -20.5),
-      rotation: vec3DegToRad([10, 155, -3.5]),
-      scaling: new BABYLON.Vector3(1.9, 1.9, 1.9)
-    },
-    "Body & Doors": {
-      position: new BABYLON.Vector3(-1.2, 1.35, -11.3),
-      rotation: vec3DegToRad([0, 78, -2]),
-      scaling: new BABYLON.Vector3(1.9, 1.9, 1.9)
-    },
+     "Lights & Light Covers": {
+    position: new BABYLON.Vector3(3, 5, -5),
+    rotation: vec3DegToRad([0, 120, 0]),
+    scaling: new BABYLON.Vector3(1.9, 1.9, 1.9)
+   },
+   "Suspension & Exhaust System": {
+    position: new BABYLON.Vector3(0, 2.5, -2.5),
+    rotation: vec3DegToRad([0, 90, 13]),
+    scaling: new BABYLON.Vector3(1.9, 1.9, 1.9)
+   },
+   "Electric Vehicle (EV)": {
+    position: new BABYLON.Vector3(4.5, 5.8, -8),
+    rotation: vec3DegToRad([0, 156, 0]),
+    scaling: new BABYLON.Vector3(1.9, 1.9, 1.9)
+   },
+   "Body & Doors": {
+    position: new BABYLON.Vector3(-1.8, 4.5, -2.5),
+    rotation: vec3DegToRad([0, 70, 10]),
+    scaling: new BABYLON.Vector3(1.9, 1.9, 1.9)
+  },
     },
 
   "IN CAB": {
-    settings: {
-      position: new BABYLON.Vector3(0.5, -0.5, -30.5),
-      rotation: vec3DegToRad([0, 268, 15]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
-      triggerFovAdjust: true,
+      settings: {
+      position: new BABYLON.Vector3(0, 4.8, -16.4),
+       rotation: vec3DegToRad([18, 282, -6.4]),
+       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+      triggerFovAdjust: false,
       sequenceStartTransform: 
         {
-          position: new BABYLON.Vector3(0, 1, -10),
-          rotation: vec3DegToRad([0, 270, 0]),
+          position: new BABYLON.Vector3(0, 2.9, -5.8),
+          rotation: vec3DegToRad([0, 270, -12]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
           durationPosRot: 2.0,
           hideMeshes: true,
           animateMeshes: true,
           animatedMeshGroups: ["Back Door","Inside Door"],
+          
         },
       intermediate: [
         {
-          position: new BABYLON.Vector3(0, 0, -30.5),
+          position: new BABYLON.Vector3(0, 4.8, -16.4),
           rotation: vec3DegToRad([0, 270, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
@@ -132,67 +133,101 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       ],
       exitIntermediate: [
         {
-          position: new BABYLON.Vector3(0, 1, -10),
-          rotation: vec3DegToRad([0, 270, 0]),
+          position: new BABYLON.Vector3(0, 2.9, -5.8),
+          rotation: vec3DegToRad([0, 270, -12]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
           durationPosRot: 2.0,
         },
       ],
       hiddenNodes: ["SM_Driver_Seat_Rear"],
-      finalCameraFov: BABYLON.Tools.ToRadians(60),
-      durationCameraFov: 2,
+      //finalCameraFov: BABYLON.Tools.ToRadians(60),
+      //durationCameraFov: 2,
     },
      "Body & Doors": {
-      position: new BABYLON.Vector3(1.5, -0.8, -29),
-      rotation: vec3DegToRad([28, 197, 12]),
+      position: new BABYLON.Vector3(1.7, 4.7, -14.6),
+      rotation: vec3DegToRad([0, 194, -20]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
     },
       "Brakes": {
-      position: new BABYLON.Vector3(-0.9, 0.5, -31.2),
-      rotation: vec3DegToRad([0, 303, 7]),
+      position: new BABYLON.Vector3(-0.3, 5.7, -16.8),
+      rotation: vec3DegToRad([0, 289, -5]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
     },
       "Wipers": {
-      position: new BABYLON.Vector3(-2.2, 1.6, -27.5),
-      rotation: vec3DegToRad([0.7, 31.8, -25.3]),
+      position: new BABYLON.Vector3(-2.9, 5.2, -12.3),
+      rotation: vec3DegToRad([0, 23, -5]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
     },
-
     "Windshield": {
-      position: new BABYLON.Vector3(0.6, 0, -30.5),
-      rotation: vec3DegToRad([0, 258, 0]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+     position: new BABYLON.Vector3(0, 5.6, -16.3),
+     rotation: vec3DegToRad([0, 280, -33]),
+     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
     },
+    "Lights & Light Covers": {
+  position: new BABYLON.Vector3(0.5, 5.4, -16.3),
+  rotation: vec3DegToRad([-2, 273, -18.7]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+"Safety Accessories": {
+  position: new BABYLON.Vector3(1.4, 3.6, -14.4),
+  rotation: vec3DegToRad([-2, 166, 10]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+"Camera or Monitor": {
+  position: new BABYLON.Vector3(-0.5, 4.3, -16.5),
+  rotation: vec3DegToRad([-3, 283, 10]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+"Vehicle DocumentaTon [All DOT only]": {
+  position: new BABYLON.Vector3(-0.5, 4.3, -16.9),
+  rotation: vec3DegToRad([-2, 269, 10]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+"HVAC System": {
+  position: new BABYLON.Vector3(-0.5, 4.3, -17),
+  rotation: vec3DegToRad([-2, 291, 10]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+"Steering, Horn, & Alarm": {
+  position: new BABYLON.Vector3(-0.9, 4.3, -16.4),
+  rotation: vec3DegToRad([-2, 307, 10]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+  "Cleanliness": {
+  position: new BABYLON.Vector3(-1.6, 4.4, -13),
+  rotation: vec3DegToRad([-2, 396, -8]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
   },
 
   "DRIVER SIDE": {
     settings: {
-      position: new BABYLON.Vector3(0, 3, 0),
-      rotation: vec3DegToRad([7, 155, -4]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+    position: new BABYLON.Vector3(0.4, 3, -2.6),
+    rotation: vec3DegToRad([0, 135, 0]),
+    scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
     },
       "Back Tire, Wheel, & Rim": {
-      position: new BABYLON.Vector3(-2.8, 1.3, -26),
-      rotation: vec3DegToRad([4, 168, -3]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
-    },
-      "Lights & Light Covers": {
-      position: new BABYLON.Vector3(1.6, 1.2, -27),
-      rotation: vec3DegToRad([6.5, 234, 11]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
-    },
-      "Body & Doors": {
-      position: new BABYLON.Vector3(-0.8, 1.27, -17),
-      rotation: vec3DegToRad([0, 122, -5]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
-    },
-      "Suspension & Exhaust System": {
-        position: new BABYLON.Vector3(2.6, 1.5, -27),
-        rotation: vec3DegToRad([15, 214.32, 5]),
-        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
-        triggerDamage: true,
-        damageNodes: ["Damage_OilPuddle","OilGound"],
+  position: new BABYLON.Vector3(-2, 5.8, -11.3),
+  rotation: vec3DegToRad([0, 198, 0]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+  },
+  "Lights & Light Covers": {
+  position: new BABYLON.Vector3(0, 6, -12.2),
+  rotation: vec3DegToRad([0, 143, -10]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+  },
+  "Body & Doors": {
+  position: new BABYLON.Vector3(0, 3.8, -7),
+  rotation: vec3DegToRad([0, 120, 0]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+  },
+"Suspension & Exhaust System": {
+  position: new BABYLON.Vector3(2.2, 6.5, -14.5),
+  rotation: vec3DegToRad([25, 210, 0]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+  triggerDamage: true,
+  damageNodes: ["Damage_OilPuddle","OilGound"],
       },
       /*"Suspension & Exhaust System": {
         position: new BABYLON.Vector3(0, 1.5, -20),
@@ -200,110 +235,110 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
         scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       },*/
       "EV System": {
-      position: new BABYLON.Vector3(3.4, 0.83, -27.6),
-      rotation: vec3DegToRad([0, 191, 0]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
-    },
-      "Side Mirrors": {
-      position: new BABYLON.Vector3(1.2, 0.7, -21),
-      rotation: vec3DegToRad([8.5, 138, -6]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
-    },
-      "Front Tire, Wheel, & Rim": {
-      position: new BABYLON.Vector3(1.7, 1.3, -24.5),
-      rotation: vec3DegToRad([2.8, 146, 0]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
-    },
+  position: new BABYLON.Vector3(3.5, 5.4, -14),
+  rotation: vec3DegToRad([0, 200, 0]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+"Side Mirrors": {
+  position: new BABYLON.Vector3(0.1, 4.5, -10),
+  rotation: vec3DegToRad([0, 120, 0]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+"Front Tire, Wheel, & Rim": {
+  position: new BABYLON.Vector3(3, 5.8, -13),
+  rotation: vec3DegToRad([0, 196, 0]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
 
   },
 
   "BACK SIDE": {
     settings: {
-      position: new BABYLON.Vector3(-0.5, 2.2, 0),
-      rotation: vec3DegToRad([0, 260, 0]),
+      position: new BABYLON.Vector3(-1, 2.2, 2.4),
+      rotation: vec3DegToRad([0, 255, 0]),
       scaling: new BABYLON.Vector3(2, 2, 2),
       durationScale: 1.5,
       durationPosRot: 1.5,
       intermediate: [
         {
-          position: new BABYLON.Vector3(0, 2.2, 0),
-          rotation: vec3DegToRad([0, 250, 0]),
-          scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+          position: new BABYLON.Vector3(0, 2.9, -5.8),
+          rotation: vec3DegToRad([0, 270, -12]),
+          scaling: new BABYLON.Vector3(1.1, 1.1, 2),
           durationScale: 0.7,
           durationPosRot: 1.5,
         },
       ],
     },
     "Lights & Light Covers": {
-      position: new BABYLON.Vector3(1.92, 2.9, -7),
-      rotation: vec3DegToRad([-3, 287, 15]),
-      scaling: new BABYLON.Vector3(2, 2, 2)
-    },
-      "Body & Doors": {
-      position: new BABYLON.Vector3(-5, 0, -15),
-      rotation: vec3DegToRad([0, 219, 0]),
-      scaling: new BABYLON.Vector3(2, 2, 2)
-    },
-      "License Plates & Tags": {
-      position: new BABYLON.Vector3(-1, 5, -17),
-      rotation: vec3DegToRad([2.2, 260, 23]),
-      scaling: new BABYLON.Vector3(2, 2, 2)
-    },
-      "Suspension & Exhaust System": {
-      position: new BABYLON.Vector3(1, 4.3, -10),
-      rotation: vec3DegToRad([-1, 280, 6]),
-      scaling: new BABYLON.Vector3(2, 2, 2)
-    },
-      "EV System": {
-      position: new BABYLON.Vector3(1, 3.4, -10),
-      rotation: vec3DegToRad([0, 252, 6]),
-      scaling: new BABYLON.Vector3(2, 2, 2)
-    },
+  position: new BABYLON.Vector3(0, 2.8, 0),
+  rotation: vec3DegToRad([0, 270, 0]),
+  scaling: new BABYLON.Vector3(2, 2, 2)
+},
+"Body & Doors": {
+  position: new BABYLON.Vector3(3.5, 1.1, 0.5),
+  rotation: vec3DegToRad([9, 308, -12]),
+  scaling: new BABYLON.Vector3(2, 2, 2)
+},
+"License Plates & Tags": {
+  position: new BABYLON.Vector3(3.8, 4.5, -6),
+  rotation: vec3DegToRad([9, 308, -12]),
+  scaling: new BABYLON.Vector3(2, 2, 2)
+},
+"Suspension & Exhaust System": {
+  position: new BABYLON.Vector3(1, 4.7, -1),
+  rotation: vec3DegToRad([1, 280, -11]),
+  scaling: new BABYLON.Vector3(2, 2, 2)
+},
+"EV System": {
+  position: new BABYLON.Vector3(6.3, 5.6, -12.8),
+  rotation: vec3DegToRad([0, 207, 0]),
+  scaling: new BABYLON.Vector3(2, 2, 2)
+  },
   },
 
   "PASSENGER SIDE": {
     settings: {
-      position: new BABYLON.Vector3(0, 3, 0),
-      rotation: vec3DegToRad([-10, 35, -4]),
+      position: new BABYLON.Vector3(-0.2, 3, -2.6),
+      rotation: vec3DegToRad([0, 45, 0]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
     },
         "Side Mirrors": {
-          position: new BABYLON.Vector3(-0.3, 0, -22),
+          position: new BABYLON.Vector3(-0.2, 4.3, -9),
           rotation: vec3DegToRad([0, 60, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           triggerDamage: true,
           damageNodes: ["Damage_Duct"],
         },
         "Front Tire, Wheel, & Rim": {
-      position: new BABYLON.Vector3(-1.4, 2.2, -24.7),
-      rotation: vec3DegToRad([-12, 37, -12]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
-    },
-      "Lights & Light Covers": {
-      position: new BABYLON.Vector3(-1.1, 1.6, -26.2),
-      rotation: vec3DegToRad([-12, -15, -4]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
-    },
-      "Body & Doors": {
-      position: new BABYLON.Vector3(-0.5, 2.3, -12),
-      rotation: vec3DegToRad([0, 310, 0]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
-    },
-      "Suspension & Exhaust System": {
-      position: new BABYLON.Vector3(0.1, 1.6, -23),
-      rotation: vec3DegToRad([0, 428, -2]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
-    },
-      "EV system": {
-      position: new BABYLON.Vector3(3.4, 0.83, -27.26),
-      rotation: vec3DegToRad([0, 191, 0]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
-    },
-      "Back Tire, Wheel, & Rim": {
-      position: new BABYLON.Vector3(2.7, 1.65, -26),
-      rotation: vec3DegToRad([0, 365, 0]),
-      scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
-    },
+  position: new BABYLON.Vector3(-2.9, 5.8, -12),
+  rotation: vec3DegToRad([0, -7, 0]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+"Lights & Light Covers": {
+  position: new BABYLON.Vector3(-1.2, 5.5, -12),
+  rotation: vec3DegToRad([0, -10, 0]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+"Body & Doors": {
+  position: new BABYLON.Vector3(0, 3.6, -6.3),
+  rotation: vec3DegToRad([0, 415, 0]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+"Suspension & Exhaust System": {
+  position: new BABYLON.Vector3(-2.5, 5.8, -14),
+  rotation: vec3DegToRad([0, 320, 0]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+"EV system": {
+  position: new BABYLON.Vector3(3.5, 5.4, -14),
+  rotation: vec3DegToRad([0, 200, 0]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
+"Back Tire, Wheel, & Rim": {
+  position: new BABYLON.Vector3(2.4, 5.8, -11.8),
+  rotation: vec3DegToRad([0, 358, 0]),
+  scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+},
       
   },
 };
