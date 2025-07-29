@@ -183,8 +183,6 @@ export default function VehicleLoadingUI() {
 
                   vehicleLoadingManager.setState("rightSideLoading");
 
-                  const { LoadTruckController } = await import("../LoadTruckController");
-                  new LoadTruckController(scene, "right");
                   setUiStage("none");
                 } else {
                   console.log("🔁 Riprova completa: reset + animazioni + ritorno a stato iniziale");
