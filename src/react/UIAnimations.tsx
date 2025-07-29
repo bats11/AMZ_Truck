@@ -29,6 +29,7 @@ export default function UIAnimations({
   const [showOverlay, setShowOverlay] = useState(false);
   const originalUiHeightRef = useRef<string | null>(null);
 
+  // 🎯 Listener per "show-slot-overlay"
   useEffect(() => {
     const handler = () => {
       setShowOverlay(true);
@@ -38,6 +39,23 @@ export default function UIAnimations({
     return () => window.removeEventListener("show-slot-overlay", handler);
   }, []);
 
+  // ✅ Listener per "return-to-menu", attivo solo in modalità cargoLoad
+  useEffect(() => {
+    const handler = () => {
+      if (experienceType !== "cargoLoad") {
+        console.warn("⛔ Ignorato 'return-to-menu': non in modalità cargoLoad.");
+        return;
+      }
+
+      console.log("🔙 Evento 'return-to-menu' ricevuto. Resetting...");
+      setActiveMenu(null);
+      setActiveSubmenu(null);
+      resetApp();
+    };
+
+    window.addEventListener("return-to-menu", handler);
+    return () => window.removeEventListener("return-to-menu", handler);
+  }, [experienceType]);
 
   return (
     <>
