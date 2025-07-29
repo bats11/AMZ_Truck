@@ -39,6 +39,15 @@ export default function UIAnimations({
     return () => window.removeEventListener("show-slot-overlay", handler);
   }, []);
 
+  useEffect(() => {
+  const handler = () => {
+    setShowOverlay(false);
+  };
+
+  window.addEventListener("hide-slot-overlay", handler);
+  return () => window.removeEventListener("hide-slot-overlay", handler);
+}, []);
+
   // ✅ Listener per "return-to-menu", attivo solo in modalità cargoLoad
   useEffect(() => {
     const handler = () => {

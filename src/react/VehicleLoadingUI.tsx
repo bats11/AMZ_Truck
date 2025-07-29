@@ -174,6 +174,8 @@ export default function VehicleLoadingUI() {
                 } else {
                   console.log("🔁 Riprova completa: reset + animazioni + ritorno a stato iniziale");
 
+                  window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+                  
                   slotManager.reset();
 
                   const { animateBagsExit } = await import("../animateBagsExit");
