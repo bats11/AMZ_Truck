@@ -76,7 +76,6 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
     const scene = modelRoot.getScene();
     resetDamageVisibility(scene);
 
-    // ✅ Nasconde le damage mesh precedenti
     for (const name of lastDamageNodes) {
       const node = scene.getNodeByName(name);
       if (node && node instanceof BABYLON.AbstractMesh) {
@@ -111,26 +110,26 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
       const safe = () => currentCycle === animationCycle;
 
       if (settings.sequenceStartTransform && safe()) {
-        await handleInterpolatedTransform(modelRoot!, scene, settings.sequenceStartTransform, activeCamera ?? undefined);
+        const transform = settings.sequenceStartTransform;
+        const promises: Promise<any>[] = [];
 
-        if (settings.sequenceStartTransform.triggerDamage && settings.sequenceStartTransform.damageNodes?.length) {
-          showDamageMeshes(scene, settings.sequenceStartTransform.damageNodes);
-          lastDamageNodes = settings.sequenceStartTransform.damageNodes;
+        promises.push(handleInterpolatedTransform(modelRoot!, scene, transform, activeCamera ?? undefined));
+
+        if (transform.triggerDamage && transform.damageNodes?.length) {
+          showDamageMeshes(scene, transform.damageNodes);
+          lastDamageNodes = transform.damageNodes;
+        }
+
+        if (transform.hideMeshes && settings.hiddenNodes?.length) {
+          promises.push(handleHideMeshes(modelRoot!, scene, settings, previouslyHiddenNodes));
+        }
+
+        if (transform.animateMeshes) {
+          promises.push(handleAnimatedMeshes(modelRoot!, scene, transform));
         }
 
         if (
-          settings.sequenceStartTransform.hideMeshes &&
-          settings.hiddenNodes?.length
-        ) {
-          await handleHideMeshes(modelRoot!, scene, settings, previouslyHiddenNodes);
-        }
-
-        if (settings.sequenceStartTransform.animateMeshes) {
-          await handleAnimatedMeshes(modelRoot!, scene, settings.sequenceStartTransform);
-        }
-
-        if (
-          settings.sequenceStartTransform.triggerFovAdjust &&
+          transform.triggerFovAdjust &&
           activeCamera &&
           typeof settings.finalCameraFov === "number"
         ) {
@@ -139,8 +138,10 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
             durationCameraFov: settings.durationCameraFov ?? 1.5,
             triggerFovAdjust: true,
           };
-          await handleInterpolatedTransform(modelRoot!, scene, fovStep, activeCamera);
+          promises.push(handleInterpolatedTransform(modelRoot!, scene, fovStep, activeCamera));
         }
+
+        await Promise.all(promises);
       }
 
       for (const step of intermediateSteps) {
