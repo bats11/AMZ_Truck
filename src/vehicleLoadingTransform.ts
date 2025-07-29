@@ -8,6 +8,9 @@ import { createAnimation, vec3DegToRad } from "./utils";
 
 let activeCamera: BABYLON.FreeCamera | null = null;
 
+// 🆕 Store per le mesh nascoste
+const previouslyHiddenTruckMeshes = new Set<string>();
+
 export function setVehicleCamera(camera: BABYLON.FreeCamera) {
   activeCamera = camera;
 }
@@ -27,6 +30,24 @@ export async function animateToStartLoading() {
   };
 
   await handleInterpolatedTransform(modelRoot, scene, target, activeCamera);
+
+  // 🆕 Fade-in delle mesh nascoste
+  for (const name of previouslyHiddenTruckMeshes) {
+    const node = scene.getNodeByName(name);
+    if (node && node instanceof BABYLON.AbstractMesh) {
+      BABYLON.Animation.CreateAndStartAnimation(
+        `fadeIn_${name}`,
+        node,
+        "visibility",
+        60,
+        30,
+        node.visibility,
+        1,
+        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+      );
+    }
+  }
+  previouslyHiddenTruckMeshes.clear();
 
   if (vehicleLoadingManager.shouldRunInitialEntry()) {
     await runInitialCargoEntry();
@@ -99,8 +120,7 @@ export async function liftTruckAfterCartArrival() {
   console.log("⬆️ Truck spostato con transform fisso (Y + rotazione).");
 }
 
-
-// ✅ Nuova funzione adattiva per nascondere lato opposto
+// ✅ Nasconde lato opposto e salva mesh
 export async function hideTruckSideMeshes(
   side: "left" | "right",
   scene: BABYLON.Scene,
@@ -111,12 +131,10 @@ export async function hideTruckSideMeshes(
 
   const targetSuffix = side === "left" ? "_right" : "_left";
 
-  // Mesh del lato opposto da nascondere (filtrate dal modelRoot)
   const suffixMeshes = modelRoot.getChildMeshes(false).filter((mesh) =>
     mesh.name.toLowerCase().includes(targetSuffix)
   );
 
-  // Mesh da nascondere sempre (ricercate direttamente per nome nella scena)
   const extraMeshes = alwaysHideList
     .map((name) => scene.getMeshByName(name))
     .filter((mesh): mesh is BABYLON.AbstractMesh => !!mesh);
@@ -133,6 +151,10 @@ export async function hideTruckSideMeshes(
 
   const frameStart = 0;
   const frameEnd = 120;
+
+  for (const mesh of meshesToHide) {
+    previouslyHiddenTruckMeshes.add(mesh.name); // 🆕 Salva nome
+  }
 
   const promises = meshesToHide.map((mesh) => {
     const anim = new BABYLON.Animation(
