@@ -31,21 +31,13 @@ export default function UIAnimations({
 
   useEffect(() => {
     const handler = () => {
-      const container = document.getElementById("app-container");
-      if (container) {
-        if (originalUiHeightRef.current === null) {
-          const current = getComputedStyle(container).getPropertyValue("--ui-height").trim();
-          originalUiHeightRef.current = current || null;
-        }
-        container.style.setProperty("--ui-height", "100%");
-      }
-
       setShowOverlay(true);
     };
 
     window.addEventListener("show-slot-overlay", handler);
     return () => window.removeEventListener("show-slot-overlay", handler);
   }, []);
+
 
   return (
     <>

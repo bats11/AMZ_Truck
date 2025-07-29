@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { vehicleLoadingManager } from "../vehicleLoadingManager";
 
-type UIStage = "start" | "confirm" | "leftResults" | "none";
+type UIStage = "start" | "confirm" | "instructions" | "leftResults" | "none";
 
 export default function VehicleLoadingUI() {
   const [uiStage, setUiStage] = useState<UIStage>("start");
@@ -15,11 +15,29 @@ export default function VehicleLoadingUI() {
     };
   }, []);
 
-  const validation = (window as any)._UI_VALIDATION_RESULT;
+  useEffect(() => {
+    if (uiStage === "instructions") {
+      const timeout = setTimeout(async () => {
+        console.log("⏱️ Fine istruzioni, avvio caricamento...");
+        setUiStage("none");
 
+        const scene = (window as any)._BABYLON_SCENE;
+        if (!scene) {
+          console.warn("⚠️ Scene Babylon non disponibile.");
+          return;
+        }
+
+        const { LoadTruckController } = await import("../LoadTruckController");
+        new LoadTruckController(scene, "left");
+      }, 4000); // ⏳ durata istruzioni
+
+      return () => clearTimeout(timeout);
+    }
+  }, [uiStage]);
+
+  const validation = (window as any)._UI_VALIDATION_RESULT;
   const isValid = validation?.isValid ?? false;
   const errorCount = validation?.errorCount ?? 0;
-
   const buttonText = isValid ? "Start Passenger Side" : "Try Again?";
 
   return (
@@ -81,23 +99,27 @@ export default function VehicleLoadingUI() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 40 }}
               transition={{ duration: 0.5 }}
-              onClick={async () => {
-                console.log("🚀 Conferma caricamento");
-                setUiStage("none");
-
-                const scene = (window as any)._BABYLON_SCENE;
-                if (!scene) {
-                  console.warn("⚠️ Scene Babylon non disponibile.");
-                  return;
-                }
-
-                const { LoadTruckController } = await import("../LoadTruckController");
-                new LoadTruckController(scene, "left");
+              onClick={() => {
+                console.log("📨 Conferma → transizione a 'instructions'");
+                setUiStage("instructions");
               }}
             >
               Start Loading Vehicle
             </motion.button>
           </>
+        )}
+
+        {uiStage === "instructions" && (
+          <motion.div
+            key="auto-instructions"
+            className="vehicle-loading-textbox"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ duration: 0.5 }}
+          >
+            Tap to select where the first bag should go. Tap again to lock it in.
+          </motion.div>
         )}
 
         {uiStage === "leftResults" && (
