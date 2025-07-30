@@ -106,8 +106,8 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
 
   "IN CAB": {
       settings: {
-      position: new BABYLON.Vector3(0, 4.8, -16.4),
-       rotation: vec3DegToRad([18, 282, -6.4]),
+      position: new BABYLON.Vector3(-0.2, 4.1, -16.1),
+       rotation: vec3DegToRad([1, 286, 15]),
        scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
       triggerFovAdjust: false,
       sequenceStartTransform: 
@@ -162,7 +162,9 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
     "Windshield": {
      position: new BABYLON.Vector3(0, 5.6, -16.3),
      rotation: vec3DegToRad([0, 280, -33]),
-     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
+     scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
+     triggerDamage: true,
+     damageNodes: ["damage_GlassCrack"],
     },
     "Lights & Light Covers": {
   position: new BABYLON.Vector3(0.5, 5.4, -16.3),

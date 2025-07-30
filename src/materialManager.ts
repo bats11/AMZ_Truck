@@ -13,14 +13,14 @@ export class MaterialManager {
     const mat = this.scene.materials.find(m => m.name === "M_Car_Glass");
     if (!(mat instanceof BABYLON.PBRMaterial)) return;
 
-    mat.alpha = 0;
+    mat.alpha = 0.3;
     mat.transparencyMode = BABYLON.PBRMaterial.PBRMATERIAL_ALPHABLEND;
     mat.alphaMode = BABYLON.Constants.ALPHA_COMBINE;
-    mat.roughness = 0.1;
-    mat.metallic = 0.2;
-    mat.indexOfRefraction = 1.5;
+    mat.roughness = 0.01;
+    mat.metallic = 1;
+    mat.indexOfRefraction = 0.52;
     mat.subSurface.isTranslucencyEnabled = true;
-    mat.subSurface.translucencyIntensity = 0.9;
+    mat.subSurface.translucencyIntensity = 1;
     console.log("✔️ Glass material configured.");
   }
 

@@ -38,6 +38,7 @@ export function loadModel(
     "damage_DuctTape.glb",
     "damage_OilLeak.glb",
     "damage_OilLeakGround.glb",
+    "damage_Crack.glb",
     "cargo_LoadingCart.glb",
     "cargo_AmzBag.glb",
     "cargo_HeavyBox.glb",
