@@ -36,51 +36,59 @@ class VehicleLoadingManager {
     console.log(`🚚 Cargo Loading: stato attivo → ${state}`);
     this.notify();
 
-    if (state === "leftSideLoading") {
-      const scene = (window as any)._BABYLON_SCENE;
-      if (!scene) {
-        console.warn("⚠️ Scene Babylon non disponibile.");
-        this.isTransitioning = false;
-        return;
+    const scene = (window as any)._BABYLON_SCENE;
+    if (!scene) {
+      console.warn("⚠️ Scene Babylon non disponibile.");
+      this.isTransitioning = false;
+      return;
+    }
+
+    switch (state) {
+      case "leftSideLoading": {
+        await runTruckTransform("opening");
+
+        const { CreateCarts } = await import("./CreateCarts");
+        const carts = new CreateCarts(scene);
+        carts.spawnCarts();
+
+        const extraBags: ExtraBagConfig[] = [
+          {
+            meshName: "HeavyBox",
+            count: 3,
+            rotation: vec3DegToRad([-90, 0, 0]),
+          },
+          {
+            meshName: "OverszBox",
+            count: 2,
+            rotation: vec3DegToRad([-90, 0, 0]),
+          },
+        ];
+
+        carts.spawnBags(20, extraBags);
+        (window as any)._CART_ENTITIES = carts.getCarts();
+
+        await animateCartsIn(carts.getCarts(), scene);
+
+        // In futuro: attiva LoadTruckController qui
+        // const { LoadTruckController } = await import("./LoadTruckController");
+        // new LoadTruckController(scene, "left");
+        break;
       }
 
-      // 1️⃣ Muovi il truck lateralmente
-      await runTruckTransform("opening");
+      case "rightSideLoading": {
+        console.log("🕐 Stato 'rightSideLoading' riconosciuto, ma ancora senza logica attiva.");
+        // In futuro: runTruckTransform("right"), crea carts, bags, controller
+        break;
+      }
 
-      // 2️⃣ Crea carrelli e bag
-      const { CreateCarts } = await import("./CreateCarts");
-      const carts = new CreateCarts(scene);
-      carts.spawnCarts();
-
-      const extraBags: ExtraBagConfig[] = [
-        {
-          meshName: "HeavyBox",
-          count: 3,
-          rotation: vec3DegToRad([-90, 0, 0]),
-        },
-        {
-          meshName: "OverszBox",
-          count: 2,
-          rotation: vec3DegToRad([-90, 0, 0]),
-        },
-      ];
-
-      carts.spawnBags(20, extraBags);
-
-      // 3️⃣ Salva carrelli per uso del controller
-      (window as any)._CART_ENTITIES = carts.getCarts();
-
-      // 4️⃣ Fai entrare i carrelli in scena con slide-in
-      await animateCartsIn(carts.getCarts(), scene);
-
-      // 5️⃣ Innesca controller che solleva truck e posiziona carrelli
-      //const { LoadTruckController } = await import("./LoadTruckController");
-      //new LoadTruckController(scene, "left");
-
-      this.isTransitioning = false;
-    } else {
-      this.isTransitioning = false;
+      case "startLoading":
+      default: {
+        // Nessuna azione da eseguire per ora
+        break;
+      }
     }
+
+    this.isTransitioning = false;
   }
 
   public getState(): LoadingState {
