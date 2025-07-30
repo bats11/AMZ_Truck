@@ -126,7 +126,7 @@ export class LoadTruckController {
       position: target,
       rotation: STAGING_ROTATION,
       scaling: bag.root.scaling.clone(),
-      durationPosRot: 1.5,
+      durationPosRot: 1,
       durationScale: 0,
     };
 

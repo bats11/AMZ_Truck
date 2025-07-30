@@ -15,7 +15,7 @@ export function setVehicleCamera(camera: BABYLON.FreeCamera) {
   activeCamera = camera;
 }
 
-type TruckTransformLabel = "start" | "opening" | "confirm";
+type TruckTransformLabel = "start" | "opening" | "confirm" | "passengerSide";
 
 const truckTransformPresets: Record<TruckTransformLabel, {
   position: BABYLON.Vector3;
@@ -41,6 +41,13 @@ const truckTransformPresets: Record<TruckTransformLabel, {
   confirm: {
     position: new BABYLON.Vector3(0.1, 3.5, -3),
     rotation: vec3DegToRad([10, 0, 0]),
+    scaling: new BABYLON.Vector3(1, 1, 1),
+    durationScale: 1.5,
+    durationPosRot: 2.0,
+  },
+  passengerSide: {
+    position: new BABYLON.Vector3(0.1, 3.5, -3),
+    rotation: vec3DegToRad([-10, 180, 0]),
     scaling: new BABYLON.Vector3(1, 1, 1),
     durationScale: 1.5,
     durationPosRot: 2.0,

@@ -76,9 +76,10 @@ class VehicleLoadingManager {
       }
 
       case "rightSideLoading": {
-        console.log("🕐 Stato 'rightSideLoading' riconosciuto, ma ancora senza logica attiva.");
-        // In futuro: runTruckTransform("right"), crea carts, bags, controller
-        break;
+          await runTruckTransform("passengerSide");
+          console.log("🕐 Stato 'rightSideLoading' attivo: animazione passengerSide eseguita.");
+          // In futuro: aggiungi spawn carrelli + bags + controller per lato passeggero
+          break;
       }
 
       case "startLoading":

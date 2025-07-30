@@ -49,7 +49,7 @@ class SlotManager {
       position: slotTransform.position,
       rotation: slotTransform.rotation, // ✅ nuova rotazione usata
       scaling: bag.root.scaling.clone(),
-      durationPosRot: 1.5,
+      durationPosRot: 1,
       durationScale: 0,
     };
 
