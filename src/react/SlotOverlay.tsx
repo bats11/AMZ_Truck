@@ -26,18 +26,21 @@ export default function SlotOverlay({
     Array(slotCount).fill(true)
   );
 
+  const isRightSide = direction === "ltr";
+
   useEffect(() => {
     const handler = (slotIndex: number) => {
-      setVisibleSlots((prev) => {
-        const next = [...prev];
-        next[slotIndex] = false;
-        return next;
-      });
+      // Solo lato sinistro fa scomparire tutti gli slot assegnati
+      if (!isRightSide || slotIndex < 8) {
+        setVisibleSlots((prev) => {
+          const next = [...prev];
+          next[slotIndex] = false;
+          return next;
+        });
+      }
     };
     slotManager.onSlotAssigned(handler);
-  }, []);
-
-  const isRightSide = direction === "ltr";
+  }, [isRightSide]);
 
   const gridStyle: React.CSSProperties = {
     display: "grid",
@@ -60,8 +63,8 @@ export default function SlotOverlay({
       pointerEvents: isVisible ? "auto" : "none",
     };
 
-    // Lato destro (right side), slot 8 e 9 → larghi
-    if (isRightSide && index >= 8) {
+    // ➕ Solo lato destro: slot 8 e 9 sono larghi
+    if (isRightSide && (index === 8 || index === 9)) {
       return (
         <button
           key={index}
@@ -73,7 +76,7 @@ export default function SlotOverlay({
           }}
           onClick={() => {
             slotManager.assignToSlot(index);
-            if (onClickSlot) onClickSlot(index);
+            onClickSlot?.(index);
           }}
         >
           {index + 1}
@@ -81,7 +84,7 @@ export default function SlotOverlay({
       );
     }
 
-    // Tutti gli altri slot (normali)
+    // Slot normali (sempre 1x1)
     return (
       <button
         key={index}
@@ -89,7 +92,7 @@ export default function SlotOverlay({
         style={baseStyle}
         onClick={() => {
           slotManager.assignToSlot(index);
-          if (onClickSlot) onClickSlot(index);
+          onClickSlot?.(index);
         }}
       >
         {index + 1}

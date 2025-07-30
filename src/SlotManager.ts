@@ -10,6 +10,7 @@ import * as BABYLON from "@babylonjs/core";
 
 class SlotManager {
   private slotMap: Map<number, BagEntity> = new Map();
+  private extraSlotMap: Map<8 | 9, BagEntity[]> = new Map(); // ✅ slot larghi multipli
   private currentBag: BagEntity | null = null;
   private slotCapacity: number = 12;
   private correctBagOrder: BagEntity[] = [];
@@ -43,14 +44,25 @@ class SlotManager {
       return;
     }
 
-    if (this.slotMap.has(slotIndex)) {
+    const isExtraSlot = this.useRightSide && (slotIndex === 8 || slotIndex === 9);
+
+    // ❌ Blocca se slot già occupato (eccetto extra larghi)
+    if (!isExtraSlot && this.slotMap.has(slotIndex)) {
       console.warn(`⛔ Slot ${slotIndex} è già occupato.`);
       return;
     }
 
     const bag = this.currentBag;
-    this.slotMap.set(slotIndex, bag);
     this.currentBag = null;
+
+    if (isExtraSlot) {
+      const list = this.extraSlotMap.get(slotIndex as 8 | 9) ?? [];
+      list.push(bag);
+      this.extraSlotMap.set(slotIndex as 8 | 9, list);
+      console.log(`📦 Extra bag ${bag.id} assegnata a slot ${slotIndex} (multi bag)`);
+    } else {
+      this.slotMap.set(slotIndex, bag);
+    }
 
     const modelRoot = getModelRoot();
     if (!modelRoot) {
@@ -81,9 +93,9 @@ class SlotManager {
     const scene = bag.root.getScene();
     await handleInterpolatedTransform(bag.root, scene, transform);
 
-    console.log(`✅ Bag ${bag.id} assegnata e animata verso slot ${slotIndex}`);
+    console.log(`✅ Bag ${bag.id} animata verso slot ${slotIndex}`);
 
-    this.notifySlotAssigned(slotIndex); // 🔔 notifica React
+    this.notifySlotAssigned(slotIndex);
 
     if (this.slotAssignedResolver) {
       this.slotAssignedResolver();
@@ -102,11 +114,17 @@ class SlotManager {
   }
 
   public isSlotAvailable(slotIndex: number): boolean {
+    const isExtraSlot = this.useRightSide && (slotIndex === 8 || slotIndex === 9);
+    if (isExtraSlot) return true;
     return !this.slotMap.has(slotIndex);
   }
 
   public getBagInSlot(slotIndex: number): BagEntity | undefined {
     return this.slotMap.get(slotIndex);
+  }
+
+  public getBagsInExtraSlot(slotIndex: 8 | 9): BagEntity[] {
+    return this.extraSlotMap.get(slotIndex) ?? [];
   }
 
   public getAssignments(): Map<number, BagEntity> {
@@ -151,6 +169,7 @@ class SlotManager {
 
   public reset() {
     this.slotMap.clear();
+    this.extraSlotMap.clear();
     this.currentBag = null;
     this.correctBagOrder = [];
     this.slotAssignedResolver = null;

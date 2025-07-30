@@ -184,7 +184,7 @@ export default function UIAnimations({
 
                 {showOverlay && (
                   <SlotOverlay
-                    slotCount={12}
+                    slotCount={loadingState === "rightSideLoading" ? 10 : 12} // ✅ CORRETTO
                     slotSize="4rem"
                     direction={loadingState === "rightSideLoading" ? "ltr" : "rtl"}
                     positionStyle={
@@ -202,7 +202,6 @@ export default function UIAnimations({
                     }
                     onClickSlot={(i) => console.log(`🟦 Slot ${i + 1} cliccato`)}
                   />
-
                 )}
 
                 {loadingState === "startLoading" &&
