@@ -76,11 +76,32 @@ class VehicleLoadingManager {
       }
 
       case "rightSideLoading": {
-          await runTruckTransform("passengerSide");
-          console.log("🕐 Stato 'rightSideLoading' attivo: animazione passengerSide eseguita.");
-          // In futuro: aggiungi spawn carrelli + bags + controller per lato passeggero
-          break;
+        await runTruckTransform("passengerSide");
+        console.log("🕐 Stato 'rightSideLoading' attivo: animazione passengerSide eseguita.");
+
+        // 🧹 Distruggi le bag già caricate nel truck
+        const { getModelRoot } = await import("./MoveComponent");
+        const modelRoot = getModelRoot();
+
+        if (modelRoot) {
+          const truckBags = modelRoot.getChildren().filter((node) =>
+            node.name.startsWith("BagWrapper_")
+          );
+
+          for (const node of truckBags) {
+            node.getChildMeshes(false).forEach((m) => m.dispose());
+            node.dispose();
+            console.log(`🗑️ Bag ${node.name} rimossa dal truck.`);
+          }
+
+          console.log(`✅ Rimozione bag dal truck completata (${truckBags.length} bag).`);
+        } else {
+          console.warn("⚠️ ModelRoot non trovato: impossibile rimuovere le bag dal truck.");
+        }
+
+        break;
       }
+
 
       case "startLoading":
       default: {

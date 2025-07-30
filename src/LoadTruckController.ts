@@ -1,6 +1,6 @@
 // src/LoadTruckController.ts
 import * as BABYLON from "@babylonjs/core";
-import {  hideTruckSideMeshes,} from "./vehicleLoadingTransform";
+import { hideTruckSideMeshes } from "./vehicleLoadingTransform";
 import { handleInterpolatedTransform } from "./transformHandlers";
 import { CartEntity } from "./CartEntity";
 import { BagEntity } from "./BagEntity";
@@ -12,7 +12,6 @@ const WAIT_POS_2 = new BABYLON.Vector3(5, -1, -10);
 const BAG_STAGING_POS = new BABYLON.Vector3(0, 3.7, -12);
 const STAGING_ROTATION = new BABYLON.Vector3(0, BABYLON.Tools.ToRadians(-10), 0);
 
-
 export class LoadTruckController {
   private scene: BABYLON.Scene;
   private side: "left" | "right";
@@ -21,10 +20,13 @@ export class LoadTruckController {
   constructor(scene: BABYLON.Scene, side: "left" | "right") {
     this.scene = scene;
     this.side = side;
-    this.begin();
+    this.begin(); // ✅ sempre attivo
   }
 
   private async begin() {
+    const isLeft = this.side === "left";
+    const isRight = this.side === "right";
+
     const allCarts = (window as any)._CART_ENTITIES as CartEntity[] | undefined;
     if (!allCarts || allCarts.length !== 3) {
       console.warn("⚠️ Carrelli non trovati o incompleti.");
@@ -32,19 +34,32 @@ export class LoadTruckController {
     }
     this.carts = allCarts;
 
+    // ✅ FASE 1: Nascondi mesh del lato opposto
+    console.log(`🎭 FASE 1: Nascondo mesh lato opposto (${this.side})...`);
     const alwaysHide: string[] = [];
+    await hideTruckSideMeshes(this.side, this.scene, alwaysHide);
 
-    await Promise.all([
-      hideTruckSideMeshes(this.side, this.scene, alwaysHide),
-      this.moveCartTo(this.carts[0], FOCUS_POS),
-      this.moveCartTo(this.carts[1], WAIT_POS_1),
-      this.moveCartTo(this.carts[2], WAIT_POS_2),
-    ]);
+    // ✅ FASE 2: Posizionamento iniziale carrelli
+    if (isLeft) {
+      console.log("🚚 FASE 2: Posizionamento carrelli (LEFT)");
+      await Promise.all([
+        this.moveCartTo(this.carts[0], FOCUS_POS),
+        this.moveCartTo(this.carts[1], WAIT_POS_1),
+        this.moveCartTo(this.carts[2], WAIT_POS_2),
+      ]);
+      console.log("🛒 Carrelli posizionati con interpolazione (LEFT)");
+    } else if (isRight) {
+      console.log("⏸️ FASE 2: Posizionamento carrelli (RIGHT) disattivato.");
+    }
 
-    console.log("🛒 Carrelli e truck posizionati con interpolazione.");
-    window.dispatchEvent(new CustomEvent("show-slot-overlay"));
-
-    await this.iterateBagsInCart(this.carts[0]);
+    // ✅ FASE 3: Iterazione bag
+    if (isLeft) {
+      console.log("📦 FASE 3: Avvio iterazione bag (LEFT)");
+      window.dispatchEvent(new CustomEvent("show-slot-overlay"));
+      await this.iterateBagsInCart(this.carts[0]);
+    } else if (isRight) {
+      console.log("⏸️ FASE 3: Iterazione bag (RIGHT) disattivata.");
+    }
   }
 
   private async iterateBagsInCart(cart: CartEntity) {
@@ -69,7 +84,6 @@ export class LoadTruckController {
 
         const result = slotManager.validate();
 
-        // ✅ Espone il risultato per VehicleLoadingUI
         (window as any)._UI_VALIDATION_RESULT = {
           isValid: result.isValid,
           errorCount: result.errors.length,
@@ -84,9 +98,7 @@ export class LoadTruckController {
           });
         }
 
-        // ✅ Attiva stato UI "leftResults"
         (window as any).setVehicleUiStage?.("leftResults");
-
         return;
       }
     }
