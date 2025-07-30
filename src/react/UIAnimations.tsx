@@ -6,6 +6,7 @@ import VehicleLoadingUI from "./VehicleLoadingUI";
 import { vehicleLoadingManager } from "../vehicleLoadingManager";
 import { useSyncExternalStore } from "react";
 import SlotOverlay from "./SlotOverlay";
+import { runTruckTransform } from "../vehicleLoadingTransform";
 
 export default function UIAnimations({
   appPhase,
@@ -29,26 +30,22 @@ export default function UIAnimations({
   const [showOverlay, setShowOverlay] = useState(false);
   const originalUiHeightRef = useRef<string | null>(null);
 
-  // 🎯 Listener per "show-slot-overlay"
   useEffect(() => {
     const handler = () => {
       setShowOverlay(true);
     };
-
     window.addEventListener("show-slot-overlay", handler);
     return () => window.removeEventListener("show-slot-overlay", handler);
   }, []);
 
   useEffect(() => {
-  const handler = () => {
-    setShowOverlay(false);
-  };
+    const handler = () => {
+      setShowOverlay(false);
+    };
+    window.addEventListener("hide-slot-overlay", handler);
+    return () => window.removeEventListener("hide-slot-overlay", handler);
+  }, []);
 
-  window.addEventListener("hide-slot-overlay", handler);
-  return () => window.removeEventListener("hide-slot-overlay", handler);
-}, []);
-
-  // ✅ Listener per "return-to-menu", attivo solo in modalità cargoLoad
   useEffect(() => {
     const handler = () => {
       if (experienceType !== "cargoLoad") {
@@ -61,7 +58,6 @@ export default function UIAnimations({
       setActiveSubmenu(null);
       resetApp();
     };
-
     window.addEventListener("return-to-menu", handler);
     return () => window.removeEventListener("return-to-menu", handler);
   }, [experienceType]);
@@ -202,9 +198,7 @@ export default function UIAnimations({
 
                 {loadingState === "startLoading" &&
                   (() => {
-                    import("../vehicleLoadingTransform").then(
-                      ({ animateToStartLoading }) => animateToStartLoading()
-                    );
+                    runTruckTransform("start");
                     return null;
                   })()}
               </>

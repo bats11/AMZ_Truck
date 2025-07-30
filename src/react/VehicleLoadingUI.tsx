@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { vehicleLoadingManager } from "../vehicleLoadingManager";
-import { liftTruckAfterCartArrival } from "../vehicleLoadingTransform";
+import { runTruckTransform } from "../vehicleLoadingTransform";
 import { slotManager } from "../SlotManager";
 
 type UIStage = "start" | "confirm" | "instructions" | "leftResults" | "none";
@@ -115,7 +115,7 @@ export default function VehicleLoadingUI() {
                 if (!scene) {
                   console.warn("⚠️ Scene Babylon non disponibile.");
                 } else {
-                  await liftTruckAfterCartArrival();
+                  await runTruckTransform("confirm");
                 }
                 setUiStage("instructions");
               }}
@@ -188,25 +188,22 @@ export default function VehicleLoadingUI() {
                   console.log("🔁 Riprova completa: reset + animazioni + ritorno a stato iniziale");
 
                   window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
-                  
                   slotManager.reset();
 
                   const { animateBagsExit } = await import("../animateBagsExit");
                   const { animateCartsExit } = await import("../animateCartsExit");
-                  const { animateToStartLoading } = await import("../vehicleLoadingTransform");
+                  const { runTruckTransform } = await import("../vehicleLoadingTransform");
                   const { vehicleLoadingManager } = await import("../vehicleLoadingManager");
 
-                  await animateBagsExit();   // ⬅️ Prima bag
-                  await animateCartsExit();  // ⬅️ Poi carrelli
+                  await animateBagsExit();
+                  await animateCartsExit();
 
-                  await animateToStartLoading(); // ⬅️ Torna al transform iniziale del truck
+                  await runTruckTransform("start");
 
-                  vehicleLoadingManager.setState("startLoading"); // ⬅️ Aggiorna stato logico interno
-
-                  setUiStage("start"); // ⬅️ UI torna allo stato iniziale
+                  vehicleLoadingManager.setState("startLoading");
+                  setUiStage("start");
                 }
               }}
-
             >
               {buttonText}
             </motion.button>

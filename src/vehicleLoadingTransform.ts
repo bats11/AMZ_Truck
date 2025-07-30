@@ -15,62 +15,84 @@ export function setVehicleCamera(camera: BABYLON.FreeCamera) {
   activeCamera = camera;
 }
 
-export async function animateToStartLoading() {
-  const modelRoot = getModelRoot();
-  if (!modelRoot || !activeCamera) return;
+type TruckTransformLabel = "start" | "opening" | "confirm";
 
-  const scene = modelRoot.getScene();
-
-  const target = {
+const truckTransformPresets: Record<TruckTransformLabel, {
+  position: BABYLON.Vector3;
+  rotation: BABYLON.Vector3;
+  scaling: BABYLON.Vector3;
+  durationScale: number;
+  durationPosRot: number;
+}> = {
+  start: {
     position: new BABYLON.Vector3(-0.5, 3, 2),
     rotation: vec3DegToRad([0, 260, 0]),
     scaling: new BABYLON.Vector3(1.7, 1.7, 1.7),
     durationScale: 3.0,
     durationPosRot: 1.5,
-  };
-
-  await handleInterpolatedTransform(modelRoot, scene, target, activeCamera);
-
-  // 🆕 Fade-in delle mesh nascoste
-  for (const name of previouslyHiddenTruckMeshes) {
-    const node = scene.getNodeByName(name);
-    if (node && node instanceof BABYLON.AbstractMesh) {
-      BABYLON.Animation.CreateAndStartAnimation(
-        `fadeIn_${name}`,
-        node,
-        "visibility",
-        60,
-        30,
-        node.visibility,
-        1,
-        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-      );
-    }
-  }
-  previouslyHiddenTruckMeshes.clear();
-
-  if (vehicleLoadingManager.shouldRunInitialEntry()) {
-    await runInitialCargoEntry();
-    vehicleLoadingManager.markInitialEntryDone();
-  }
-}
-
-export async function animateToLeftLoading() {
-  const modelRoot = getModelRoot();
-  if (!modelRoot || !activeCamera) return;
-
-  const scene = modelRoot.getScene();
-
-  const target = {
+  },
+  opening: {
     position: new BABYLON.Vector3(0, 3.5, 1.5),
     rotation: vec3DegToRad([0, 270, 5]),
     scaling: new BABYLON.Vector3(1.7, 1.7, 1.7),
     durationScale: 1.8,
     durationPosRot: 2.5,
-  };
+  },
+  confirm: {
+    position: new BABYLON.Vector3(0.1, 3.5, -3),
+    rotation: vec3DegToRad([10, 0, 0]),
+    scaling: new BABYLON.Vector3(1, 1, 1),
+    durationScale: 1.5,
+    durationPosRot: 2.0,
+  }
+};
 
-  await handleInterpolatedTransform(modelRoot, scene, target, activeCamera);
+export async function runTruckTransform(label: TruckTransformLabel) {
+  const modelRoot = getModelRoot();
+  if (!modelRoot || !activeCamera) return;
+
+  const scene = modelRoot.getScene();
+  const preset = truckTransformPresets[label];
+
+  if (!preset) {
+    console.warn(`⚠️ Nessun preset trovato per '${label}'`);
+    return;
+  }
+
+  await handleInterpolatedTransform(modelRoot, scene, preset, activeCamera);
+
+  if (label === "start") {
+    // 🆕 Fade-in delle mesh nascoste
+    for (const name of previouslyHiddenTruckMeshes) {
+      const node = scene.getNodeByName(name);
+      if (node && node instanceof BABYLON.AbstractMesh) {
+        BABYLON.Animation.CreateAndStartAnimation(
+          `fadeIn_${name}`,
+          node,
+          "visibility",
+          60,
+          30,
+          node.visibility,
+          1,
+          BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+      }
+    }
+    previouslyHiddenTruckMeshes.clear();
+
+    if (vehicleLoadingManager.shouldRunInitialEntry()) {
+      await runInitialCargoEntry();
+      vehicleLoadingManager.markInitialEntryDone();
+    }
+  }
+
+  console.log(`🚚 Truck transform '${label}' eseguito.`);
 }
+
+// Alias temporanei per compatibilità
+export const animateToStartLoading = () => runTruckTransform("start");
+export const animateToLeftLoading = () => runTruckTransform("opening");
+export const liftTruckAfterCartArrival = () => runTruckTransform("confirm");
 
 export async function runInitialCargoEntry() {
   console.log("🎬 Placeholder: funzione eseguita solo al primo ingresso.");
@@ -95,29 +117,6 @@ export async function animateCartsIn(carts: CartEntity[], scene: BABYLON.Scene) 
   });
 
   await Promise.all(promises);
-}
-
-export async function liftTruckAfterCartArrival() {
-  const modelRoot = getModelRoot();
-  if (!modelRoot || !activeCamera) return;
-
-  const scene = modelRoot.getScene();
-
-  const currentScaling = modelRoot.scaling.clone();
-  const currentRotation = modelRoot.rotationQuaternion
-    ? modelRoot.rotationQuaternion.toEulerAngles()
-    : modelRoot.rotation.clone();
-
-  const target = {
-    position: new BABYLON.Vector3(0.1, 3.5, -3),
-    rotation: vec3DegToRad([10, 0, 0]),
-    scaling: new BABYLON.Vector3(1, 1, 1),
-    durationPosRot: 2,
-    durationScale: 1.5,
-  };
-
-  await handleInterpolatedTransform(modelRoot, scene, target, activeCamera);
-  console.log("⬆️ Truck spostato con transform fisso (Y + rotazione).");
 }
 
 // ✅ Nasconde lato opposto e salva mesh

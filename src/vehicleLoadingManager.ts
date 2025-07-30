@@ -1,5 +1,5 @@
 // src/vehicleLoadingManager.ts
-import { animateToLeftLoading, animateCartsIn } from "./vehicleLoadingTransform";
+import { runTruckTransform, animateCartsIn } from "./vehicleLoadingTransform";
 import type { ExtraBagConfig } from "./CreateCarts";
 import * as BABYLON from "@babylonjs/core";
 import { vec3DegToRad } from "./utils";
@@ -45,7 +45,7 @@ class VehicleLoadingManager {
       }
 
       // 1️⃣ Muovi il truck lateralmente
-      await animateToLeftLoading();
+      await runTruckTransform("opening");
 
       // 2️⃣ Crea carrelli e bag
       const { CreateCarts } = await import("./CreateCarts");
