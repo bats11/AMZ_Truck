@@ -146,7 +146,7 @@ export class LoadTruckController {
         isValid: result.isValid,
         errorCount: result.errors.length,
       };
-      (window as any).setVehicleUiStage?.("leftResults");
+      (window as any).setVehicleUiStage?.("rightResults");
     }
   }
 

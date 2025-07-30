@@ -5,7 +5,7 @@ import { vehicleLoadingManager } from "../vehicleLoadingManager";
 import { runTruckTransform } from "../vehicleLoadingTransform";
 import { slotManager } from "../SlotManager";
 
-type UIStage = "start" | "confirm" | "instructions" | "leftResults" | "none";
+type UIStage = "start" | "confirm" | "instructions" | "leftResults" | "rightResults" | "none";
 
 export default function VehicleLoadingUI() {
   const [uiStage, setUiStage] = useState<UIStage>("start");
@@ -209,6 +209,65 @@ export default function VehicleLoadingUI() {
             </motion.button>
           </>
         )}
+
+        {uiStage === "rightResults" && (
+          <>
+            <motion.div
+              key="right-result-box"
+              className="vehicle-loading-textbox"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ duration: 0.5 }}
+            >
+              {isValid ? (
+                "Excellent! All extra bags are in the correct position. Well done."
+              ) : (
+                <>
+                  Some extra bags are not placed correctly. You have{" "}
+                  <span className="validation-error-count">
+                    {errorCount} error{errorCount !== 1 ? "s" : ""}
+                  </span>
+                  . Heavy boxes must go in the lower slot, and oversized ones in the upper slot.
+                </>
+              )}
+            </motion.div>
+
+            <motion.button
+              key="right-result-btn"
+              className="vehicle-loading-btn primary fixed"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ duration: 0.5 }}
+              onClick={async () => {
+                if (isValid) {
+                  console.log("✅ Validazione extra bag riuscita: esperienza conclusa.");
+                  // Potresti far partire animazione di chiusura o avanzamento
+                } else {
+                  console.log("🔁 Riprova caricamento extra");
+                  window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+                  slotManager.reset();
+
+                  const { animateBagsExit } = await import("../animateBagsExit");
+                  const { animateCartsExit } = await import("../animateCartsExit");
+                  const { runTruckTransform } = await import("../vehicleLoadingTransform");
+                  const { vehicleLoadingManager } = await import("../vehicleLoadingManager");
+
+                  await animateBagsExit();
+                  await animateCartsExit();
+                  await runTruckTransform("start");
+
+                  vehicleLoadingManager.setState("startLoading");
+                  setUiStage("start");
+                }
+              }}
+            >
+              {isValid ? "Finish Loading" : "Try Again?"}
+            </motion.button>
+          </>
+        )}
+
       </AnimatePresence>
     </div>
   );
