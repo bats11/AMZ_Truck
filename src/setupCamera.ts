@@ -8,7 +8,7 @@ export function setupCamera(scene: BABYLON.Scene, canvas: HTMLCanvasElement): BA
   // Posizione fissa della camera
   const cameraPosition = new BABYLON.Vector3(0, 5, -15); // Regola altezza e distanza
   const cameraRotation = new BABYLON.Vector3(0, 0, 0); // Rotazione fissa
-  const target = new BABYLON.Vector3(0, -2, 0); // Punto che la camera guarda
+  const target = new BABYLON.Vector3(0, 0, 0); // Punto che la camera guarda
 
   const camera = new BABYLON.FreeCamera("fixedCamera", cameraPosition, scene);
   camera.setTarget(target);
