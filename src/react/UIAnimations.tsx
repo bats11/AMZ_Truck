@@ -187,13 +187,22 @@ export default function UIAnimations({
                     slotCount={12}
                     slotSize="4rem"
                     direction={loadingState === "rightSideLoading" ? "ltr" : "rtl"}
-                    positionStyle={{
-                      top: "21.45rem",
-                      left: "21.25rem",
-                      transform: "translateX(-50%)",
-                    }}
+                    positionStyle={
+                      loadingState === "rightSideLoading"
+                        ? {
+                            top: "19rem",
+                            left: "8.3rem",
+                            transform: "translateX(50%)",
+                          }
+                        : {
+                            top: "21.45rem",
+                            left: "21.25rem",
+                            transform: "translateX(-50%)",
+                          }
+                    }
                     onClickSlot={(i) => console.log(`🟦 Slot ${i + 1} cliccato`)}
                   />
+
                 )}
 
                 {loadingState === "startLoading" &&

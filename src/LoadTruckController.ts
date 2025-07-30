@@ -58,7 +58,9 @@ export class LoadTruckController {
       window.dispatchEvent(new CustomEvent("show-slot-overlay"));
       await this.iterateBagsInCart(this.carts[0]);
     } else if (isRight) {
-      console.log("⏸️ FASE 3: Iterazione bag (RIGHT) disattivata.");
+      console.log("📦 FASE 3: Avvio iterazione bag (RIGHT)");
+      window.dispatchEvent(new CustomEvent("show-slot-overlay"));
+      await this.iterateBagsInCart(this.carts[0]);
     }
   }
 

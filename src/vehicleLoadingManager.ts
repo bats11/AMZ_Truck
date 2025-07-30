@@ -98,6 +98,9 @@ class VehicleLoadingManager {
         } else {
           console.warn("⚠️ ModelRoot non trovato: impossibile rimuovere le bag dal truck.");
         }
+        
+        const { LoadTruckController } = await import("./LoadTruckController");
+        new LoadTruckController(scene, "right");
 
         break;
       }
