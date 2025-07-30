@@ -71,4 +71,15 @@ export class CartEntity {
     this.root.position.copyFrom(position);
     if (rotation) this.root.rotation.copyFrom(rotation);
   }
+
+  public removeBag(bag: BagEntity): void {
+  const index = this.loadedBags.findIndex(b => b.id === bag.id);
+  if (index !== -1) {
+    this.loadedBags.splice(index, 1);
+    console.log(`🧹 Bag ${bag.id} rimossa da ${this.id}`);
+  } else {
+    console.warn(`⚠️ Bag ${bag.id} non trovata in ${this.id}`);
+  }
+}
+
 }

@@ -73,6 +73,8 @@ export class LoadTruckController {
 
       bag.root.setParent(null);
       bag.root.position.copyFrom(worldPos);
+      cart.removeBag(bag); // ✅ aggiorna lo stato del carrello
+
 
       await this.moveBagTo(bag, BAG_STAGING_POS);
 
