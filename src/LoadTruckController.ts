@@ -1,4 +1,3 @@
-// src/LoadTruckController.ts
 import * as BABYLON from "@babylonjs/core";
 import { hideTruckSideMeshes } from "./vehicleLoadingTransform";
 import { handleInterpolatedTransform } from "./transformHandlers";
@@ -34,40 +33,27 @@ export class LoadTruckController {
     }
 
     this.carts = allCarts;
-
-    // ✅ Imposta il lato attivo per gli slot
     slotManager.setRightSide(this.side === "right");
 
-    // ✅ FASE 1: Nascondi mesh del lato opposto
-    console.log(`🎭 FASE 1: Nascondo mesh lato opposto (${this.side})...`);
-    const alwaysHide: string[] = [];
-    await hideTruckSideMeshes(this.side, this.scene, alwaysHide);
+    await hideTruckSideMeshes(this.side, this.scene, []);
 
-    // ✅ FASE 2: Posizionamento iniziale carrelli
     if (isLeft) {
-      console.log("🚚 FASE 2: Posizionamento carrelli (LEFT)");
       await Promise.all([
         this.moveCartTo(this.carts[0], FOCUS_POS),
         this.moveCartTo(this.carts[1], WAIT_POS_1),
         this.moveCartTo(this.carts[2], WAIT_POS_2),
       ]);
-      console.log("🛒 Carrelli posizionati con interpolazione (LEFT)");
-    } else if (isRight) {
-      console.log("⏸️ FASE 2: Posizionamento carrelli (RIGHT) disattivato.");
     }
 
-    // ✅ FASE 3: Iterazione bag
-    console.log(`📦 FASE 3: Avvio iterazione bag (${this.side.toUpperCase()})`);
     window.dispatchEvent(new CustomEvent("show-slot-overlay"));
     await this.iterateBagsInCart(this.carts[0]);
   }
 
   private async iterateBagsInCart(cart: CartEntity) {
     const bags = cart.getLoadedBags()
-      .filter(b => !b.isExtra) // ✅ solo bag normali
+      .filter(b => !b.isExtra)
       .slice()
       .reverse();
-
 
     for (const bag of bags) {
       const worldMatrix = bag.root.getWorldMatrix();
@@ -75,34 +61,20 @@ export class LoadTruckController {
 
       bag.root.setParent(null);
       bag.root.position.copyFrom(worldPos);
-
-      cart.removeBag(bag); // ora il carrello sa che non ce l'ha più
+      cart.removeBag(bag);
 
       await this.moveBagTo(bag, BAG_STAGING_POS);
 
       slotManager.registerCorrectBag(bag);
       slotManager.setActiveBag(bag);
-
       await slotManager.waitForAssignment();
 
       if (slotManager.isFull()) {
-        console.log("🟨 Slot completati. Eseguo validazione...");
-
         const result = slotManager.validate();
-
         (window as any)._UI_VALIDATION_RESULT = {
           isValid: result.isValid,
           errorCount: result.errors.length,
         };
-
-        if (result.isValid) {
-          console.log("✅ Validazione completata: tutti i pacchi corretti!");
-        } else {
-          console.warn("❌ Validazione fallita. Errori trovati:");
-          result.errors.forEach((err) => {
-            console.warn(`🛑 Slot ${err.slot}: atteso ${err.expected}, trovato ${err.actual}`);
-          });
-        }
 
         (window as any).setVehicleUiStage?.("leftResults");
         return;
@@ -111,32 +83,75 @@ export class LoadTruckController {
 
     console.log(`✅ Tutte le bag del carrello ${cart.id} sono state caricate.`);
 
-    this.carts.push(this.carts.shift()!); // ruota i carrelli
-
-    await Promise.all([
-      this.moveCartTo(this.carts[0], FOCUS_POS),
-      this.moveCartTo(this.carts[1], WAIT_POS_1),
-      this.moveCartTo(this.carts[2], WAIT_POS_2),
-    ]);
-
-    const nextBags = this.carts[0].getLoadedBags();
-    if (nextBags.length > 0) {
-      await this.iterateBagsInCart(this.carts[0]);
-    } else {
-      console.log("🛑 Fine ciclo: nessuna bag nel carrello successivo.");
-    }
-
-    // 🔎 Verifica se ci sono ancora bag normali nei carrelli
-    const hasMoreNormalBags = this.carts.some(cart =>
-      cart.getLoadedBags().some(bag => !bag.isExtra)
+    const hasMoreNormalBags = this.carts.some(c =>
+      c.getLoadedBags().some(b => !b.isExtra)
     );
 
-    if (!hasMoreNormalBags) {
+    if (hasMoreNormalBags) {
+      this.carts.push(this.carts.shift()!);
+      await Promise.all([
+        this.moveCartTo(this.carts[0], FOCUS_POS),
+        this.moveCartTo(this.carts[1], WAIT_POS_1),
+        this.moveCartTo(this.carts[2], WAIT_POS_2),
+      ]);
+      await this.iterateBagsInCart(this.carts[0]);
+    } else {
       console.log("🚩 Tutte le bag normali caricate. Passo alla fase extra.");
-      window.dispatchEvent(new CustomEvent("start-extra-bags")); // ✅ evento vuoto
+      window.dispatchEvent(new CustomEvent("start-extra-bags"));
+      await this.iterateExtraBagsInCart(this.carts[0]);
+    }
+  }
+
+  private async iterateExtraBagsInCart(cart: CartEntity) {
+    const bags = cart.getLoadedBags()
+      .filter(b => b.isExtra)
+      .slice()
+      .reverse();
+
+    for (const bag of bags) {
+      const worldMatrix = bag.root.getWorldMatrix();
+      const worldPos = worldMatrix.getTranslation();
+
+      bag.root.setParent(null);
+      bag.root.position.copyFrom(worldPos);
+      cart.removeBag(bag);
+
+      await this.moveBagTo(bag, BAG_STAGING_POS);
+
+      slotManager.registerCorrectBag(bag);
+      slotManager.setActiveBag(bag);
+      await slotManager.waitForAssignment();
+
+      if (slotManager.isFull()) {
+        const result = slotManager.validate();
+        (window as any)._UI_VALIDATION_RESULT = {
+          isValid: result.isValid,
+          errorCount: result.errors.length,
+        };
+
+        (window as any).setVehicleUiStage?.("leftResults");
+        return;
+      }
     }
 
-      }
+    console.log(`✅ Tutte le bag EXTRA del carrello ${cart.id} sono state caricate.`);
+
+    const hasMoreExtra = this.carts.some(c =>
+      c.getLoadedBags().some(b => b.isExtra)
+    );
+
+    if (hasMoreExtra) {
+      this.carts.push(this.carts.shift()!);
+      await Promise.all([
+        this.moveCartTo(this.carts[0], FOCUS_POS),
+        this.moveCartTo(this.carts[1], WAIT_POS_1),
+        this.moveCartTo(this.carts[2], WAIT_POS_2),
+      ]);
+      await this.iterateExtraBagsInCart(this.carts[0]);
+    } else {
+      console.log("🛑 Fine fase extra: nessuna extra bag nei carrelli.");
+    }
+  }
 
   private async moveCartTo(cart: CartEntity, target: BABYLON.Vector3) {
     const transform = {
@@ -146,7 +161,6 @@ export class LoadTruckController {
       durationPosRot: 1.8,
       durationScale: 0,
     };
-
     await handleInterpolatedTransform(cart.root, this.scene, transform);
   }
 
@@ -158,7 +172,6 @@ export class LoadTruckController {
       durationPosRot: 1,
       durationScale: 0,
     };
-
     await handleInterpolatedTransform(bag.root, this.scene, transform);
   }
 }
