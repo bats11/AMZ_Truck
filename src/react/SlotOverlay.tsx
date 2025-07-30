@@ -37,7 +37,10 @@ export default function SlotOverlay({
     slotManager.onSlotAssigned(handler);
   }, []);
 
+  const isRightSide = direction === "ltr";
+
   const gridStyle: React.CSSProperties = {
+    display: "grid",
     gridTemplateColumns: `repeat(6, ${slotSize})`,
     gridTemplateRows: `repeat(2, ${slotSize})`,
     rowGap,
@@ -48,18 +51,25 @@ export default function SlotOverlay({
     direction,
   };
 
-  return (
-    <div className="slot-overlay" style={{ ...positionStyle, ...gridStyle }}>
-      {Array.from({ length: slotCount }).map((_, index) => (
+  const renderSlot = (index: number) => {
+    const isVisible = visibleSlots[index];
+    const baseStyle: React.CSSProperties = {
+      width: "100%",
+      height: "100%",
+      visibility: isVisible ? "visible" : "hidden",
+      pointerEvents: isVisible ? "auto" : "none",
+    };
+
+    // Lato destro (right side), slot 8 e 9 → larghi
+    if (isRightSide && index >= 8) {
+      return (
         <button
           key={index}
           className="slot-button"
           style={{
-            width: "4.8rem",
-            height: "4rem",
-            lineHeight: "4rem",
-            visibility: visibleSlots[index] ? "visible" : "hidden",
-            pointerEvents: visibleSlots[index] ? "auto" : "none",
+            ...baseStyle,
+            gridColumn: "5 / span 2",
+            gridRow: index === 8 ? "1" : "2",
           }}
           onClick={() => {
             slotManager.assignToSlot(index);
@@ -68,7 +78,28 @@ export default function SlotOverlay({
         >
           {index + 1}
         </button>
-      ))}
+      );
+    }
+
+    // Tutti gli altri slot (normali)
+    return (
+      <button
+        key={index}
+        className="slot-button"
+        style={baseStyle}
+        onClick={() => {
+          slotManager.assignToSlot(index);
+          if (onClickSlot) onClickSlot(index);
+        }}
+      >
+        {index + 1}
+      </button>
+    );
+  };
+
+  return (
+    <div className="slot-overlay" style={{ ...positionStyle, ...gridStyle }}>
+      {Array.from({ length: slotCount }).map((_, index) => renderSlot(index))}
     </div>
   );
 }
