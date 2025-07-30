@@ -8,7 +8,6 @@ import { createAnimation, vec3DegToRad } from "./utils";
 
 let activeCamera: BABYLON.FreeCamera | null = null;
 
-// 🆕 Store per le mesh nascoste
 const previouslyHiddenTruckMeshes = new Set<string>();
 
 export function setVehicleCamera(camera: BABYLON.FreeCamera) {
@@ -51,7 +50,7 @@ const truckTransformPresets: Record<TruckTransformLabel, {
     scaling: new BABYLON.Vector3(1, 1, 1),
     durationScale: 1.5,
     durationPosRot: 2.0,
-  }
+  },
 };
 
 export async function runTruckTransform(label: TruckTransformLabel) {
@@ -66,37 +65,46 @@ export async function runTruckTransform(label: TruckTransformLabel) {
     return;
   }
 
-  await handleInterpolatedTransform(modelRoot, scene, preset, activeCamera);
+  const fadeInPromise =
+    (label === "start" || label === "passengerSide")
+      ? Promise.all(Array.from(previouslyHiddenTruckMeshes).map((name) => {
+          const node = scene.getNodeByName(name);
+          if (node && node instanceof BABYLON.AbstractMesh) {
+            const anim = new BABYLON.Animation(
+              `fadeIn_${name}`,
+              "visibility",
+              60,
+              BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+              BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+            );
+            anim.setKeys([
+              { frame: 0, value: node.visibility },
+              { frame: 30, value: 1 },
+            ]);
 
-  if (label === "start") {
-    // 🆕 Fade-in delle mesh nascoste
-    for (const name of previouslyHiddenTruckMeshes) {
-      const node = scene.getNodeByName(name);
-      if (node && node instanceof BABYLON.AbstractMesh) {
-        BABYLON.Animation.CreateAndStartAnimation(
-          `fadeIn_${name}`,
-          node,
-          "visibility",
-          60,
-          30,
-          node.visibility,
-          1,
-          BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-        );
-      }
-    }
-    previouslyHiddenTruckMeshes.clear();
+            return new Promise<void>((resolve) => {
+              scene.beginDirectAnimation(node, [anim], 0, 30, false, 1.0, resolve);
+            });
+          }
+          return Promise.resolve();
+        }))
+      : Promise.resolve();
 
-    if (vehicleLoadingManager.shouldRunInitialEntry()) {
-      await runInitialCargoEntry();
-      vehicleLoadingManager.markInitialEntryDone();
-    }
+
+    const transformPromise = handleInterpolatedTransform(modelRoot, scene, preset, activeCamera);
+
+  await Promise.all([fadeInPromise, transformPromise]);
+
+  previouslyHiddenTruckMeshes.clear();
+
+  if (label === "start" && vehicleLoadingManager.shouldRunInitialEntry()) {
+    await runInitialCargoEntry();
+    vehicleLoadingManager.markInitialEntryDone();
   }
 
   console.log(`🚚 Truck transform '${label}' eseguito.`);
 }
 
-// Alias temporanei per compatibilità
 export const animateToStartLoading = () => runTruckTransform("start");
 export const animateToLeftLoading = () => runTruckTransform("opening");
 export const liftTruckAfterCartArrival = () => runTruckTransform("confirm");
@@ -126,7 +134,6 @@ export async function animateCartsIn(carts: CartEntity[], scene: BABYLON.Scene) 
   await Promise.all(promises);
 }
 
-// ✅ Nasconde lato opposto e salva mesh
 export async function hideTruckSideMeshes(
   side: "left" | "right",
   scene: BABYLON.Scene,
@@ -159,7 +166,7 @@ export async function hideTruckSideMeshes(
   const frameEnd = 120;
 
   for (const mesh of meshesToHide) {
-    previouslyHiddenTruckMeshes.add(mesh.name); // 🆕 Salva nome
+    previouslyHiddenTruckMeshes.add(mesh.name);
   }
 
   const promises = meshesToHide.map((mesh) => {
@@ -186,7 +193,5 @@ export async function hideTruckSideMeshes(
   });
 
   await Promise.all(promises);
-  console.log(
-    `🎭 Mesh nascoste: ${meshesToHide.length} (lato opposto + extra: [${alwaysHideList.join(", ")}])`
-  );
+  console.log(`🎭 Mesh nascoste: ${meshesToHide.length} (lato opposto + extra: [${alwaysHideList.join(", ")}])`);
 }
