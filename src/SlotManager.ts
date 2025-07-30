@@ -15,7 +15,17 @@ class SlotManager {
   private correctBagOrder: BagEntity[] = [];
   private slotAssignedResolver: (() => void) | null = null;
 
-  private useRightSide = false; // ✅ nuovo flag interno
+  private useRightSide = false;
+
+  private listeners: ((slotIndex: number) => void)[] = [];
+
+  public onSlotAssigned(listener: (slotIndex: number) => void) {
+    this.listeners.push(listener);
+  }
+
+  private notifySlotAssigned(slotIndex: number) {
+    for (const l of this.listeners) l(slotIndex);
+  }
 
   public setRightSide(enabled: boolean) {
     this.useRightSide = enabled;
@@ -58,7 +68,7 @@ class SlotManager {
 
     const slotTransform = this.useRightSide
       ? BAG_SLOT_TRANSFORMS_RIGHT[slotIndex]
-      : BAG_SLOT_TRANSFORMS_LEFT[slotIndex]; // ✅ usa il lato attivo
+      : BAG_SLOT_TRANSFORMS_LEFT[slotIndex];
 
     const transform = {
       position: slotTransform.position,
@@ -72,6 +82,8 @@ class SlotManager {
     await handleInterpolatedTransform(bag.root, scene, transform);
 
     console.log(`✅ Bag ${bag.id} assegnata e animata verso slot ${slotIndex}`);
+
+    this.notifySlotAssigned(slotIndex); // 🔔 notifica React
 
     if (this.slotAssignedResolver) {
       this.slotAssignedResolver();

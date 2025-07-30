@@ -1,11 +1,11 @@
 // src/react/SlotOverlay.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./SlotOverlay.css";
-import { slotManager } from "../SlotManager"; // ✅ Importa il manager
+import { slotManager } from "../SlotManager";
 
 interface SlotOverlayProps {
   slotCount: number;
-  onClickSlot?: (index: number) => void; // 🔄 reso opzionale
+  onClickSlot?: (index: number) => void;
   slotSize?: string;
   positionStyle?: React.CSSProperties;
   rowGap?: string;
@@ -22,6 +22,21 @@ export default function SlotOverlay({
   columnGap = "0.7rem",
   direction = "rtl",
 }: SlotOverlayProps) {
+  const [visibleSlots, setVisibleSlots] = useState<boolean[]>(
+    Array(slotCount).fill(true)
+  );
+
+  useEffect(() => {
+    const handler = (slotIndex: number) => {
+      setVisibleSlots((prev) => {
+        const next = [...prev];
+        next[slotIndex] = false;
+        return next;
+      });
+    };
+    slotManager.onSlotAssigned(handler);
+  }, []);
+
   const gridStyle: React.CSSProperties = {
     gridTemplateColumns: `repeat(6, ${slotSize})`,
     gridTemplateRows: `repeat(2, ${slotSize})`,
@@ -42,13 +57,13 @@ export default function SlotOverlay({
           style={{
             width: "4.8rem",
             height: "4rem",
-            lineHeight: "4rem"
+            lineHeight: "4rem",
+            visibility: visibleSlots[index] ? "visible" : "hidden",
+            pointerEvents: visibleSlots[index] ? "auto" : "none",
           }}
-
           onClick={() => {
-            // ✅ Logica di interazione integrata con SlotManager
             slotManager.assignToSlot(index);
-            if (onClickSlot) onClickSlot(index); // opzionale callback esterna
+            if (onClickSlot) onClickSlot(index);
           }}
         >
           {index + 1}
