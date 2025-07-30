@@ -25,7 +25,6 @@ export class LoadTruckController {
 
   private async begin() {
     const isLeft = this.side === "left";
-    const isRight = this.side === "right";
 
     const allCarts = (window as any)._CART_ENTITIES as CartEntity[] | undefined;
     if (!allCarts || allCarts.length !== 3) {
@@ -82,8 +81,6 @@ export class LoadTruckController {
       }
     }
 
-    console.log(`✅ Tutte le bag del carrello ${cart.id} sono state caricate.`);
-
     const hasMoreNormalBags = this.carts.some(c =>
       c.getLoadedBags().some(b => !b.isExtra)
     );
@@ -119,12 +116,9 @@ export class LoadTruckController {
 
       await this.moveBagTo(bag, BAG_STAGING_POS);
 
-      // ❌ Niente registerCorrectBag per le extra
       slotManager.setActiveBag(bag);
       await slotManager.waitForAssignment();
     }
-
-    console.log(`✅ Tutte le bag EXTRA del carrello ${cart.id} sono state caricate.`);
 
     const hasMoreExtra = this.carts.some(c =>
       c.getLoadedBags().some(b => b.isExtra)
@@ -139,13 +133,18 @@ export class LoadTruckController {
       ]);
       await this.iterateExtraBagsInCart(this.carts[0]);
     } else {
-      // ✅ Fase extra terminata → validazione
-      console.log("🧪 Validazione finale delle extra bag...");
-      const result = slotManager.validateExtraBags();
+      console.log("🧪 Validazione finale combinata (bag normali + extra)");
+      const resultNormal = slotManager.validate();
+      const resultExtra = slotManager.validateExtraBags();
+
+      const isValid = resultNormal.isValid && resultExtra.isValid;
+      const totalErrors = resultNormal.errors.length + resultExtra.errors.length;
+
       (window as any)._UI_VALIDATION_RESULT = {
-        isValid: result.isValid,
-        errorCount: result.errors.length,
+        isValid,
+        errorCount: totalErrors,
       };
+
       (window as any).setVehicleUiStage?.("rightResults");
     }
   }
