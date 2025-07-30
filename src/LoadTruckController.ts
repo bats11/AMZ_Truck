@@ -63,7 +63,11 @@ export class LoadTruckController {
   }
 
   private async iterateBagsInCart(cart: CartEntity) {
-    const bags = cart.getLoadedBags().slice().reverse(); // usa solo quelle rimaste
+    const bags = cart.getLoadedBags()
+      .filter(b => !b.isExtra) // ✅ solo bag normali
+      .slice()
+      .reverse();
+
 
     for (const bag of bags) {
       const worldMatrix = bag.root.getWorldMatrix();
@@ -121,7 +125,18 @@ export class LoadTruckController {
     } else {
       console.log("🛑 Fine ciclo: nessuna bag nel carrello successivo.");
     }
-  }
+
+    // 🔎 Verifica se ci sono ancora bag normali nei carrelli
+    const hasMoreNormalBags = this.carts.some(cart =>
+      cart.getLoadedBags().some(bag => !bag.isExtra)
+    );
+
+    if (!hasMoreNormalBags) {
+      console.log("🚩 Tutte le bag normali caricate. Passo alla fase extra.");
+      window.dispatchEvent(new CustomEvent("start-extra-bags")); // ✅ evento vuoto
+    }
+
+      }
 
   private async moveCartTo(cart: CartEntity, target: BABYLON.Vector3) {
     const transform = {

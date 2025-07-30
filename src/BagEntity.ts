@@ -14,6 +14,7 @@ interface BagOptions {
 export class BagEntity {
   public readonly id: string;
   public readonly root: BABYLON.TransformNode;
+  public readonly isExtra: boolean; // ✅ nuovo flag
   public isLoaded: boolean = false;
 
   constructor(options: BagOptions) {
@@ -32,10 +33,7 @@ export class BagEntity {
 
     const wrapper = new BABYLON.TransformNode(`BagWrapper_${id}`, scene);
 
-    // ✅ PRIMA il parenting
     if (parent) wrapper.parent = parent;
-
-    // ✅ DOPO il parenting → applicato in spazio LOCALE
     wrapper.position = position.clone();
     wrapper.rotation = rotation.clone();
 
@@ -53,10 +51,9 @@ export class BagEntity {
       clone.rotation = source.rotation.clone();
       clone.scaling = source.scaling.clone();
 
-      // ✅ Applica colore SEMPRE se materiale è PBR, mantenendo normal/roughness
       if (
         color &&
-        source.name === "AmzBag_BodyColor" && // ✅ Controlla sul nome ORIGINALE
+        source.name === "AmzBag_BodyColor" &&
         clone.material &&
         clone.material instanceof BABYLON.PBRMaterial
       ) {
@@ -71,13 +68,12 @@ export class BagEntity {
         clone.material = clonedMat;
       }
 
-
-
       if (shadowGen) shadowGen.addShadowCaster(clone, true);
     }
 
     this.id = id;
     this.root = wrapper;
+    this.isExtra = id.startsWith("ExtraBag_"); // ✅ assegna flag extra
   }
 
   moveTo(position: BABYLON.Vector3, rotation?: BABYLON.Vector3) {
