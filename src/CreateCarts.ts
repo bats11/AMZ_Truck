@@ -40,8 +40,8 @@ export class CreateCarts {
 
     for (let i = 0; i < count; i++) {
       const id = `Cart_${i}`;
-      const position = new BABYLON.Vector3(i * spacing, -1, -10);
-      const rotation = new BABYLON.Vector3(0.3, 0, 0);
+      const position = new BABYLON.Vector3(i * spacing, 0.3, -10);
+      const rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(10), 0, 0);
 
       const cart = new CartEntity({
         id,

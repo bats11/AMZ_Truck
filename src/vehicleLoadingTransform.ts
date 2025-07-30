@@ -24,29 +24,29 @@ const truckTransformPresets: Record<TruckTransformLabel, {
   durationPosRot: number;
 }> = {
   start: {
-    position: new BABYLON.Vector3(-0.5, 3, 2),
+    position: new BABYLON.Vector3(-0.5, 4.5, 2),
     rotation: vec3DegToRad([0, 260, 0]),
     scaling: new BABYLON.Vector3(1.7, 1.7, 1.7),
     durationScale: 3.0,
     durationPosRot: 1.5,
   },
   opening: {
-    position: new BABYLON.Vector3(0, 3.5, 1.5),
+    position: new BABYLON.Vector3(0, 5, 1.5),
     rotation: vec3DegToRad([0, 270, 5]),
     scaling: new BABYLON.Vector3(1.7, 1.7, 1.7),
     durationScale: 1.8,
     durationPosRot: 2.5,
   },
   confirm: {
-    position: new BABYLON.Vector3(0.1, 3.5, -3),
-    rotation: vec3DegToRad([10, 0, 0]),
+    position: new BABYLON.Vector3(0.1, 5, -2.9),
+    rotation: vec3DegToRad([0, 0, 0]),
     scaling: new BABYLON.Vector3(1, 1, 1),
     durationScale: 1.5,
     durationPosRot: 2.0,
   },
   passengerSide: {
-    position: new BABYLON.Vector3(0.1, 3.5, -3),
-    rotation: vec3DegToRad([-10, 180, 0]),
+    position: new BABYLON.Vector3(-0.1, 5, -2.9),
+    rotation: vec3DegToRad([0, 180, 0]),
     scaling: new BABYLON.Vector3(1, 1, 1),
     durationScale: 1.5,
     durationPosRot: 2.0,

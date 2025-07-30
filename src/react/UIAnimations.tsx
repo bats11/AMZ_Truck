@@ -185,17 +185,17 @@ export default function UIAnimations({
                 {showOverlay && (
                   <SlotOverlay
                     slotCount={loadingState === "rightSideLoading" ? 10 : 12} // ✅ CORRETTO
-                    slotSize="4rem"
+                    slotSize="4.4rem"
                     direction={loadingState === "rightSideLoading" ? "ltr" : "rtl"}
                     positionStyle={
                       loadingState === "rightSideLoading"
                         ? {
-                            top: "19rem",
-                            left: "8.3rem",
+                            top: "17.5rem",
+                            left: "5.5rem",
                             transform: "translateX(50%)",
                           }
                         : {
-                            top: "21.45rem",
+                            top: "17.5rem",
                             left: "21.25rem",
                             transform: "translateX(-50%)",
                           }
