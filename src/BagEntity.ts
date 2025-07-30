@@ -14,7 +14,8 @@ interface BagOptions {
 export class BagEntity {
   public readonly id: string;
   public readonly root: BABYLON.TransformNode;
-  public readonly isExtra: boolean; // ✅ nuovo flag
+  public readonly isExtra: boolean;
+  public readonly extraType: "HeavyBox" | "OverszBox" | null;
   public isLoaded: boolean = false;
 
   constructor(options: BagOptions) {
@@ -73,7 +74,10 @@ export class BagEntity {
 
     this.id = id;
     this.root = wrapper;
-    this.isExtra = id.startsWith("ExtraBag_"); // ✅ assegna flag extra
+
+    // ✅ Extra bag flags
+    this.isExtra = id.startsWith("ExtraBag_");
+    this.extraType = this.isExtra ? (id.split("_")[1] as "HeavyBox" | "OverszBox") : null;
   }
 
   moveTo(position: BABYLON.Vector3, rotation?: BABYLON.Vector3) {

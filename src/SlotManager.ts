@@ -167,6 +167,34 @@ class SlotManager {
     };
   }
 
+  public validateExtraBags(): {
+    isValid: boolean;
+    errors: { slot: number; expected: string; actual: string }[];
+  } {
+    const errors: { slot: number; expected: string; actual: string }[] = [];
+
+    for (const [slotIndex, bags] of this.extraSlotMap.entries()) {
+      for (const bag of bags) {
+        const expectedType = slotIndex === 8 ? "OverszBox" : "HeavyBox";
+        const actualType = bag.extraType;
+
+        if (actualType !== expectedType) {
+          errors.push({
+            slot: slotIndex,
+            expected: expectedType,
+            actual: actualType ?? "unknown",
+          });
+        }
+      }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  }
+
+
   public reset() {
     this.slotMap.clear();
     this.extraSlotMap.clear();
@@ -176,6 +204,7 @@ class SlotManager {
     this.useRightSide = false;
     console.log("🔁 SlotManager resettato.");
   }
+  
 }
 
 export const slotManager = new SlotManager();

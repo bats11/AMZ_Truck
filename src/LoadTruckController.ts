@@ -1,3 +1,4 @@
+// src/LoadTruckController.ts
 import * as BABYLON from "@babylonjs/core";
 import { hideTruckSideMeshes } from "./vehicleLoadingTransform";
 import { handleInterpolatedTransform } from "./transformHandlers";
@@ -118,20 +119,9 @@ export class LoadTruckController {
 
       await this.moveBagTo(bag, BAG_STAGING_POS);
 
-      slotManager.registerCorrectBag(bag);
+      // ❌ Niente registerCorrectBag per le extra
       slotManager.setActiveBag(bag);
       await slotManager.waitForAssignment();
-
-      if (slotManager.isFull()) {
-        const result = slotManager.validate();
-        (window as any)._UI_VALIDATION_RESULT = {
-          isValid: result.isValid,
-          errorCount: result.errors.length,
-        };
-
-        (window as any).setVehicleUiStage?.("leftResults");
-        return;
-      }
     }
 
     console.log(`✅ Tutte le bag EXTRA del carrello ${cart.id} sono state caricate.`);
@@ -149,7 +139,14 @@ export class LoadTruckController {
       ]);
       await this.iterateExtraBagsInCart(this.carts[0]);
     } else {
-      console.log("🛑 Fine fase extra: nessuna extra bag nei carrelli.");
+      // ✅ Fase extra terminata → validazione
+      console.log("🧪 Validazione finale delle extra bag...");
+      const result = slotManager.validateExtraBags();
+      (window as any)._UI_VALIDATION_RESULT = {
+        isValid: result.isValid,
+        errorCount: result.errors.length,
+      };
+      (window as any).setVehicleUiStage?.("leftResults");
     }
   }
 
