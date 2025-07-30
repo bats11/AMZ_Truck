@@ -142,6 +142,7 @@ export class CreateCarts {
             shadowGen,
           });
 
+          targetCart.addBag(bag); // ✅ registra anche le extra nel carrello
           this.bags.push(bag);
 
           console.log(
