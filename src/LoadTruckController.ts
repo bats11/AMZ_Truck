@@ -24,25 +24,20 @@ export class LoadTruckController {
   }
 
   private async begin() {
-    console.log("🟢 LoadTruckController inizializzato con lato:", this.side);
-
     const isLeft = this.side === "left";
-    const isRight = this.side === "right";
 
     const allCarts = (window as any)._CART_ENTITIES as CartEntity[] | undefined;
     if (!allCarts || allCarts.length !== 3) {
-      console.warn("⚠️ Carrelli non trovati o incompleti.", allCarts);
+      console.warn("⚠️ Carrelli non trovati o incompleti.");
       return;
     }
 
     this.carts = allCarts;
-    console.log("🛒 Carrelli trovati:", this.carts.map(c => c.id).join(", "));
     slotManager.setRightSide(this.side === "right");
 
     await hideTruckSideMeshes(this.side, this.scene, []);
 
     if (isLeft) {
-      console.log("🚚 Inizio spostamento carrelli nella scena...");
       await Promise.all([
         this.moveCartTo(this.carts[0], FOCUS_POS),
         this.moveCartTo(this.carts[1], WAIT_POS_1),
@@ -138,21 +133,26 @@ export class LoadTruckController {
       ]);
       await this.iterateExtraBagsInCart(this.carts[0]);
     } else {
-      console.log("🧪 Validazione finale delle extra bag...");
-      const result = slotManager.validateExtraBags();
+      console.log("🧪 Validazione finale combinata (bag normali + extra)");
+      const resultNormal = slotManager.validate();
+      const resultExtra = slotManager.validateExtraBags();
+
+      const isValid = resultNormal.isValid && resultExtra.isValid;
+      const totalErrors = resultNormal.errors.length + resultExtra.errors.length;
+
       (window as any)._UI_VALIDATION_RESULT = {
-        isValid: result.isValid,
-        errorCount: result.errors.length,
+        isValid,
+        errorCount: totalErrors,
       };
+
       (window as any).setVehicleUiStage?.("rightResults");
     }
   }
 
   private async moveCartTo(cart: CartEntity, target: BABYLON.Vector3) {
-    console.log(`🎯 Spostamento carrello ${cart.id} verso ${target.toString()}`);
     const transform = {
       position: target,
-      rotation: cart.root.rotation.clone(),
+      rotation: STAGING_ROTATION, // ✅ rotazione fissa coerente
       scaling: cart.root.scaling.clone(),
       durationPosRot: 1.8,
       durationScale: 0,
