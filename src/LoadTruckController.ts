@@ -20,7 +20,7 @@ export class LoadTruckController {
   constructor(scene: BABYLON.Scene, side: "left" | "right") {
     this.scene = scene;
     this.side = side;
-    this.begin(); // ✅ sempre attivo
+    this.begin();
   }
 
   private async begin() {
@@ -32,7 +32,11 @@ export class LoadTruckController {
       console.warn("⚠️ Carrelli non trovati o incompleti.");
       return;
     }
+
     this.carts = allCarts;
+
+    // ✅ Imposta il lato attivo per gli slot
+    slotManager.setRightSide(this.side === "right");
 
     // ✅ FASE 1: Nascondi mesh del lato opposto
     console.log(`🎭 FASE 1: Nascondo mesh lato opposto (${this.side})...`);
@@ -53,78 +57,71 @@ export class LoadTruckController {
     }
 
     // ✅ FASE 3: Iterazione bag
-    if (isLeft) {
-      console.log("📦 FASE 3: Avvio iterazione bag (LEFT)");
-      window.dispatchEvent(new CustomEvent("show-slot-overlay"));
-      await this.iterateBagsInCart(this.carts[0]);
-    } else if (isRight) {
-      console.log("📦 FASE 3: Avvio iterazione bag (RIGHT)");
-      window.dispatchEvent(new CustomEvent("show-slot-overlay"));
-      await this.iterateBagsInCart(this.carts[0]);
-    }
+    console.log(`📦 FASE 3: Avvio iterazione bag (${this.side.toUpperCase()})`);
+    window.dispatchEvent(new CustomEvent("show-slot-overlay"));
+    await this.iterateBagsInCart(this.carts[0]);
   }
 
   private async iterateBagsInCart(cart: CartEntity) {
-  const bags = cart.getLoadedBags().slice().reverse(); // usa solo quelle rimaste
+    const bags = cart.getLoadedBags().slice().reverse(); // usa solo quelle rimaste
 
-  for (const bag of bags) {
-    const worldMatrix = bag.root.getWorldMatrix();
-    const worldPos = worldMatrix.getTranslation();
+    for (const bag of bags) {
+      const worldMatrix = bag.root.getWorldMatrix();
+      const worldPos = worldMatrix.getTranslation();
 
-    bag.root.setParent(null);
-    bag.root.position.copyFrom(worldPos);
+      bag.root.setParent(null);
+      bag.root.position.copyFrom(worldPos);
 
-    cart.removeBag(bag); // ora il carrello sa che non ce l'ha più
+      cart.removeBag(bag); // ora il carrello sa che non ce l'ha più
 
-    await this.moveBagTo(bag, BAG_STAGING_POS);
+      await this.moveBagTo(bag, BAG_STAGING_POS);
 
-    slotManager.registerCorrectBag(bag);
-    slotManager.setActiveBag(bag);
+      slotManager.registerCorrectBag(bag);
+      slotManager.setActiveBag(bag);
 
-    await slotManager.waitForAssignment();
+      await slotManager.waitForAssignment();
 
-    if (slotManager.isFull()) {
-      console.log("🟨 Slot completati. Eseguo validazione...");
+      if (slotManager.isFull()) {
+        console.log("🟨 Slot completati. Eseguo validazione...");
 
-      const result = slotManager.validate();
+        const result = slotManager.validate();
 
-      (window as any)._UI_VALIDATION_RESULT = {
-        isValid: result.isValid,
-        errorCount: result.errors.length,
-      };
+        (window as any)._UI_VALIDATION_RESULT = {
+          isValid: result.isValid,
+          errorCount: result.errors.length,
+        };
 
-      if (result.isValid) {
-        console.log("✅ Validazione completata: tutti i pacchi corretti!");
-      } else {
-        console.warn("❌ Validazione fallita. Errori trovati:");
-        result.errors.forEach((err) => {
-          console.warn(`🛑 Slot ${err.slot}: atteso ${err.expected}, trovato ${err.actual}`);
-        });
+        if (result.isValid) {
+          console.log("✅ Validazione completata: tutti i pacchi corretti!");
+        } else {
+          console.warn("❌ Validazione fallita. Errori trovati:");
+          result.errors.forEach((err) => {
+            console.warn(`🛑 Slot ${err.slot}: atteso ${err.expected}, trovato ${err.actual}`);
+          });
+        }
+
+        (window as any).setVehicleUiStage?.("leftResults");
+        return;
       }
+    }
 
-      (window as any).setVehicleUiStage?.("leftResults");
-      return;
+    console.log(`✅ Tutte le bag del carrello ${cart.id} sono state caricate.`);
+
+    this.carts.push(this.carts.shift()!); // ruota i carrelli
+
+    await Promise.all([
+      this.moveCartTo(this.carts[0], FOCUS_POS),
+      this.moveCartTo(this.carts[1], WAIT_POS_1),
+      this.moveCartTo(this.carts[2], WAIT_POS_2),
+    ]);
+
+    const nextBags = this.carts[0].getLoadedBags();
+    if (nextBags.length > 0) {
+      await this.iterateBagsInCart(this.carts[0]);
+    } else {
+      console.log("🛑 Fine ciclo: nessuna bag nel carrello successivo.");
     }
   }
-
-  console.log(`✅ Tutte le bag del carrello ${cart.id} sono state caricate.`);
-
-  this.carts.push(this.carts.shift()!); // ruota i carrelli
-
-  await Promise.all([
-    this.moveCartTo(this.carts[0], FOCUS_POS),
-    this.moveCartTo(this.carts[1], WAIT_POS_1),
-    this.moveCartTo(this.carts[2], WAIT_POS_2),
-  ]);
-
-  const nextBags = this.carts[0].getLoadedBags(); // sempre aggiornato
-  if (nextBags.length > 0) {
-    await this.iterateBagsInCart(this.carts[0]);
-  } else {
-    console.log("🛑 Fine ciclo: nessuna bag nel carrello successivo.");
-  }
-}
-
 
   private async moveCartTo(cart: CartEntity, target: BABYLON.Vector3) {
     const transform = {

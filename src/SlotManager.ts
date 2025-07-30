@@ -1,7 +1,10 @@
 // src/SlotManager.ts
 import { BagEntity } from "./BagEntity";
 import { handleInterpolatedTransform } from "./transformHandlers";
-import { BAG_SLOT_TRANSFORMS_LEFT } from "./slotPositions"; // 🔄 importa slot con rotazione
+import {
+  BAG_SLOT_TRANSFORMS_LEFT,
+  BAG_SLOT_TRANSFORMS_RIGHT,
+} from "./slotPositions";
 import { getModelRoot } from "./MoveComponent";
 import * as BABYLON from "@babylonjs/core";
 
@@ -11,6 +14,13 @@ class SlotManager {
   private slotCapacity: number = 12;
   private correctBagOrder: BagEntity[] = [];
   private slotAssignedResolver: (() => void) | null = null;
+
+  private useRightSide = false; // ✅ nuovo flag interno
+
+  public setRightSide(enabled: boolean) {
+    this.useRightSide = enabled;
+    console.log(`🔄 SlotManager lato attivo: ${enabled ? "RIGHT" : "LEFT"}`);
+  }
 
   public setActiveBag(bag: BagEntity) {
     this.currentBag = bag;
@@ -40,14 +50,19 @@ class SlotManager {
 
     const worldPos = bag.root.getAbsolutePosition();
     bag.root.setParent(modelRoot);
-    const localPos = BABYLON.Vector3.TransformCoordinates(worldPos, modelRoot.getWorldMatrix().invert());
+    const localPos = BABYLON.Vector3.TransformCoordinates(
+      worldPos,
+      modelRoot.getWorldMatrix().invert()
+    );
     bag.root.position.copyFrom(localPos);
 
-    const slotTransform = BAG_SLOT_TRANSFORMS_LEFT[slotIndex]; // 🔄 usa posizione + rotazione
+    const slotTransform = this.useRightSide
+      ? BAG_SLOT_TRANSFORMS_RIGHT[slotIndex]
+      : BAG_SLOT_TRANSFORMS_LEFT[slotIndex]; // ✅ usa il lato attivo
 
     const transform = {
       position: slotTransform.position,
-      rotation: slotTransform.rotation, // ✅ nuova rotazione usata
+      rotation: slotTransform.rotation,
       scaling: bag.root.scaling.clone(),
       durationPosRot: 1,
       durationScale: 0,
@@ -88,14 +103,19 @@ class SlotManager {
 
   public registerCorrectBag(bag: BagEntity) {
     this.correctBagOrder.push(bag);
-    console.log(`🎯 Ordine corretto: slot ${this.correctBagOrder.length - 1} → ${bag.id}`);
+    console.log(
+      `🎯 Ordine corretto: slot ${this.correctBagOrder.length - 1} → ${bag.id}`
+    );
   }
 
   public getCorrectBagOrder(): BagEntity[] {
     return [...this.correctBagOrder];
   }
 
-  public validate(): { isValid: boolean; errors: { slot: number; expected: string; actual: string }[] } {
+  public validate(): {
+    isValid: boolean;
+    errors: { slot: number; expected: string; actual: string }[];
+  } {
     const errors: { slot: number; expected: string; actual: string }[] = [];
 
     for (let i = 0; i < this.correctBagOrder.length; i++) {
@@ -122,6 +142,7 @@ class SlotManager {
     this.currentBag = null;
     this.correctBagOrder = [];
     this.slotAssignedResolver = null;
+    this.useRightSide = false;
     console.log("🔁 SlotManager resettato.");
   }
 }
