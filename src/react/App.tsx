@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import LoadingOverlay from "./LoadingOverlay";
 import { setTouchLockedGetter } from "../babylonBridge";
-import { resetModelTransform } from "../MoveComponent";
+import { resetModelTransform, getModelRoot } from "../MoveComponent"; // ⬅️ aggiunto getModelRoot
 import submenuData from "../data/SubmenuData.json";
 import UIAnimations from "./UIAnimations";
 import { setUiInteractivitySetter } from "../babylonBridge";
@@ -10,13 +10,13 @@ import { vehicleLoadingManager } from "../vehicleLoadingManager";
 
 export default function App() {
   const [appPhase, setAppPhase] = useState<"loading" | "selection" | "transitioning" | "experience">("loading");
-  const [experienceType, setExperienceType] = useState<"dvic" | "cargoLoad" | null>(null); // ✅ nuovo stato
+  const [experienceType, setExperienceType] = useState<"dvic" | "cargoLoad" | null>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [touchLocked, setTouchLocked] = useState<boolean>(false);
-  const [entryDone, setEntryDone] = useState(false); // ✅ entry animation completata
-  const [selectionKey, setSelectionKey] = useState(0); // ✅ forza remount
-  const [buttonsDisabled, setButtonsDisabled] = useState(false); // blocca pulsanti durante animazione
+  const [entryDone, setEntryDone] = useState(false);
+  const [selectionKey, setSelectionKey] = useState(0);
+  const [buttonsDisabled, setButtonsDisabled] = useState(false);
   const initialUiHeight = "50%";
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function App() {
   }, []);
 
   const startExperience = (type: "dvic" | "cargoLoad") => {
-    setExperienceType(type); // ✅ imposta il tipo di esperienza
+    setExperienceType(type);
     setAppPhase("transitioning");
     setTimeout(() => {
       setActiveMenu(null);
@@ -49,7 +49,7 @@ export default function App() {
 
   const resetApp = () => {
     if (experienceType === "cargoLoad") {
-      vehicleLoadingManager.exit(); // <--- pulizia sottostato
+      vehicleLoadingManager.exit();
     }
 
     resetModelTransform();
@@ -58,21 +58,35 @@ export default function App() {
     setActiveSubmenu(null);
     setAppPhase("selection");
     setSelectionKey((prev) => prev + 1);
-    setExperienceType(null); // <--- smonta macro-esperienza
+    setExperienceType(null);
 
     const container = document.getElementById("app-container");
     if (container) {
       container.style.setProperty("--ui-height", initialUiHeight);
     }
-  };
 
+    // ✅ Pulizia wrapper bag residui
+    const modelRoot = getModelRoot();
+    if (modelRoot) {
+      const orphanWrappers = modelRoot.getChildren().filter((n) =>
+        n.name.startsWith("BagWrapper_")
+      );
+      for (const w of orphanWrappers) {
+        w.getChildMeshes(false).forEach((m) => m.dispose());
+        w.dispose();
+      }
+      if (orphanWrappers.length > 0) {
+        console.log(`🧹 resetApp: rimossi ${orphanWrappers.length} wrapper residuali`);
+      }
+    }
+  };
 
   return (
     <>
       <LoadingOverlay />
       <UIAnimations
         appPhase={appPhase}
-        experienceType={experienceType} // ✅ passaggio del tipo
+        experienceType={experienceType}
         activeMenu={activeMenu}
         activeSubmenu={activeSubmenu}
         setActiveMenu={setActiveMenu}
