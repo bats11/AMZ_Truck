@@ -11,6 +11,13 @@ interface BagOptions {
   color?: string;
 }
 
+function computeLabelUVOffset(index: number): { uOffset: number; vOffset: number } {
+  return {
+    uOffset: (index % 2) * 0.5,
+    vOffset: Math.floor(index / 2) * 0.1,
+  };
+}
+
 export class BagEntity {
   public readonly id: string;
   public readonly root: BABYLON.TransformNode;
@@ -31,12 +38,12 @@ export class BagEntity {
 
     const sourceMeshes = Array.isArray(prefab) ? prefab : [prefab];
     const scene = sourceMeshes[0].getScene();
-
     const wrapper = new BABYLON.TransformNode(`BagWrapper_${id}`, scene);
-
     if (parent) wrapper.parent = parent;
     wrapper.position = position.clone();
     wrapper.rotation = rotation.clone();
+
+    const bagIndex = parseInt(id.split("_")[1]);
 
     for (let i = 0; i < sourceMeshes.length; i++) {
       const source = sourceMeshes[i];
@@ -52,23 +59,40 @@ export class BagEntity {
       clone.rotation = source.rotation.clone();
       clone.scaling = source.scaling.clone();
 
+      // 🎨 Colore personalizzato
       if (
         color &&
         source.name === "AmzBag_BodyColor" &&
-        clone.material &&
         clone.material instanceof BABYLON.PBRMaterial
       ) {
-        const clonedMat = clone.material.clone(`${id}_material`) as BABYLON.PBRMaterial;
+        const originalMat = clone.material as BABYLON.PBRMaterial;
+        const newMat = originalMat.clone(`${id}_colorMat`) as BABYLON.PBRMaterial;
 
-        // NON rimuovere le texture!
-        // clonedMat.albedoTexture = null; // ← rimuovi o commenta questa riga
+        newMat.albedoColor = BABYLON.Color3.FromHexString(color).toLinearSpace();
+        newMat.useAlphaFromAlbedoTexture = false;
+        newMat.alpha = 1;
+        newMat.transparencyMode = BABYLON.PBRMaterial.PBRMATERIAL_OPAQUE;
 
-        clonedMat.albedoColor = BABYLON.Color3.FromHexString(color).toLinearSpace();
-        clonedMat.useAlphaFromAlbedoTexture = false;
-        clonedMat.alpha = 1;
-        clonedMat.transparencyMode = BABYLON.PBRMaterial.PBRMATERIAL_OPAQUE;
+        clone.material = newMat;
+      }
 
-        clone.material = clonedMat;
+      // 🏷️ Etichetta numerata UV offset
+      if (
+        source.name === "AmzBag_Label" &&
+        clone.material instanceof BABYLON.PBRMaterial
+      ) {
+        const originalMat = clone.material;
+        const newMat = originalMat.clone(`${id}_labelMat`) as BABYLON.PBRMaterial;
+
+        const originalTex = originalMat.albedoTexture;
+        if (originalTex) {
+          const clonedTex = originalTex.clone() as BABYLON.Texture;
+          const { uOffset, vOffset } = computeLabelUVOffset(bagIndex);
+          clonedTex.uOffset = uOffset;
+          clonedTex.vOffset = vOffset;
+          newMat.albedoTexture = clonedTex;
+          clone.material = newMat;
+        }
       }
 
       if (shadowGen) shadowGen.addShadowCaster(clone, true);
@@ -76,8 +100,6 @@ export class BagEntity {
 
     this.id = id;
     this.root = wrapper;
-
-    // ✅ Extra bag flags
     this.isExtra = id.startsWith("ExtraBag_");
     this.extraType = this.isExtra ? (id.split("_")[1] as "HeavyBox" | "OverszBox") : null;
   }
