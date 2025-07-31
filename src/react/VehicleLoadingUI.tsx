@@ -9,6 +9,7 @@ type UIStage = "start" | "confirm" | "instructions" | "leftResults" | "rightResu
 
 export default function VehicleLoadingUI() {
   const [uiStage, setUiStage] = useState<UIStage>("start");
+  const [isBusy, setIsBusy] = useState(false);
 
   useEffect(() => {
     (window as any).setVehicleUiStage = (stage: UIStage) => {
@@ -39,48 +40,43 @@ export default function VehicleLoadingUI() {
 
         const { LoadTruckController } = await import("../LoadTruckController");
         new LoadTruckController(scene, "left");
-      }, 4000);
+      }, 2500);
 
       return () => clearTimeout(timeout);
     }
   }, [uiStage]);
 
-  // ✅ Restore visibilità mesh appena entriamo in rightResults con validazione positiva
   useEffect(() => {
     if (uiStage === "rightResults" && isValid) {
       const scene = (window as any)._BABYLON_SCENE;
       if (!scene) return;
 
-    // 1️⃣ Nasconde subito lo slot overlay
-    window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+      window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
 
-    // 2️⃣ Poi ripristina le mesh e distrugge le bag nel truck
-    const sequence = async () => {
-      const { restoreHiddenTruckMeshes } = await import("../vehicleLoadingTransform");
-      await restoreHiddenTruckMeshes(scene); // ⏳ aspetta fine animazione mesh
+      const sequence = async () => {
+        const { restoreHiddenTruckMeshes } = await import("../vehicleLoadingTransform");
+        await restoreHiddenTruckMeshes(scene);
 
-      const { getModelRoot } = await import("../MoveComponent");
-      const modelRoot = getModelRoot();
+        const { getModelRoot } = await import("../MoveComponent");
+        const modelRoot = getModelRoot();
 
-      if (modelRoot) {
-        const truckBags = modelRoot.getChildren().filter((node) =>
-          node.name.startsWith("BagWrapper_")
-        );
+        if (modelRoot) {
+          const truckBags = modelRoot.getChildren().filter((node) =>
+            node.name.startsWith("BagWrapper_")
+          );
 
-        for (const node of truckBags) {
-          node.getChildMeshes(false).forEach((m) => m.dispose());
-          node.dispose();
+          for (const node of truckBags) {
+            node.getChildMeshes(false).forEach((m) => m.dispose());
+            node.dispose();
+          }
+
+          console.log(`🧹 Bag nel truck eliminate dopo transizione (${truckBags.length})`);
         }
+      };
 
-        console.log(`🧹 Bag nel truck eliminate dopo transizione (${truckBags.length})`);
-      }
-    };
-
-    sequence();
-  }
-}, [uiStage]);
-
-
+      sequence();
+    }
+  }, [uiStage]);
 
   const validation = (window as any)._UI_VALIDATION_RESULT;
   const isValid = validation?.isValid ?? false;
@@ -98,12 +94,18 @@ export default function VehicleLoadingUI() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 40 }}
-              transition={{ duration: 0.5 }}
-              onClick={() => {
+              transition={{ duration: 1 }}
+              disabled={isBusy}
+              onClick={async () => {
+                if (isBusy) return;
+                setIsBusy(true);
+
                 vehicleLoadingManager.setState("leftSideLoading");
                 setUiStage("none");
+
                 setTimeout(() => {
                   setUiStage("confirm");
+                  setIsBusy(false);
                 }, 500);
               }}
             >
@@ -116,8 +118,10 @@ export default function VehicleLoadingUI() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 40 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 1 }}
+              disabled={isBusy}
               onClick={() => {
+                if (isBusy) return;
                 window.dispatchEvent(new CustomEvent("return-to-menu"));
               }}
             >
@@ -146,15 +150,19 @@ export default function VehicleLoadingUI() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 40 }}
               transition={{ duration: 0.5 }}
+              disabled={isBusy}
               onClick={async () => {
+                if (isBusy) return;
+                setIsBusy(true);
+
                 console.log("📨 Conferma → transizione a 'instructions'");
                 const scene = (window as any)._BABYLON_SCENE;
-                if (!scene) {
-                  console.warn("⚠️ Scene Babylon non disponibile.");
-                } else {
-                  await runTruckTransform("confirm");
+                if (scene) {
+                  runTruckTransform("confirm");
                 }
+
                 setUiStage("instructions");
+                setIsBusy(false);
               }}
             >
               Start Loading Vehicle
@@ -171,7 +179,7 @@ export default function VehicleLoadingUI() {
             exit={{ opacity: 0, y: 40 }}
             transition={{ duration: 0.5 }}
           >
-            Tap to select where the first bag should go. Tap again to lock it in.
+            Tap to select where the first bag should go.
           </motion.div>
         )}
 
@@ -205,39 +213,38 @@ export default function VehicleLoadingUI() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 40 }}
               transition={{ duration: 0.5 }}
+              disabled={isBusy}
               onClick={async () => {
-                if (isValid) {
-                  console.log("➡️ Avvio lato passeggero");
+                if (isBusy) return;
+                setIsBusy(true);
 
+                if (isValid) {
                   window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
                   slotManager.reset();
 
                   const scene = (window as any)._BABYLON_SCENE;
-                  if (!scene) {
-                    console.warn("⚠️ Scene Babylon non disponibile.");
-                    return;
+                  if (scene) {
+                    vehicleLoadingManager.setState("rightSideLoading");
                   }
 
-                  vehicleLoadingManager.setState("rightSideLoading");
-
                   setUiStage("none");
+                  setIsBusy(false);
                 } else {
-                  console.log("🔁 Riprova completa: reset + animazioni + ritorno a stato iniziale");
-
                   window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
                   slotManager.reset();
 
                   const { animateBagsExit } = await import("../animateBagsExit");
                   const { animateCartsExit } = await import("../animateCartsExit");
                   const { runTruckTransform } = await import("../vehicleLoadingTransform");
-                  const { vehicleLoadingManager } = await import("../vehicleLoadingManager");
 
                   await animateBagsExit();
                   await animateCartsExit();
+                  setUiStage("start");
+                  setIsBusy(false);
                   await runTruckTransform("start");
 
-                  vehicleLoadingManager.setState("startLoading");
-                  setUiStage("start");
+                  await vehicleLoadingManager.setState("startLoading");
+                  
                 }
               }}
             >
@@ -276,22 +283,21 @@ export default function VehicleLoadingUI() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 40 }}
               transition={{ duration: 0.5 }}
+              disabled={isBusy}
               onClick={async () => {
+                if (isBusy) return;
+                setIsBusy(true);
+
                 if (isValid) {
-                  console.log("✅ Validazione extra bag riuscita: esperienza conclusa.");
-
-                  slotManager.reset(); // ✅ reset slot, incluse bag extra
-
+                  slotManager.reset();
                   window.dispatchEvent(new CustomEvent("return-to-menu"));
                 } else {
-                  console.log("🔁 Riprova caricamento extra");
                   window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
                   slotManager.reset();
 
                   const { animateBagsExit } = await import("../animateBagsExit");
                   const { animateCartsExit } = await import("../animateCartsExit");
                   const { runTruckTransform } = await import("../vehicleLoadingTransform");
-                  const { vehicleLoadingManager } = await import("../vehicleLoadingManager");
 
                   await animateBagsExit();
                   await animateCartsExit();
@@ -300,6 +306,8 @@ export default function VehicleLoadingUI() {
                   vehicleLoadingManager.setState("startLoading");
                   setUiStage("start");
                 }
+
+                setIsBusy(false);
               }}
             >
               {isValid ? "Return to Activity Menu" : "Try Again?"}
