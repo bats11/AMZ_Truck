@@ -1,3 +1,4 @@
+// src/react/CameraMenu.tsx
 import React, { useEffect, useState, useRef } from "react";
 import { moveCameraTo } from "../babylonBridge";
 import { setActiveMenuForTransforms } from "../MoveComponent";
@@ -17,9 +18,8 @@ interface SubmenuCategory {
 
 const typedSubmenuData: Record<string, SubmenuCategory> = submenuData as Record<string, SubmenuCategory>;
 
-// 🕒 Variabili per debounce manuale
 let lastClickTime = 0;
-const DEBOUNCE_DELAY = 700; // in ms
+const DEBOUNCE_DELAY = 700;
 
 interface CameraMenuProps {
   position: "left" | "right";
@@ -132,7 +132,7 @@ export default function CameraMenu({
 
   function onMainClick(label: string) {
     const now = Date.now();
-    if (now - lastClickTime < DEBOUNCE_DELAY) return; // ⛔ Ignora click troppo ravvicinati
+    if (now - lastClickTime < DEBOUNCE_DELAY) return;
     lastClickTime = now;
 
     if (label === activeMenu) return;
@@ -190,10 +190,12 @@ export default function CameraMenu({
         {touchLocked && (
           <button
             onClick={() => {
+              if (buttonsDisabled) return;
               setTouchLocked(false);
               resetApp();
               hasInitializedRef.current = false;
             }}
+            disabled={buttonsDisabled}
             className="return-btn"
           >
             <span className="return-label-wrapper">

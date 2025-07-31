@@ -133,7 +133,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       ],
       exitIntermediate: [
         {
-          position: new BABYLON.Vector3(0, 2.9, -5.8),
+          position: new BABYLON.Vector3(0, 3.3, -5.8),
           rotation: vec3DegToRad([0, 270, -12]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
@@ -282,7 +282,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
   scaling: new BABYLON.Vector3(2, 2, 2)
 },
 "License Plates & Tags": {
-  position: new BABYLON.Vector3(3.8, 4.5, -6),
+  position: new BABYLON.Vector3(3.8, 4.5, -5),
   rotation: vec3DegToRad([9, 308, -12]),
   scaling: new BABYLON.Vector3(2, 2, 2)
 },
@@ -332,8 +332,8 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
   scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
   },
   "EV system": {
-  position: new BABYLON.Vector3(3.5, 5.6, -14),
-  rotation: vec3DegToRad([0, 200, 0]),
+  position: new BABYLON.Vector3(-0.2, 4.5, -2.6),
+  rotation: vec3DegToRad([0, 45, 0]),
   scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
   },
   "Back Tire, Wheel, & Rim": {
