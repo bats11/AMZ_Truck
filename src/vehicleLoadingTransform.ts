@@ -53,6 +53,37 @@ const truckTransformPresets: Record<TruckTransformLabel, {
   },
 };
 
+export async function restoreHiddenTruckMeshes(scene: BABYLON.Scene) {
+  const easing = new BABYLON.CubicEase();
+  easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEOUT);
+
+  const promises = Array.from(previouslyHiddenTruckMeshes).map((name) => {
+    const node = scene.getNodeByName(name);
+    if (!node || !(node instanceof BABYLON.AbstractMesh)) return Promise.resolve();
+
+    const anim = new BABYLON.Animation(
+      `fadeIn_${name}`,
+      "visibility",
+      60,
+      BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+
+    anim.setKeys([
+      { frame: 0, value: node.visibility },
+      { frame: 30, value: 1 },
+    ]);
+    anim.setEasingFunction(easing);
+
+    return new Promise<void>((resolve) => {
+      scene.beginDirectAnimation(node, [anim], 0, 30, false, 1.0, resolve);
+    });
+  });
+
+  await Promise.all(promises);
+  previouslyHiddenTruckMeshes.clear();
+}
+
 export async function runTruckTransform(label: TruckTransformLabel) {
   const modelRoot = getModelRoot();
   if (!modelRoot || !activeCamera) return;
@@ -67,35 +98,12 @@ export async function runTruckTransform(label: TruckTransformLabel) {
 
   const fadeInPromise =
     (label === "start" || label === "passengerSide")
-      ? Promise.all(Array.from(previouslyHiddenTruckMeshes).map((name) => {
-          const node = scene.getNodeByName(name);
-          if (node && node instanceof BABYLON.AbstractMesh) {
-            const anim = new BABYLON.Animation(
-              `fadeIn_${name}`,
-              "visibility",
-              60,
-              BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-              BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-            );
-            anim.setKeys([
-              { frame: 0, value: node.visibility },
-              { frame: 30, value: 1 },
-            ]);
-
-            return new Promise<void>((resolve) => {
-              scene.beginDirectAnimation(node, [anim], 0, 30, false, 1.0, resolve);
-            });
-          }
-          return Promise.resolve();
-        }))
+      ? restoreHiddenTruckMeshes(scene)
       : Promise.resolve();
 
-
-    const transformPromise = handleInterpolatedTransform(modelRoot, scene, preset, activeCamera);
+  const transformPromise = handleInterpolatedTransform(modelRoot, scene, preset, activeCamera);
 
   await Promise.all([fadeInPromise, transformPromise]);
-
-  previouslyHiddenTruckMeshes.clear();
 
   if (label === "start" && vehicleLoadingManager.shouldRunInitialEntry()) {
     await runInitialCargoEntry();

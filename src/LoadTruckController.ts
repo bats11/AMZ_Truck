@@ -16,6 +16,12 @@ const STAGING_ROTATION = new BABYLON.Vector3(
   0
 );
 
+const BAG_STAGING_ROTATION = new BABYLON.Vector3(
+  BABYLON.Tools.ToRadians(0),
+  BABYLON.Tools.ToRadians(90),
+  0
+);
+
 export class LoadTruckController {
   private scene: BABYLON.Scene;
   private side: "left" | "right";
@@ -54,8 +60,6 @@ export class LoadTruckController {
     await this.iterateBagsInCart(this.carts[0]);
   }
 
-  // ... intestazione invariata ...
-
   private async iterateBagsInCart(cart: CartEntity) {
     const bags = cart.getLoadedBags()
       .filter(b => !b.isExtra)
@@ -88,35 +92,32 @@ export class LoadTruckController {
       }
     }
 
-    // ✅ FIX: se il carrello ha ancora bag extra, NON lo eliminiamo
     const cartHasExtra = cart.getLoadedBags().some(b => b.isExtra);
-      if (cartHasExtra) {
-        console.log(`♻️ Carrello ${cart.id} ha bag extra, passo direttamente a fase extra.`);
-        await this.iterateExtraBagsInCart(cart);
-        return;
-      }
-
-      // Altrimenti: rimuovi e distruggi
-      const removedCart = this.carts.shift()!;
-      await this.slideOutAndDisposeCart(removedCart);
-
-      const hasMoreNormalBags = this.carts.some(c =>
-        c.getLoadedBags().some(b => !b.isExtra)
-      );
-
-      if (hasMoreNormalBags) {
-        if (this.carts[0]) await this.moveCartTo(this.carts[0], FOCUS_POS);
-        if (this.carts[1]) await this.moveCartTo(this.carts[1], WAIT_POS_1);
-        if (this.carts[2]) await this.moveCartTo(this.carts[2], WAIT_POS_2);
-
-        await this.iterateBagsInCart(this.carts[0]);
-      } else {
-        console.log("🚩 Tutte le bag normali caricate. Passo alla fase extra.");
-        window.dispatchEvent(new CustomEvent("start-extra-bags"));
-        await this.iterateExtraBagsInCart(this.carts[0]);
-      }
+    if (cartHasExtra) {
+      console.log(`♻️ Carrello ${cart.id} ha bag extra, passo direttamente a fase extra.`);
+      await this.iterateExtraBagsInCart(cart);
+      return;
     }
 
+    const removedCart = this.carts.shift()!;
+    await this.slideOutAndDisposeCart(removedCart);
+
+    const hasMoreNormalBags = this.carts.some(c =>
+      c.getLoadedBags().some(b => !b.isExtra)
+    );
+
+    if (hasMoreNormalBags) {
+      if (this.carts[0]) await this.moveCartTo(this.carts[0], FOCUS_POS);
+      if (this.carts[1]) await this.moveCartTo(this.carts[1], WAIT_POS_1);
+      if (this.carts[2]) await this.moveCartTo(this.carts[2], WAIT_POS_2);
+
+      await this.iterateBagsInCart(this.carts[0]);
+    } else {
+      console.log("🚩 Tutte le bag normali caricate. Passo alla fase extra.");
+      window.dispatchEvent(new CustomEvent("start-extra-bags"));
+      await this.iterateExtraBagsInCart(this.carts[0]);
+    }
+  }
 
   private async iterateExtraBagsInCart(cart: CartEntity) {
     const bags = cart.getLoadedBags()
@@ -182,7 +183,7 @@ export class LoadTruckController {
   private async moveBagTo(bag: BagEntity, target: BABYLON.Vector3) {
     const transform = {
       position: target,
-      rotation: STAGING_ROTATION,
+      rotation: BAG_STAGING_ROTATION,
       scaling: bag.root.scaling.clone(),
       durationPosRot: 1,
       durationScale: 0,
@@ -195,7 +196,7 @@ export class LoadTruckController {
     const scene = root.getScene();
 
     const startPos = root.position.clone();
-    const endPos = startPos.add(new BABYLON.Vector3(-5, 0, 0)); // Slide out verso sinistra
+    const endPos = startPos.add(new BABYLON.Vector3(-5, 0, 0));
 
     const easing = new BABYLON.CubicEase();
     easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
