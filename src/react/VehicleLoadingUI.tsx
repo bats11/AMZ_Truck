@@ -45,6 +45,43 @@ export default function VehicleLoadingUI() {
     }
   }, [uiStage]);
 
+  // ✅ Restore visibilità mesh appena entriamo in rightResults con validazione positiva
+  useEffect(() => {
+    if (uiStage === "rightResults" && isValid) {
+      const scene = (window as any)._BABYLON_SCENE;
+      if (!scene) return;
+
+    // 1️⃣ Nasconde subito lo slot overlay
+    window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+
+    // 2️⃣ Poi ripristina le mesh e distrugge le bag nel truck
+    const sequence = async () => {
+      const { restoreHiddenTruckMeshes } = await import("../vehicleLoadingTransform");
+      await restoreHiddenTruckMeshes(scene); // ⏳ aspetta fine animazione mesh
+
+      const { getModelRoot } = await import("../MoveComponent");
+      const modelRoot = getModelRoot();
+
+      if (modelRoot) {
+        const truckBags = modelRoot.getChildren().filter((node) =>
+          node.name.startsWith("BagWrapper_")
+        );
+
+        for (const node of truckBags) {
+          node.getChildMeshes(false).forEach((m) => m.dispose());
+          node.dispose();
+        }
+
+        console.log(`🧹 Bag nel truck eliminate dopo transizione (${truckBags.length})`);
+      }
+    };
+
+    sequence();
+  }
+}, [uiStage]);
+
+
+
   const validation = (window as any)._UI_VALIDATION_RESULT;
   const isValid = validation?.isValid ?? false;
   const errorCount = validation?.errorCount ?? 0;
@@ -197,7 +234,6 @@ export default function VehicleLoadingUI() {
 
                   await animateBagsExit();
                   await animateCartsExit();
-
                   await runTruckTransform("start");
 
                   vehicleLoadingManager.setState("startLoading");
@@ -243,6 +279,7 @@ export default function VehicleLoadingUI() {
               onClick={async () => {
                 if (isValid) {
                   console.log("✅ Validazione extra bag riuscita: esperienza conclusa.");
+                  window.dispatchEvent(new CustomEvent("return-to-menu"));
                 } else {
                   console.log("🔁 Riprova caricamento extra");
                   window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
