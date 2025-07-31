@@ -221,14 +221,14 @@ export default function VehicleLoadingUI() {
               transition={{ duration: 0.5 }}
             >
               {isValid ? (
-                "Excellent! All extra bags are in the correct position. Well done."
+                "Great job! You loaded both sides perfectly!"
               ) : (
                 <>
-                  Some extra bags are not placed correctly. You have{" "}
+                  Not quite! You have{" "}
                   <span className="validation-error-count">
-                    {errorCount} error{errorCount !== 1 ? "s" : ""}
-                  </span>
-                  . Heavy boxes must go in the lower slot, and oversized ones in the upper slot.
+                    {errorCount} item{errorCount !== 1 ? "s" : ""}
+                  </span>{" "}
+                  out of place. Remember, heavy boxes with red stickers should be placed on the floor of the vehicle.
                 </>
               )}
             </motion.div>
@@ -243,7 +243,6 @@ export default function VehicleLoadingUI() {
               onClick={async () => {
                 if (isValid) {
                   console.log("✅ Validazione extra bag riuscita: esperienza conclusa.");
-                  // Potresti far partire animazione di chiusura o avanzamento
                 } else {
                   console.log("🔁 Riprova caricamento extra");
                   window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
@@ -267,7 +266,6 @@ export default function VehicleLoadingUI() {
             </motion.button>
           </>
         )}
-
       </AnimatePresence>
     </div>
   );
