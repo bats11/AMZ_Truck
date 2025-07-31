@@ -60,7 +60,9 @@ export class BagEntity {
       ) {
         const clonedMat = clone.material.clone(`${id}_material`) as BABYLON.PBRMaterial;
 
-        clonedMat.albedoTexture = null;
+        // NON rimuovere le texture!
+        // clonedMat.albedoTexture = null; // ← rimuovi o commenta questa riga
+
         clonedMat.albedoColor = BABYLON.Color3.FromHexString(color).toLinearSpace();
         clonedMat.useAlphaFromAlbedoTexture = false;
         clonedMat.alpha = 1;
