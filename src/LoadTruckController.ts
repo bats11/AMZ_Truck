@@ -28,6 +28,8 @@ const EXTRA_BAG_STAGING_ROTATION = new BABYLON.Vector3(
   BABYLON.Tools.ToRadians(0)
 );
 
+const EXTRA_BAG_STAGING_POS = new BABYLON.Vector3(0, 4.5, -13);
+
 export class LoadTruckController {
   private scene: BABYLON.Scene;
   private side: "left" | "right";
@@ -139,7 +141,7 @@ export class LoadTruckController {
       bag.root.position.copyFrom(worldPos);
       cart.removeBag(bag);
 
-      await this.moveBagTo(bag, BAG_STAGING_POS, EXTRA_BAG_STAGING_ROTATION);
+      await this.moveBagTo(bag, EXTRA_BAG_STAGING_POS, EXTRA_BAG_STAGING_ROTATION);
 
       slotManager.setActiveBag(bag);
       await slotManager.waitForAssignment();
