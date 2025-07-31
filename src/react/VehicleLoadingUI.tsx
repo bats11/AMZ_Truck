@@ -262,7 +262,7 @@ export default function VehicleLoadingUI() {
                 }
               }}
             >
-              {isValid ? "Finish Loading" : "Try Again?"}
+              {isValid ? "Return to Activity Menu" : "Try Again?"}
             </motion.button>
           </>
         )}
