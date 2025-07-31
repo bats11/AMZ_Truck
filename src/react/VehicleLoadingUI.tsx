@@ -279,6 +279,9 @@ export default function VehicleLoadingUI() {
               onClick={async () => {
                 if (isValid) {
                   console.log("✅ Validazione extra bag riuscita: esperienza conclusa.");
+
+                  slotManager.reset(); // ✅ reset slot, incluse bag extra
+
                   window.dispatchEvent(new CustomEvent("return-to-menu"));
                 } else {
                   console.log("🔁 Riprova caricamento extra");
