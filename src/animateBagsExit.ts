@@ -2,6 +2,7 @@
 import * as BABYLON from "@babylonjs/core";
 import { createAnimation } from "./utils";
 import { getModelRoot } from "./MoveComponent";
+import { vehicleLoadingManager } from "./vehicleLoadingManager"; // ✅ import diretto
 
 export async function animateBagsExit(): Promise<void> {
   const modelRoot = getModelRoot();
@@ -14,7 +15,10 @@ export async function animateBagsExit(): Promise<void> {
   const frameRate = 60;
   const duration = 1.2; // secondi
   const totalFrames = frameRate * duration;
-  const exitDistance = -7;
+
+  // ✅ Determina direzione in base al lato attivo
+  const isRightSide = vehicleLoadingManager.getState?.() === "rightSideLoading";
+  const exitDistance = isRightSide ? 7 : -7;
 
   const easing = new BABYLON.CubicEase();
   easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
