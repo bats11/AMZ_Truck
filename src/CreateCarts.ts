@@ -69,10 +69,10 @@ export class CreateCarts {
     const shadowGen = this.scene.metadata?.shadowGenerator;
 
     const BAG_COLORS = [
-      "#fdd43b", "#aad169", "#3498db", "#f17850", "#3498db",
-      "#fdd43b", "#fdd43b", "#3498db", "#aad169", "#fdd43b",
-      "#aad169", "#3498db", "#f17850", "#3498db", "#fdd43b",
-      "#fdd43b", "#3498db", "#aad169", "#f17850", "#fdd43b",
+      "#aad169", "#3498db", "#fdd43b", "#fdd43b", "#3498db",
+      "#f17850", "#3498db", "#aad169", "#fdd43b", "#aad169",
+      "#3498db", "#fdd43b", "#fdd43b", "#3498db", "#f17850",
+      "#3498db", "#aad169", "#fdd43b", "#fdd43b", "#f17850"
     ];
 
     let bagIndex = 0;
