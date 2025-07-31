@@ -10,7 +10,11 @@ const FOCUS_POS = new BABYLON.Vector3(0, 0.3, -10);
 const WAIT_POS_1 = new BABYLON.Vector3(2.5, 0.3, -10);
 const WAIT_POS_2 = new BABYLON.Vector3(5, 0.3, -10);
 const BAG_STAGING_POS = new BABYLON.Vector3(0, 4, -12);
-const STAGING_ROTATION = new BABYLON.Vector3(BABYLON.Tools.ToRadians(10), BABYLON.Tools.ToRadians(10), 0);
+const STAGING_ROTATION = new BABYLON.Vector3(
+  BABYLON.Tools.ToRadians(10),
+  BABYLON.Tools.ToRadians(10),
+  0
+);
 
 export class LoadTruckController {
   private scene: BABYLON.Scene;
@@ -24,30 +28,33 @@ export class LoadTruckController {
   }
 
   private async begin() {
-    const isLeft = this.side === "left";
-
-    const allCarts = (window as any)._CART_ENTITIES as CartEntity[] | undefined;
-    if (!allCarts || allCarts.length !== 3) {
-      console.warn("⚠️ Carrelli non trovati o incompleti.");
-      return;
-    }
-
-    this.carts = allCarts;
     slotManager.setRightSide(this.side === "right");
 
     await hideTruckSideMeshes(this.side, this.scene, []);
 
-    if (isLeft) {
-      await Promise.all([
-        this.moveCartTo(this.carts[0], FOCUS_POS),
-        this.moveCartTo(this.carts[1], WAIT_POS_1),
-        this.moveCartTo(this.carts[2], WAIT_POS_2),
-      ]);
+    const allCarts = (window as any)._CART_ENTITIES as CartEntity[] | undefined;
+    if (!allCarts || allCarts.length === 0) {
+      console.warn("⚠️ Nessun carrello disponibile.");
+      return;
+    }
+
+    this.carts = allCarts;
+
+    if (this.side === "left") {
+      const animations = [];
+
+      if (this.carts[0]) animations.push(this.moveCartTo(this.carts[0], FOCUS_POS));
+      if (this.carts[1]) animations.push(this.moveCartTo(this.carts[1], WAIT_POS_1));
+      if (this.carts[2]) animations.push(this.moveCartTo(this.carts[2], WAIT_POS_2));
+
+      await Promise.all(animations);
     }
 
     window.dispatchEvent(new CustomEvent("show-slot-overlay"));
     await this.iterateBagsInCart(this.carts[0]);
   }
+
+  // ... intestazione invariata ...
 
   private async iterateBagsInCart(cart: CartEntity) {
     const bags = cart.getLoadedBags()
@@ -81,24 +88,35 @@ export class LoadTruckController {
       }
     }
 
-    const hasMoreNormalBags = this.carts.some(c =>
-      c.getLoadedBags().some(b => !b.isExtra)
-    );
+    // ✅ FIX: se il carrello ha ancora bag extra, NON lo eliminiamo
+    const cartHasExtra = cart.getLoadedBags().some(b => b.isExtra);
+      if (cartHasExtra) {
+        console.log(`♻️ Carrello ${cart.id} ha bag extra, passo direttamente a fase extra.`);
+        await this.iterateExtraBagsInCart(cart);
+        return;
+      }
 
-    if (hasMoreNormalBags) {
-      this.carts.push(this.carts.shift()!);
-      await Promise.all([
-        this.moveCartTo(this.carts[0], FOCUS_POS),
-        this.moveCartTo(this.carts[1], WAIT_POS_1),
-        this.moveCartTo(this.carts[2], WAIT_POS_2),
-      ]);
-      await this.iterateBagsInCart(this.carts[0]);
-    } else {
-      console.log("🚩 Tutte le bag normali caricate. Passo alla fase extra.");
-      window.dispatchEvent(new CustomEvent("start-extra-bags"));
-      await this.iterateExtraBagsInCart(this.carts[0]);
+      // Altrimenti: rimuovi e distruggi
+      const removedCart = this.carts.shift()!;
+      await this.slideOutAndDisposeCart(removedCart);
+
+      const hasMoreNormalBags = this.carts.some(c =>
+        c.getLoadedBags().some(b => !b.isExtra)
+      );
+
+      if (hasMoreNormalBags) {
+        if (this.carts[0]) await this.moveCartTo(this.carts[0], FOCUS_POS);
+        if (this.carts[1]) await this.moveCartTo(this.carts[1], WAIT_POS_1);
+        if (this.carts[2]) await this.moveCartTo(this.carts[2], WAIT_POS_2);
+
+        await this.iterateBagsInCart(this.carts[0]);
+      } else {
+        console.log("🚩 Tutte le bag normali caricate. Passo alla fase extra.");
+        window.dispatchEvent(new CustomEvent("start-extra-bags"));
+        await this.iterateExtraBagsInCart(this.carts[0]);
+      }
     }
-  }
+
 
   private async iterateExtraBagsInCart(cart: CartEntity) {
     const bags = cart.getLoadedBags()
@@ -120,17 +138,18 @@ export class LoadTruckController {
       await slotManager.waitForAssignment();
     }
 
+    const removedCart = this.carts.shift()!;
+    await this.slideOutAndDisposeCart(removedCart);
+
     const hasMoreExtra = this.carts.some(c =>
       c.getLoadedBags().some(b => b.isExtra)
     );
 
     if (hasMoreExtra) {
-      this.carts.push(this.carts.shift()!);
-      await Promise.all([
-        this.moveCartTo(this.carts[0], FOCUS_POS),
-        this.moveCartTo(this.carts[1], WAIT_POS_1),
-        this.moveCartTo(this.carts[2], WAIT_POS_2),
-      ]);
+      if (this.carts[0]) await this.moveCartTo(this.carts[0], FOCUS_POS);
+      if (this.carts[1]) await this.moveCartTo(this.carts[1], WAIT_POS_1);
+      if (this.carts[2]) await this.moveCartTo(this.carts[2], WAIT_POS_2);
+
       await this.iterateExtraBagsInCart(this.carts[0]);
     } else {
       console.log("🧪 Validazione finale combinata (bag normali + extra)");
@@ -152,7 +171,7 @@ export class LoadTruckController {
   private async moveCartTo(cart: CartEntity, target: BABYLON.Vector3) {
     const transform = {
       position: target,
-      rotation: STAGING_ROTATION, // ✅ rotazione fissa coerente
+      rotation: STAGING_ROTATION,
       scaling: cart.root.scaling.clone(),
       durationPosRot: 1.8,
       durationScale: 0,
@@ -169,5 +188,38 @@ export class LoadTruckController {
       durationScale: 0,
     };
     await handleInterpolatedTransform(bag.root, this.scene, transform);
+  }
+
+  private async slideOutAndDisposeCart(cart: CartEntity) {
+    const root = cart.root;
+    const scene = root.getScene();
+
+    const startPos = root.position.clone();
+    const endPos = startPos.add(new BABYLON.Vector3(-5, 0, 0)); // Slide out verso sinistra
+
+    const easing = new BABYLON.CubicEase();
+    easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
+
+    const anim = new BABYLON.Animation(
+      `${root.name}_slideOut`,
+      "position",
+      60,
+      BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+
+    anim.setKeys([
+      { frame: 0, value: startPos },
+      { frame: 60, value: endPos },
+    ]);
+    anim.setEasingFunction(easing);
+
+    return new Promise<void>((resolve) => {
+      scene.beginDirectAnimation(root, [anim], 0, 60, false, 1, () => {
+        root.dispose();
+        console.log(`🗑️ Carrello ${cart.id} eliminato dalla scena`);
+        resolve();
+      });
+    });
   }
 }
