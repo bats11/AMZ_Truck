@@ -16,31 +16,32 @@ interface SlotOverlayProps {
 export default function SlotOverlay({
   slotCount,
   onClickSlot,
-  slotSize = "5rem", // <-- aumenta qui la dimensione
+  slotSize = "5rem",
   positionStyle = {},
   rowGap = "0.5rem",
   columnGap = "0.7rem",
   direction = "rtl",
 }: SlotOverlayProps) {
-  const [visibleSlots, setVisibleSlots] = useState<boolean[]>(
-    Array(slotCount).fill(true)
-  );
-
+  const [occupiedSlots, setOccupiedSlots] = useState<boolean[]>(Array(slotCount).fill(false));
+  const [extraFinished, setExtraFinished] = useState(false);
   const isRightSide = direction === "ltr";
 
   useEffect(() => {
     const handler = (slotIndex: number) => {
-      // Solo lato sinistro fa scomparire tutti gli slot assegnati
-      if (!isRightSide || slotIndex < 8) {
-        setVisibleSlots((prev) => {
-          const next = [...prev];
-          next[slotIndex] = false;
-          return next;
-        });
-      }
+      setOccupiedSlots((prev) => {
+        const updated = [...prev];
+        updated[slotIndex] = true;
+        return updated;
+      });
     };
     slotManager.onSlotAssigned(handler);
-  }, [isRightSide]);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setExtraFinished(true);
+    window.addEventListener("extra-bags-finished", handler);
+    return () => window.removeEventListener("extra-bags-finished", handler);
+  }, []);
 
   const gridStyle: React.CSSProperties = {
     display: "grid",
@@ -55,29 +56,48 @@ export default function SlotOverlay({
   };
 
   const renderSlot = (index: number) => {
-    const isVisible = visibleSlots[index];
+    const isMultiSlot = isRightSide && (index === 8 || index === 9);
+    const isOccupied = isMultiSlot ? false : occupiedSlots[index];
+    const showOccupied = isMultiSlot ? extraFinished : occupiedSlots[index];
+
     const baseStyle: React.CSSProperties = {
       width: "100%",
       height: "100%",
-      visibility: isVisible ? "visible" : "hidden",
-      pointerEvents: isVisible ? "auto" : "none",
     };
 
-    // ➕ Solo lato destro: slot 8 e 9 sono larghi
-    if (isRightSide && (index === 8 || index === 9)) {
+    const className = `slot-button${showOccupied ? " occupied" : ""}`;
+
+    const handleClick = () => {
+      if (isOccupied) return;
+      if (isMultiSlot && extraFinished) return;
+      slotManager.assignToSlot(index);
+      onClickSlot?.(index);
+    };
+
+    const button = (
+      <button
+        key={index}
+        className={className}
+        style={baseStyle}
+        onClick={handleClick}
+      >
+        <span className="slot-dot">
+          <span className="slot-dot-ring" />
+        </span>
+      </button>
+    );
+
+    if (isMultiSlot) {
       return (
         <button
           key={index}
-          className="slot-button"
+          className={className}
           style={{
             ...baseStyle,
             gridColumn: "5 / span 2",
             gridRow: index === 8 ? "1" : "2",
           }}
-          onClick={() => {
-            slotManager.assignToSlot(index);
-            onClickSlot?.(index);
-          }}
+          onClick={handleClick}
         >
           <span className="slot-dot">
             <span className="slot-dot-ring" />
@@ -86,22 +106,7 @@ export default function SlotOverlay({
       );
     }
 
-    // Slot normali (sempre 1x1)
-    return (
-      <button
-        key={index}
-        className="slot-button"
-        style={baseStyle}
-        onClick={() => {
-          slotManager.assignToSlot(index);
-          onClickSlot?.(index);
-        }}
-      >
-        <span className="slot-dot">
-          <span className="slot-dot-ring" />
-        </span>
-      </button>
-    );
+    return button;
   };
 
   return (

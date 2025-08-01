@@ -3,7 +3,7 @@
 .slot-overlay {
   position: absolute;
   display: grid;
-  grid-auto-flow: column; /* ↕️ Colonne prima delle righe */
+  grid-auto-flow: column;
   z-index: 2000;
   pointer-events: auto;
   justify-content: center;
@@ -13,38 +13,45 @@
 .slot-button {
   width: 100%;
   height: 100%;
-  line-height: 100%;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   background-color: rgba(5, 166, 224, 0.2);
   border: 2px solid #05A6E0FF;
   border-radius: 0.5rem;
-  color: white;
   font-family: 'EmberCondensedBold', sans-serif;
   font-size: 1.2rem;
   font-weight: bold;
   text-align: center;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: background-color 0.8s ease;
+  position: relative;
+}
+
+.slot-button.occupied {
+  background-color: rgba(5, 166, 224, 0); /* transizione a trasparente */
 }
 
 .slot-button:hover {
   background-color: rgba(5, 166, 224, 0.6);
-  transform: scale(1);
 }
 
+/* Pallino al centro dello slot */
 .slot-dot {
   display: inline-block;
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
   background: #05A6E0FF;
-  margin: auto;
-  vertical-align: middle;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.6s ease;
+  opacity: 1;
 }
 
+/* Ring interno */
 .slot-dot-ring {
   position: absolute;
   top: 50%;
@@ -56,4 +63,9 @@
   background: transparent;
   box-sizing: border-box;
   transform: translate(-50%, -50%);
+}
+
+/* Quando lo slot è occupato → nasconde pallino */
+.slot-button.occupied .slot-dot {
+  opacity: 0;
 }

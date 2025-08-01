@@ -174,8 +174,12 @@ export class LoadTruckController {
       };
 
       (window as any).setVehicleUiStage?.("rightResults");
+
+      // ✅ Notifica visiva → attiva stato "occupied" sugli slot larghi
+      window.dispatchEvent(new Event("extra-bags-finished"));
     }
   }
+
 
   private async moveCartTo(cart: CartEntity, target: BABYLON.Vector3) {
     const transform = {

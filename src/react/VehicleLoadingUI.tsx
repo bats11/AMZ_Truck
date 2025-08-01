@@ -239,6 +239,7 @@ export default function VehicleLoadingUI() {
                 } else {
                   window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
                   slotManager.reset();
+                  setUiStage("none");
 
                   const { animateBagsExit } = await import("../animateBagsExit");
                   const { animateCartsExit } = await import("../animateCartsExit");
@@ -299,13 +300,17 @@ export default function VehicleLoadingUI() {
                   slotManager.reset();
                   window.dispatchEvent(new CustomEvent("return-to-menu"));
                 } else {
-                  window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+                  //window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
                   slotManager.reset();
+                  setUiStage("none");
+
+                  window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
 
                   const { animateBagsExit } = await import("../animateBagsExit");
                   const { animateCartsExit } = await import("../animateCartsExit");
                   const { runTruckTransform } = await import("../vehicleLoadingTransform");
 
+                  
                   await animateBagsExit();
                   await animateCartsExit();
                   await runTruckTransform("start");
