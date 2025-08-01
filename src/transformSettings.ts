@@ -282,12 +282,12 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
   scaling: new BABYLON.Vector3(2, 2, 2)
 },
 "License Plates & Tags": {
-  position: new BABYLON.Vector3(3.8, 4.5, -5),
+  position: new BABYLON.Vector3(3.8, 4.5, -4.5),
   rotation: vec3DegToRad([9, 308, -12]),
   scaling: new BABYLON.Vector3(2, 2, 2)
 },
 "Suspension & Exhaust System": {
-  position: new BABYLON.Vector3(1, 4.7, -1),
+  position: new BABYLON.Vector3(1, 4.7, 0),
   rotation: vec3DegToRad([2, 280, -9]),
   scaling: new BABYLON.Vector3(2, 2, 2)
 },
