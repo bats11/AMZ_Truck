@@ -4,6 +4,7 @@ import { moveCameraTo } from "../babylonBridge";
 import { setActiveMenuForTransforms } from "../MoveComponent";
 import submenuData from "../data/SubmenuData.json";
 import { AnimatePresence, motion } from "framer-motion";
+import { getTransformSetting } from "../transformSettings"; // ✅ aggiunto import
 
 interface SubmenuDetails {
   _uiHeight?: string;
@@ -245,8 +246,16 @@ export default function CameraMenu({
                   onClick={() => onSubClick(subKey)}
                   className={`submenu-btn ${activeSubmenu === subKey ? "active" : ""}`}
                   disabled={buttonsDisabled}
+                  style={{ position: "relative" }} // ✅ non invasivo
                 >
                   {subKey}
+                  {(() => {
+                    const setting = getTransformSetting(activeMenu, subKey);
+                    if (setting?.triggerDamage && setting?.damageNodes?.length) {
+                      return <span className="damage-dot-absolute" />;
+                    }
+                    return null;
+                  })()}
                 </button>
 
                 <AnimatePresence initial={false}>
