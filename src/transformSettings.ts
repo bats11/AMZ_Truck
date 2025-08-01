@@ -181,7 +181,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
   rotation: vec3DegToRad([-3, 283, 10]),
   scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
 },
-"Vehicle DocumentaTon [All DOT only]": {
+"Vehicle Documentation [DOT only]": {
   position: new BABYLON.Vector3(-0.5, 4.3, -16.6),
   rotation: vec3DegToRad([-2, 269, 16]),
   scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)

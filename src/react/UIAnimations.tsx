@@ -190,13 +190,13 @@ export default function UIAnimations({
                     positionStyle={
                       loadingState === "rightSideLoading"
                         ? {
-                            top: "17.5rem",
+                            top: "16.8rem",
                             left: "5.5rem",
                             transform: "translateX(50%)",
                           }
                         : {
-                            top: "17.5rem",
-                            left: "21.25rem",
+                            top: "16.8rem",
+                            left: "21.1rem",
                             transform: "translateX(-50%)",
                           }
                     }

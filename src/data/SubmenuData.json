@@ -6,7 +6,7 @@
       "details": [
         "Hazard light is not working",
         "Headlight is not working",
-        "Any lights are cracked (leaving a hole or void)i missingi or not working properly"
+        "Any lights are cracked (leaving a hole or void), missing, or not working properly"
       ]
     },
     "Suspension & Exhaust System": {
@@ -25,7 +25,7 @@
     "Body & Doors": {
       "_uiHeight": "",
       "details": [
-        "Items attached to the body of the vehicle (for example: bumpers and hood latches) are missingi damagedi loosei unsecurei hangingi or held with a zip-tieitapei or similar"
+        "Items attached to the body of the vehicle (for example: bumpers and hood latches) are missing, damaged, loose, unsecure, hanging, or held with a zip-tie, tape, or similar"
       ]
     }
   },
@@ -34,56 +34,56 @@
     "Back Tire, Wheel, & Rim": {
       "_uiHeight": "",
       "details": [
-        "Tire has insufficient tread (Less than 2/32/ or 1.6mm) on inner mosti middlei or outer most tread.",
-        "Tire has objectsi cutsi dentsi swellsi leaksi appears flati or exposed wire on surface.",
-        "Wheeli wheel nutsi rimi or mouning equipment is damagedi crackedi loosei missingi or broken.",
-        "DOT Requirement – Mud Flap is damagedi missingi unsecured or held up with a zip-tiei tape or similar ttDOT Only]"
+        "Tire has insufficient tread (Less than 2/32/ or 1.6mm) on inner most, middle, or outer most tread",
+        "Tire has objects, cuts, dents, swells, leaks, appears flat, or exposed wire on surface",
+        "Wheel, wheel nut, rim, or mounting equipment is damaged, cracked, loose, missing, or broken",
+        "DOT Requirement – Mud Flap is damaged, missing, unsecured or held up with a zip-tie, tape, or similar [DOT Only]"
       ]
     },
     "Lights & Light Covers": {
       "_uiHeight": "",
       "details": [
-        "Any lights are cracked (leaving hole or void)i missingi or not working properly"
+        "Any lights are cracked (leaving hole or void), missing, or not working properly"
       ]
     },
     "Body & Doors": {
       "_uiHeight": "",
       "details": [
-        "Items attached to the body of the vehicle (for example: side view camerai or cargo steps) are missingi damagedi loosei unsecurei hangingi or held with a zip-tiei tapei or similar",
-        "DOT Requirement – Amazon DOT decal (USDOT2881058) is damagedi missingi excessively dirtyi or not visiblei or any exising rental provider DOT decals are not covered and are visible. ttDOT Only]",
-        "Prime decal is damagedi missingi excessively dirtyi or not visible."
+        "Items attached to the body of the vehicle (for example: side view camera or cargo steps) are missing, damaged, loose, unsecure, hanging, or held with a zip-tie, tape, or similar",
+        "DOT Requirement – Amazon DOT decal (USDOT2881058) is damaged, missing, excessively dirty, or not visible, or any existing rental provider DOT decals are not covered and are visible. [DOT Only]",
+        "Prime decal is damaged, missing, excessively dirty, or not visible"
       ]
     },
     "Suspension & Exhaust System": {
       "_uiHeight": "40%",
       "details": [
-        "Acive non-clear fluid leaking on the ground.",
-        "Loose or hanging objects underneath the vehicle.",
-        "Fuel cap is missing or broken ttDOT Only]."
+        "Active non-clear fluid leaking on the ground",
+        "Loose or hanging objects underneath the vehicle",
+        "Fuel cap is missing or broken [DOT Only]"
       ]
     },
     "EV System": {
       "_uiHeight": "",
       "details": [
         "Orange wires are present in the charging port or cable. Warning High Voltage! Do Not Touch!",
-        "Charging port cap is missing or broken."
+        "Charging port cap is missing or broken"
       ]
     },
     "Side Mirrors": {
       "_uiHeight": "",
       "details": [
-        "Side mirror glass is crackedi damagedi or missing.",
-        "Side mirrors are loosei hangingi unsecuredi or held up with a zip-tiei tapei or similar.",
-        "Side mirrors cannot be adjusted."
+        "Side mirror glass is cracked, damaged, or missing",
+        "Side mirrors are loose, hanging, unsecure, or held up with a zip-tie, tape, or similar",
+        "Side mirrors cannot be adjusted"
       ]
     },
     "Front Tire, Wheel, & Rim": {
       "_uiHeight": "",
       "details": [
-        "Tire has insufficient tread (Less than 2/32/ or 1.6mm) on inner mosti middlei or outer most tread.",
-        "DOT Requirement – Tire has insufficient tread (Less than 4/32/ or 3.2mm) on inner mosti middlei or outer most tread ttDOT Only].",
-        "Tire has objectsi cutsi dentsi swellsi leaksi appears flati or exposed wire on surface.",
-        "Wheeli wheel nuti rimi or mouning equipment is damagedi crackedi loosei missingi or broken."
+        "Tire has insufficient tread (Less than 2/32/ or 1.6mm) on inner most, middle, or outer most tread",
+        "DOT Requirement – Tire has insufficient tread (Less than 4/32/ or 3.2mm) on inner most, middle, or outer most tread [DOT Only]",
+        "Tire has objects, cuts, dents, swells, leaks, appears flat, or exposed wire on surface",
+        "Wheel, wheel nut, rim, or mounting equipment is damaged, cracked, loose, missing, or broken"
       ]
     }
   },
@@ -94,20 +94,20 @@
       "details": [
         "Hazard light is not working",
         "License plate light is not working",
-        "Any lights are cracked (leaving hole or void)i missingi or not working properly",
+        "Any lights are cracked (leaving hole or void), missing, or not working properly",
         "Taillight is not working"
       ]
     },
     "Body & Doors": {
       "_uiHeight": "",
       "details": [
-        "Items attached to the body of the vehicle (for example: bumperi back-up camerai lift gatei or rear step) are missingi damagedi loosei unsecurei hangingi or held with a zip-tiei tapei or similar."
+        "Items attached to the body of the vehicle (for example: bumper, back-up camera, lift gate, or rear step) are missing, damaged, loose, unsecure, hanging, or held with a zip-tie, tape, or similar"
       ]
     },
     "License Plates & Tags": {
       "_uiHeight": "",
       "details": [
-        "License plates or temporary tags are damagedi missingi illegiblei or expired."
+        "License plates or temporary tags are damaged, missing, illegible, or expired"
       ]
     },
     "Suspension & Exhaust System": {
@@ -128,38 +128,38 @@
     "Side Mirrors": {
       "_uiHeight": "40%",
       "details": [
-        "Side mirror or window glass is crackedi damagedi or missing",
-        "Side mirrors are loosei hangingi unsecuredi or held up with a zip-tiei tapei or similar",
+        "Side mirror or window glass is cracked, damaged, or missing",
+        "Side mirrors are loose, hanging, unsecure, or held up with a zip-tie, tape, or similar",
         "Side mirrors cannot be adjusted"
       ]
     },
     "Front Tire, Wheel, & Rim": {
       "_uiHeight": "",
       "details": [
-        "Tire has insufficient tread (Less than 2/32/ or 1.6mm) on inner mosti middlei or outer most tread",
-        "DOT Requirement – Tire has insufficient tread (Less than 4/32/ or 3.2mm) on inner mosti middlei or outer most tread ttDOT Only]",
-        "Tire has objectsi cutsi dentsi swellsi leaksi appears flati or exposed wire on surface",
-        "Wheeli wheel nuti rimi or mouning equipment is damagedi crackedi loosei missingi or broken"
+        "Tire has insufficient tread (Less than 2/32/ or 1.6mm) on inner most, middle, or outer most tread",
+        "DOT Requirement – Tire has insufficient tread (Less than 4/32/ or 3.2mm) on inner most, middle, or outer most tread [DOT Only]",
+        "Tire has objects, cuts, dents, swells, leaks, appears flat, or exposed wire on surface",
+        "Wheel, wheel nut, rim, or mounting equipment is damaged, cracked, loose, missing, or broken"
       ]
     },
     "Lights & Light Covers": {
       "_uiHeight": "",
       "details": [
-        "Any lights are cracked (leaving hole or void)i missingi or not working properly"
+        "Any lights are cracked (leaving hole or void), missing, or not working properly"
       ]
     },
     "Body & Doors": {
       "_uiHeight": "",
       "details": [
-        "Items attached to the body of the vehicle (for example: side view camerai or cargo steps) are missingi damagedi loosei unsecurei hangingi or held with a zip-tiei tapei or similar",
-        "DOT Requirement – Amazon DOT decal (USDOT2881058) is damagedi missingi excessively dirtyi or not visiblei or any exising rental provider DOT decals are not covered and are visible. ttDOT Only]",
-        "Prime decal is damagedi missingi excessively dirtyi or not visible."
+        "Items attached to the body of the vehicle (for example: side view camera or cargo steps) are missing, damaged, loose, unsecure, hanging, or held with a zip-tie, tape, or similar",
+        "DOT Requirement – Amazon DOT decal (USDOT2881058) is damaged, missing, excessively dirty, or not visible, or any existing rental provider DOT decals are not covered and are visible. [DOT Only]",
+        "Prime decal is damaged, missing, excessively dirty, or not visible"
       ]
     },
     "Suspension & Exhaust System": {
       "_uiHeight": "",
       "details": [
-        "Loose or hanging objects underneath the vehicle."
+        "Loose or hanging objects underneath the vehicle"
       ]
     },
     "EV system": {
@@ -171,10 +171,10 @@
     "Back Tire, Wheel, & Rim": {
       "_uiHeight": "",
       "details": [
-        "Tire has insufficient tread (Less than 2/32/ or 1.6mm) on inner mosti middlei or outer most tread.",
-        "Tire has objectsi cutsi dentsi swellsi leaksi appears flati or exposed wire on surface.",
-        "Wheeli wheel nutsi rimi or mouning equipment is damagedi crackedi loosei missingi or broken.",
-        "DOT Requirement – Mud Flap is damagedi missingi unsecured or held up with a zip-tiei tape or similar ttDOT Only]"
+        "Tire has insufficient tread (Less than 2/32/ or 1.6mm) on inner most, middle, or outer most tread",
+        "Tire has objects, cuts, dents, swells, leaks, appears flat, or exposed wire on surface",
+        "Wheel, wheel nuts, rim, or mounting equipment is damaged, cracked, loose, missing, or broken",
+        "DOT Requirement – Mud Flap is damaged, missing, unsecured or held up with a zip-tie, tape or similar [DOT Only]"
       ]
     }
   },
@@ -184,68 +184,68 @@
     "Body & Doors": {
       "_uiHeight": "",
       "details": [
-        "One or more exterior doors (driveri passengeri cargoi or back door) cannot openiclosei locki or unlock properly from the inside of the vehicle.",
-        "Interior sliding door (bulkhead doors) cannot open or close.",
-        "Items attached to the body of the vehicle (for example: shelvesi floor panels) are missingi damagedi loosei unsecurei hangingi or held with a zip-tiei tapei or similar."
+        "One or more exterior doors (driver, passenger, cargo, or back door) cannot open, close, lock, or unlock properly from the inside of the vehicle",
+        "Interior sliding door (bulkhead doors) cannot open or close",
+        "Items attached to the body of the vehicle (for example: shelves, floor panels) are missing, damaged, loose, unsecure, hanging, or held with a zip-tie, tape, or similar"
       ]
     },
     "Brakes": {
       "_uiHeight": "",
       "details": [
-        "Foot brake is grindingi vibratesi leaking airi or not working.",
-        "Foot brake is squeakingi loosei weaki or stiff.",
-        "Parking brake is not working.",
-        "Parking brake is loosei weaki or stiff.",
-        "DOT Requirement – Air pressure gauge read less than 79 lb./in2 (5.5 kg/cm2) ttDOT Only]"
+        "Foot brake is grinding, vibrating, leaking air, or not working",
+        "Foot brake is squeaking, loose, weak, or stiff",
+        "Parking brake is not working",
+        "Parking brake is loose, weak, or stiff",
+        "DOT Requirement – Air pressure gauge read less than 79 lb./in2 (5.5 kg/cm2) [DOT Only]"
       ]
     },
     "Wipers": {
       "_uiHeight": "",
       "details": [
-        "Windshield washer system/wiper fluid reservoir is not working.",
-        "Wiper blades are missingi damagedi or not working."
+        "Windshield washer system/wiper fluid reservoir is not working",
+        "Wiper blades are missing, damaged, or not working"
       ]
     },
     "Windshield": {
       "_uiHeight": "",
       "details": [
-        "Any cracki chipi stars on the windshield >1/2 inch (excluding 1-inch border of windshield).",
-        "Device or accessory is mounted on the windshield."
+        "Any crack, chip, stars on the windshield >1/2 inch (excluding 1-inch border of windshield)",
+        "Device or accessory is mounted on the windshield"
       ]
     },
     "Lights & Light Covers": {
       "_uiHeight": "",
       "details": [
-        "Any red warning lights or lamps are on or flashing.",
-        "Any yellow warning lights/lamps are on or flashing ttEV only].",
-        "Dashboard light is not working.",
-        "Hazard light is not working.",
-        "Turn signal is not working."
+        "Any red warning lights or lamps are on or flashing",
+        "Any yellow warning lights/lamps are on or flashing [EV only]",
+        "Dashboard light is not working",
+        "Hazard light is not working",
+        "Turn signal is not working"
       ]
     },
     "Safety Accessories": {
       "_uiHeight": "",
       "details": [
-        "Delivery device cradle is damagedi missingi or is mounted with a tapei zip-tie or similar.",
-        "DOT Requirement – Spare fuses or reflecive triangles are missing ttDOT Only]",
-        "Fire exinguisher is missingi not mountedi mounted with a tapei zip-tie or similari or the dial or needle is not in the green zone ttEV and DOT Only]",
-        "Device is not able to be stowed behind dashboard without becoming loose and no device mount is present ttEV Only]",
-        "Driver display or center display is blank or not funcioning ttEV Only]"
+        "Delivery device cradle is damaged, missing, or is mounted with a tape, zip-tie, or similar",
+        "DOT Requirement – Spare fuses or reflective triangles are missing [DOT Only]",
+        "Fire extinguisher is missing, not mounted, mounted with a tape, zip-tie, or similar, or the dial or needle is not in the green zone [EV and DOT Only]",
+        "Device is not able to be stowed behind dashboard without becoming loose and no device mount is present [EV Only]",
+        "Driver display or center display is blank or not functioning [EV Only]"
       ]
     },
     "Camera or Monitor": {
       "_uiHeight": "",
       "details": [
         "Netradyne camera is hanging/disconnected from bracket",
-        "Rear or side camera monitor is missingi brokeni unsecurei obstructedi or not working.",
-        "Sensors or cameras are dirtyi or a warning light/message is present signaling an issue on the dashboard ttEV Only]"
+        "Rear or side camera monitor is missing, broken, unsecure, obstructed, or not working.",
+        "Sensors or cameras are dirty, or a warning light/message is present signaling an issue on the dashboard [EV Only]"
       ]
     },
-    "Vehicle DocumentaTon [All DOT only]": {
+    "Vehicle Documentation [DOT only]": {
       "_uiHeight": "",
       "details": [
-        "DOT Requirement – DOTi CA BITi or State Inspecion sicker is missingi damagedi illegiblei or expired ttDOT Only]",
-        "DOT Requirement – Insurance informaioni registraioni short haul exempioni or cerificaion of lease is missingi damagedi illegiblei or expired ttDOT Only]"
+        "DOT Requirement – DOT, CA BIT, or State Inspection sticker is missing, damaged, illegible, or expired [DOT Only]",
+        "DOT Requirement – Insurance information, registration, short haul exemption, or certification of lease is missing, damaged, illegible or expired [DOT Only]"
       ]
     },
     "HVAC System": {
@@ -258,17 +258,17 @@
     "Steering, Horn, & Alarm": {
       "_uiHeight": "",
       "details": [
-        "Horni backup alarmi or seatbelt alarm is not working.",
-        "Seatbelt is missingi torni frayedi or not working.",
-        "Steering wheel has excessive vibration.",
-        "Steering wheel is siffi loosei or needs alignment.",
-        "AVAS noise does not sound when vehicle travels under 12 mph ttEV Only]"
+        "Horn, backup alarm, or seatbelt alarm is not working",
+        "Seatbelt is missing, torn, frayed, or not working",
+        "Steering wheel has excessive vibration",
+        "Steering wheel is stiff, loose, or needs alignment",
+        "AVAS noise does not sound when vehicle travels under 12 mph [EV Only]"
       ]
     },
     "Cleanliness": {
       "_uiHeight": "",
       "details": [
-        "Headrest"
+        "Interior of vehicle has excessive grime, odor, dust, or trash present"
       ]
     }
   }
