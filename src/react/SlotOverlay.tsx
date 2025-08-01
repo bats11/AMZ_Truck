@@ -6,7 +6,8 @@ import { slotManager } from "../SlotManager";
 interface SlotOverlayProps {
   slotCount: number;
   onClickSlot?: (index: number) => void;
-  slotSize?: string;
+  slotWidth?: string;
+  slotHeight?: string;
   positionStyle?: React.CSSProperties;
   rowGap?: string;
   columnGap?: string;
@@ -16,10 +17,11 @@ interface SlotOverlayProps {
 export default function SlotOverlay({
   slotCount,
   onClickSlot,
-  slotSize = "4rem",
+  slotWidth = "4.7rem",
+  slotHeight = "4.4rem",
   positionStyle = {},
   rowGap = "0.5rem",
-  columnGap = "0.7rem",
+  columnGap = "0",
   direction = "rtl",
 }: SlotOverlayProps) {
   const [visibleSlots, setVisibleSlots] = useState<boolean[]>(
@@ -30,7 +32,6 @@ export default function SlotOverlay({
 
   useEffect(() => {
     const handler = (slotIndex: number) => {
-      // Solo lato sinistro fa scomparire tutti gli slot assegnati
       if (!isRightSide || slotIndex < 8) {
         setVisibleSlots((prev) => {
           const next = [...prev];
@@ -44,14 +45,14 @@ export default function SlotOverlay({
 
   const gridStyle: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns: `repeat(6, ${slotSize})`,
-    gridTemplateRows: `repeat(2, ${slotSize})`,
+    gridTemplateColumns: `repeat(6, ${slotWidth})`,
+    gridTemplateRows: `repeat(2, ${slotHeight})`,
     rowGap,
     columnGap,
     alignContent: "start",
     justifyContent: "center",
-    gridAutoFlow: "column",
     direction,
+    // 🔥 gridAutoFlow rimosso per evitare forzature layout
   };
 
   const renderSlot = (index: number) => {
@@ -63,7 +64,6 @@ export default function SlotOverlay({
       pointerEvents: isVisible ? "auto" : "none",
     };
 
-    // ➕ Solo lato destro: slot 8 e 9 sono larghi
     if (isRightSide && (index === 8 || index === 9)) {
       return (
         <button
@@ -78,13 +78,10 @@ export default function SlotOverlay({
             slotManager.assignToSlot(index);
             onClickSlot?.(index);
           }}
-        >
-          {index + 1}
-        </button>
+        />
       );
     }
 
-    // Slot normali (sempre 1x1)
     return (
       <button
         key={index}
@@ -94,9 +91,7 @@ export default function SlotOverlay({
           slotManager.assignToSlot(index);
           onClickSlot?.(index);
         }}
-      >
-        {index + 1}
-      </button>
+      />
     );
   };
 
