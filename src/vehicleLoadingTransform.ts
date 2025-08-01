@@ -5,6 +5,7 @@ import { getModelRoot } from "./MoveComponent";
 import { vehicleLoadingManager } from "./vehicleLoadingManager";
 import { CartEntity } from "./CartEntity";
 import { createAnimation, vec3DegToRad } from "./utils";
+import { handleAnimatedMeshes } from "./animatedMeshes";
 
 let activeCamera: BABYLON.FreeCamera | null = null;
 
@@ -106,7 +107,7 @@ export async function runTruckTransform(label: TruckTransformLabel) {
   await Promise.all([fadeInPromise, transformPromise]);
 
   if (label === "start" && vehicleLoadingManager.shouldRunInitialEntry()) {
-    await runInitialCargoEntry();
+    await InitialCargoAnimation();
     vehicleLoadingManager.markInitialEntryDone();
   }
 
@@ -117,8 +118,21 @@ export const animateToStartLoading = () => runTruckTransform("start");
 export const animateToLeftLoading = () => runTruckTransform("opening");
 export const liftTruckAfterCartArrival = () => runTruckTransform("confirm");
 
-export async function runInitialCargoEntry() {
-  console.log("🎬 Placeholder: funzione eseguita solo al primo ingresso.");
+export async function InitialCargoAnimation() {
+  const modelRoot = getModelRoot();
+  if (!modelRoot) {
+    console.warn("⚠️ ModelRoot non trovato. Animazione iniziale saltata.");
+    return;
+  }
+
+  const scene = modelRoot.getScene();
+
+  await handleAnimatedMeshes(modelRoot, scene, {
+  position: BABYLON.Vector3.Zero(), // richiesto dal tipo TransformSetting
+  animatedMeshGroups: ["Back Door"],
+});
+
+  console.log("✅ InitialCargoAnimation completata.");
 }
 
 export async function animateCartsIn(carts: CartEntity[], scene: BABYLON.Scene) {
