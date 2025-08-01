@@ -16,7 +16,7 @@ interface SlotOverlayProps {
 export default function SlotOverlay({
   slotCount,
   onClickSlot,
-  slotSize = "4rem",
+  slotSize = "5rem", // <-- aumenta qui la dimensione
   positionStyle = {},
   rowGap = "0.5rem",
   columnGap = "0.7rem",
@@ -79,7 +79,9 @@ export default function SlotOverlay({
             onClickSlot?.(index);
           }}
         >
-          {index + 1}
+          <span className="slot-dot">
+            <span className="slot-dot-ring" />
+          </span>
         </button>
       );
     }
@@ -95,7 +97,9 @@ export default function SlotOverlay({
           onClickSlot?.(index);
         }}
       >
-        {index + 1}
+        <span className="slot-dot">
+          <span className="slot-dot-ring" />
+        </span>
       </button>
     );
   };
