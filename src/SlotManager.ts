@@ -47,13 +47,11 @@ class SlotManager {
     const bag = this.currentBag;
     const isExtraSlot = this.useRightSide && (slotIndex === 8 || slotIndex === 9);
 
-    // ❌ Blocca se bag normale tenta di andare in uno slot extra
     if (isExtraSlot && !bag.isExtra) {
       console.warn(`⛔ Slot ${slotIndex} è riservato alle bag extra. Assegnazione rifiutata per ${bag.id}.`);
       return;
     }
 
-    // ❌ Blocca se slot normale già occupato
     if (!isExtraSlot && this.slotMap.has(slotIndex)) {
       console.warn(`⛔ Slot ${slotIndex} è già occupato.`);
       return;
@@ -69,10 +67,12 @@ class SlotManager {
 
     const worldPos = bag.root.getAbsolutePosition();
     bag.root.setParent(modelRoot);
-    const localPos = BABYLON.Vector3.TransformCoordinates(
-      worldPos,
-      modelRoot.getWorldMatrix().invert()
-    );
+
+    // ✅ FIX SICURO — copia la matrice invece di mutarla
+    const inverseWorld = modelRoot.getWorldMatrix().clone();
+    inverseWorld.invert();
+    const localPos = BABYLON.Vector3.TransformCoordinates(worldPos, inverseWorld);
+
     bag.root.position.copyFrom(localPos);
 
     let slotTransform;
@@ -81,12 +81,12 @@ class SlotManager {
       const index = slotIndex as 8 | 9;
       const list = this.extraSlotMap.get(index) ?? [];
       const slotTransforms = EXTRA_SLOT_TRANSFORMS[index];
-
       const positionIndex = Math.min(list.length, slotTransforms.length - 1);
       slotTransform = slotTransforms[positionIndex];
 
       list.push(bag);
       this.extraSlotMap.set(index, list);
+
       console.log(`📦 Extra bag ${bag.id} assegnata a slot ${slotIndex} → pos ${positionIndex}`);
     } else {
       this.slotMap.set(slotIndex, bag);
@@ -146,9 +146,7 @@ class SlotManager {
 
   public registerCorrectBag(bag: BagEntity) {
     this.correctBagOrder.push(bag);
-    console.log(
-      `🎯 Ordine corretto: slot ${this.correctBagOrder.length - 1} → ${bag.id}`
-    );
+    console.log(`🎯 Ordine corretto: slot ${this.correctBagOrder.length - 1} → ${bag.id}`);
   }
 
   public getCorrectBagOrder(): BagEntity[] {
