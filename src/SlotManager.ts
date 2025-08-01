@@ -4,18 +4,18 @@ import { handleInterpolatedTransform } from "./transformHandlers";
 import {
   BAG_SLOT_TRANSFORMS_LEFT,
   BAG_SLOT_TRANSFORMS_RIGHT,
+  EXTRA_SLOT_TRANSFORMS,
 } from "./slotPositions";
 import { getModelRoot } from "./MoveComponent";
 import * as BABYLON from "@babylonjs/core";
 
 class SlotManager {
   private slotMap: Map<number, BagEntity> = new Map();
-  private extraSlotMap: Map<8 | 9, BagEntity[]> = new Map(); // ✅ slot larghi multipli
+  private extraSlotMap: Map<8 | 9, BagEntity[]> = new Map();
   private currentBag: BagEntity | null = null;
   private slotCapacity: number = 12;
   private correctBagOrder: BagEntity[] = [];
   private slotAssignedResolver: (() => void) | null = null;
-
   private useRightSide = false;
 
   private listeners: ((slotIndex: number) => void)[] = [];
@@ -44,25 +44,22 @@ class SlotManager {
       return;
     }
 
+    const bag = this.currentBag;
     const isExtraSlot = this.useRightSide && (slotIndex === 8 || slotIndex === 9);
 
-    // ❌ Blocca se slot già occupato (eccetto extra larghi)
+    // ❌ Blocca se bag normale tenta di andare in uno slot extra
+    if (isExtraSlot && !bag.isExtra) {
+      console.warn(`⛔ Slot ${slotIndex} è riservato alle bag extra. Assegnazione rifiutata per ${bag.id}.`);
+      return;
+    }
+
+    // ❌ Blocca se slot normale già occupato
     if (!isExtraSlot && this.slotMap.has(slotIndex)) {
       console.warn(`⛔ Slot ${slotIndex} è già occupato.`);
       return;
     }
 
-    const bag = this.currentBag;
     this.currentBag = null;
-
-    if (isExtraSlot) {
-      const list = this.extraSlotMap.get(slotIndex as 8 | 9) ?? [];
-      list.push(bag);
-      this.extraSlotMap.set(slotIndex as 8 | 9, list);
-      console.log(`📦 Extra bag ${bag.id} assegnata a slot ${slotIndex} (multi bag)`);
-    } else {
-      this.slotMap.set(slotIndex, bag);
-    }
 
     const modelRoot = getModelRoot();
     if (!modelRoot) {
@@ -78,9 +75,25 @@ class SlotManager {
     );
     bag.root.position.copyFrom(localPos);
 
-    const slotTransform = this.useRightSide
-      ? BAG_SLOT_TRANSFORMS_RIGHT[slotIndex]
-      : BAG_SLOT_TRANSFORMS_LEFT[slotIndex];
+    let slotTransform;
+
+    if (isExtraSlot) {
+      const index = slotIndex as 8 | 9;
+      const list = this.extraSlotMap.get(index) ?? [];
+      const slotTransforms = EXTRA_SLOT_TRANSFORMS[index];
+
+      const positionIndex = Math.min(list.length, slotTransforms.length - 1);
+      slotTransform = slotTransforms[positionIndex];
+
+      list.push(bag);
+      this.extraSlotMap.set(index, list);
+      console.log(`📦 Extra bag ${bag.id} assegnata a slot ${slotIndex} → pos ${positionIndex}`);
+    } else {
+      this.slotMap.set(slotIndex, bag);
+      slotTransform = this.useRightSide
+        ? BAG_SLOT_TRANSFORMS_RIGHT[slotIndex]
+        : BAG_SLOT_TRANSFORMS_LEFT[slotIndex];
+    }
 
     const transform = {
       position: slotTransform.position,
@@ -194,7 +207,6 @@ class SlotManager {
     };
   }
 
-
   public reset() {
     this.slotMap.clear();
     this.extraSlotMap.clear();
@@ -204,7 +216,6 @@ class SlotManager {
     this.useRightSide = false;
     console.log("🔁 SlotManager resettato.");
   }
-  
 }
 
 export const slotManager = new SlotManager();
