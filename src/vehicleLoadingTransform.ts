@@ -123,9 +123,9 @@ export async function InitialCargoAnimation() {
   const scene = modelRoot.getScene();
 
   await handleAnimatedMeshes(modelRoot, scene, {
-  position: BABYLON.Vector3.Zero(), // richiesto dal tipo TransformSetting
-  animatedMeshGroups: ["Back Door"],
-});
+    position: BABYLON.Vector3.Zero(), // richiesto dal tipo TransformSetting
+    animatedMeshGroups: ["Back Door"],
+  });
 
   console.log("✅ InitialCargoAnimation completata.");
 }
@@ -151,10 +151,12 @@ export async function animateCartsIn(carts: CartEntity[], scene: BABYLON.Scene) 
   await Promise.all(promises);
 }
 
+// ✅ versione estesa con supporto a alsoShowList
 export async function hideTruckSideMeshes(
   side: "left" | "right",
   scene: BABYLON.Scene,
-  alwaysHideList: string[] = []
+  alwaysHideList: string[] = [],
+  alsoShowList: string[] = []
 ) {
   const modelRoot = getModelRoot();
   if (!modelRoot) return;
@@ -171,9 +173,8 @@ export async function hideTruckSideMeshes(
 
   const meshesToHide = [...suffixMeshes, ...extraMeshes];
 
-  if (meshesToHide.length === 0) {
-    console.warn(`⚠️ Nessuna mesh trovata da nascondere (lato: ${side})`);
-    return;
+  for (const mesh of meshesToHide) {
+    previouslyHiddenTruckMeshes.add(mesh.name);
   }
 
   const easing = new BABYLON.QuadraticEase();
@@ -181,10 +182,6 @@ export async function hideTruckSideMeshes(
 
   const frameStart = 0;
   const frameEnd = 120;
-
-  for (const mesh of meshesToHide) {
-    previouslyHiddenTruckMeshes.add(mesh.name);
-  }
 
   const promises = meshesToHide.map((mesh) => {
     const anim = new BABYLON.Animation(
@@ -208,6 +205,25 @@ export async function hideTruckSideMeshes(
       });
     });
   });
+
+  // ✅ Mesh da mostrare (fade-in)
+  if (alsoShowList.length > 0) {
+    for (const name of alsoShowList) {
+      const mesh = scene.getNodeByName(name);
+      if (mesh && mesh instanceof BABYLON.AbstractMesh) {
+        BABYLON.Animation.CreateAndStartAnimation(
+          `fadeIn_${name}`,
+          mesh,
+          "visibility",
+          60,
+          30,
+          mesh.visibility,
+          1,
+          BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+      }
+    }
+  }
 
   await Promise.all(promises);
   console.log(`🎭 Mesh nascoste: ${meshesToHide.length} (lato opposto + extra: [${alwaysHideList.join(", ")}])`);

@@ -43,7 +43,7 @@ export class LoadTruckController {
 
   private async begin() {
     slotManager.setRightSide(this.side === "right");
-    await hideTruckSideMeshes(this.side, this.scene, []);
+    await hideTruckSideMeshes(this.side, this.scene, [], ["SM_Cargo_Bay_cut"]);
     const allCarts = (window as any)._CART_ENTITIES as CartEntity[] | undefined;
     if (!allCarts || allCarts.length === 0) return;
     this.carts = allCarts;
