@@ -43,24 +43,16 @@ export class LoadTruckController {
 
   private async begin() {
     slotManager.setRightSide(this.side === "right");
-
     await hideTruckSideMeshes(this.side, this.scene, []);
-
     const allCarts = (window as any)._CART_ENTITIES as CartEntity[] | undefined;
-    if (!allCarts || allCarts.length === 0) {
-      console.warn("⚠️ Nessun carrello disponibile.");
-      return;
-    }
-
+    if (!allCarts || allCarts.length === 0) return;
     this.carts = allCarts;
 
     if (this.side === "left") {
       const animations = [];
-
       if (this.carts[0]) animations.push(this.moveCartTo(this.carts[0], FOCUS_POS));
       if (this.carts[1]) animations.push(this.moveCartTo(this.carts[1], WAIT_POS_1));
       if (this.carts[2]) animations.push(this.moveCartTo(this.carts[2], WAIT_POS_2));
-
       await Promise.all(animations);
     }
 
@@ -69,15 +61,11 @@ export class LoadTruckController {
   }
 
   private async iterateBagsInCart(cart: CartEntity) {
-    const bags = cart.getLoadedBags()
-      .filter(b => !b.isExtra)
-      .slice()
-      .reverse();
+    const bags = cart.getLoadedBags().filter(b => !b.isExtra).slice().reverse();
 
     for (const bag of bags) {
       const worldMatrix = bag.root.getWorldMatrix();
       const worldPos = worldMatrix.getTranslation();
-
       bag.root.setParent(null);
       bag.root.position.copyFrom(worldPos);
       cart.removeBag(bag);
@@ -90,10 +78,24 @@ export class LoadTruckController {
 
       if (slotManager.isFull()) {
         const result = slotManager.validate();
+        console.log("🧪 Validazione sinistra:", result);
+
         (window as any)._UI_VALIDATION_RESULT = {
           isValid: result.isValid,
           errorCount: result.errors.length,
         };
+
+        window.dispatchEvent(new Event("clear-slot-errors"));
+
+        if (!result.isValid) {
+          const errorSlots = result.errors.map(e =>
+            typeof e === "number" ? e : e.slot
+          );
+          console.log("❌ Highlight error slots (left)", errorSlots);
+          window.dispatchEvent(new CustomEvent("highlight-error-slots", {
+            detail: { errors: errorSlots }
+          }));
+        }
 
         (window as any).setVehicleUiStage?.("leftResults");
         return;
@@ -102,7 +104,6 @@ export class LoadTruckController {
 
     const cartHasExtra = cart.getLoadedBags().some(b => b.isExtra);
     if (cartHasExtra) {
-      console.log(`♻️ Carrello ${cart.id} ha bag extra, passo direttamente a fase extra.`);
       await this.iterateExtraBagsInCart(cart);
       return;
     }
@@ -118,25 +119,19 @@ export class LoadTruckController {
       if (this.carts[0]) await this.moveCartTo(this.carts[0], FOCUS_POS);
       if (this.carts[1]) await this.moveCartTo(this.carts[1], WAIT_POS_1);
       if (this.carts[2]) await this.moveCartTo(this.carts[2], WAIT_POS_2);
-
       await this.iterateBagsInCart(this.carts[0]);
     } else {
-      console.log("🚩 Tutte le bag normali caricate. Passo alla fase extra.");
       window.dispatchEvent(new CustomEvent("start-extra-bags"));
       await this.iterateExtraBagsInCart(this.carts[0]);
     }
   }
 
   private async iterateExtraBagsInCart(cart: CartEntity) {
-    const bags = cart.getLoadedBags()
-      .filter(b => b.isExtra)
-      .slice()
-      .reverse();
+    const bags = cart.getLoadedBags().filter(b => b.isExtra).slice().reverse();
 
     for (const bag of bags) {
       const worldMatrix = bag.root.getWorldMatrix();
       const worldPos = worldMatrix.getTranslation();
-
       bag.root.setParent(null);
       bag.root.position.copyFrom(worldPos);
       cart.removeBag(bag);
@@ -158,28 +153,36 @@ export class LoadTruckController {
       if (this.carts[0]) await this.moveCartTo(this.carts[0], FOCUS_POS);
       if (this.carts[1]) await this.moveCartTo(this.carts[1], WAIT_POS_1);
       if (this.carts[2]) await this.moveCartTo(this.carts[2], WAIT_POS_2);
-
       await this.iterateExtraBagsInCart(this.carts[0]);
     } else {
-      console.log("🧪 Validazione finale combinata (bag normali + extra)");
       const resultNormal = slotManager.validate();
       const resultExtra = slotManager.validateExtraBags();
-
       const isValid = resultNormal.isValid && resultExtra.isValid;
       const totalErrors = resultNormal.errors.length + resultExtra.errors.length;
+
+      console.log("🧪 Validazione destra:", { resultNormal, resultExtra });
 
       (window as any)._UI_VALIDATION_RESULT = {
         isValid,
         errorCount: totalErrors,
       };
 
-      (window as any).setVehicleUiStage?.("rightResults");
+      window.dispatchEvent(new Event("clear-slot-errors"));
 
-      // ✅ Notifica visiva → attiva stato "occupied" sugli slot larghi
+      if (!isValid) {
+        const errorSlots = [...resultNormal.errors, ...resultExtra.errors].map(e =>
+          typeof e === "number" ? e : e.slot
+        );
+        console.log("❌ Highlight error slots (right)", errorSlots);
+        window.dispatchEvent(new CustomEvent("highlight-error-slots", {
+          detail: { errors: errorSlots }
+        }));
+      }
+
+      (window as any).setVehicleUiStage?.("rightResults");
       window.dispatchEvent(new Event("extra-bags-finished"));
     }
   }
-
 
   private async moveCartTo(cart: CartEntity, target: BABYLON.Vector3) {
     const transform = {
@@ -210,7 +213,6 @@ export class LoadTruckController {
   private async slideOutAndDisposeCart(cart: CartEntity) {
     const root = cart.root;
     const scene = root.getScene();
-
     const startPos = root.position.clone();
     const endPos = startPos.add(new BABYLON.Vector3(-5, 0, 0));
 

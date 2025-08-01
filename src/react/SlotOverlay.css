@@ -69,3 +69,22 @@
 .slot-button.occupied .slot-dot {
   opacity: 0;
 }
+
+/* Slot marcati come errore: bordo rosso + sfondo tenue */
+.slot-button.error {
+  border-color: #c40000;
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+/* Simbolo X al centro dello slot in errore */
+.slot-x {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #c40000;
+  font-size: 2.2rem;
+  font-weight: bold;
+  font-family: 'EmberCondensedBold', sans-serif;
+  pointer-events: none;
+}

@@ -24,6 +24,7 @@ export default function SlotOverlay({
 }: SlotOverlayProps) {
   const [occupiedSlots, setOccupiedSlots] = useState<boolean[]>(Array(slotCount).fill(false));
   const [extraFinished, setExtraFinished] = useState(false);
+  const [errorSlots, setErrorSlots] = useState<number[]>([]);
   const isRightSide = direction === "ltr";
 
   useEffect(() => {
@@ -43,6 +44,22 @@ export default function SlotOverlay({
     return () => window.removeEventListener("extra-bags-finished", handler);
   }, []);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const custom = e as CustomEvent;
+      const errors = custom.detail?.errors as number[] || [];
+      setErrorSlots(errors);
+    };
+    window.addEventListener("highlight-error-slots", handler);
+    return () => window.removeEventListener("highlight-error-slots", handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setErrorSlots([]);
+    window.addEventListener("clear-slot-errors", handler);
+    return () => window.removeEventListener("clear-slot-errors", handler);
+  }, []);
+
   const gridStyle: React.CSSProperties = {
     display: "grid",
     gridTemplateColumns: `repeat(6, ${slotSize})`,
@@ -59,13 +76,14 @@ export default function SlotOverlay({
     const isMultiSlot = isRightSide && (index === 8 || index === 9);
     const isOccupied = isMultiSlot ? false : occupiedSlots[index];
     const showOccupied = isMultiSlot ? extraFinished : occupiedSlots[index];
+    const isError = errorSlots.includes(index);
 
     const baseStyle: React.CSSProperties = {
       width: "100%",
       height: "100%",
     };
 
-    const className = `slot-button${showOccupied ? " occupied" : ""}`;
+    const className = `slot-button${showOccupied ? " occupied" : ""}${isError ? " error" : ""}`;
 
     const handleClick = () => {
       if (isOccupied) return;
@@ -74,17 +92,12 @@ export default function SlotOverlay({
       onClickSlot?.(index);
     };
 
-    const button = (
-      <button
-        key={index}
-        className={className}
-        style={baseStyle}
-        onClick={handleClick}
-      >
-        <span className="slot-dot">
-          <span className="slot-dot-ring" />
-        </span>
-      </button>
+    const dotOrX = isError ? (
+      <span className="slot-x">✕</span>
+    ) : (
+      <span className="slot-dot">
+        <span className="slot-dot-ring" />
+      </span>
     );
 
     if (isMultiSlot) {
@@ -99,14 +112,21 @@ export default function SlotOverlay({
           }}
           onClick={handleClick}
         >
-          <span className="slot-dot">
-            <span className="slot-dot-ring" />
-          </span>
+          {dotOrX}
         </button>
       );
     }
 
-    return button;
+    return (
+      <button
+        key={index}
+        className={className}
+        style={baseStyle}
+        onClick={handleClick}
+      >
+        {dotOrX}
+      </button>
+    );
   };
 
   return (
