@@ -23,10 +23,10 @@ export const BAG_OFFSET_PRESET_LAST: BABYLON.Vector3[] = [
 ];
 
 export const BAG_EXTRA_OFFSETS: BABYLON.Vector3[] = [
-  new BABYLON.Vector3(0.5414, 0.436, -0.6),
-  new BABYLON.Vector3(0.24223 , 0.436, -0.6),
-  new BABYLON.Vector3(-0.057, 0.436, -0.6),
-  new BABYLON.Vector3(0.5414, 0.68, -0.6),
-  new BABYLON.Vector3(0.24223, 0.68, -0.6),
-  new BABYLON.Vector3(-0.057, 0.68, -0.6),
+  new BABYLON.Vector3(0.5414, 0.2, -0.6),
+  new BABYLON.Vector3(0.24223 , 0.2, -0.6),
+  new BABYLON.Vector3(-0.057, 0.2, -0.6),
+  new BABYLON.Vector3(0.5414, 0.45, -0.6),
+  new BABYLON.Vector3(0.24223, 0.45, -0.6),
+  new BABYLON.Vector3(-0.057, 0.45, -0.6),
 ];

@@ -28,7 +28,7 @@ const EXTRA_BAG_STAGING_ROTATION = new BABYLON.Vector3(
   BABYLON.Tools.ToRadians(0)
 );
 
-const EXTRA_BAG_STAGING_POS = new BABYLON.Vector3(0, 4.5, -13);
+const EXTRA_BAG_STAGING_POS = new BABYLON.Vector3(0, 4.5, -13.6);
 
 export class LoadTruckController {
   private scene: BABYLON.Scene;

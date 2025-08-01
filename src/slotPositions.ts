@@ -42,13 +42,13 @@ export const BAG_SLOT_TRANSFORMS_RIGHT: SlotTransform[] = [
 
 export const EXTRA_SLOT_TRANSFORMS: Record<8 | 9, SlotTransform[]> = {
   8: [
-    { position: new BABYLON.Vector3(-2.15, 0.1727, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
-    { position: new BABYLON.Vector3(-2.55, 0.1727, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
-    { position: new BABYLON.Vector3(-2.95, 0.1727, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
+    { position: new BABYLON.Vector3(-2.15, 0, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
+    { position: new BABYLON.Vector3(-2.55, 0, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
+    { position: new BABYLON.Vector3(-2.95, 0, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
   ],
   9: [
-    { position: new BABYLON.Vector3(-2.15, -0.45, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
-    { position: new BABYLON.Vector3(-2.55, -0.45, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
-    { position: new BABYLON.Vector3(-2.95, -0.45, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
+    { position: new BABYLON.Vector3(-2.15, -0.60, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
+    { position: new BABYLON.Vector3(-2.55, -0.60, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
+    { position: new BABYLON.Vector3(-2.95, -0.60, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
   ],
 };
