@@ -47,8 +47,8 @@ export const EXTRA_SLOT_TRANSFORMS: Record<8 | 9, SlotTransform[]> = {
     { position: new BABYLON.Vector3(-2.75, -0.45, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
   ],
   9: [
-    { position: new BABYLON.Vector3(-2.15, 0.1727, -0.7554), rotation: DEFAULT_ROTATION },
-    { position: new BABYLON.Vector3(-2.45, 0.1727, -0.7554), rotation: DEFAULT_ROTATION },
-    { position: new BABYLON.Vector3(-2.75, 0.1727, -0.7554), rotation: DEFAULT_ROTATION },
+    { position: new BABYLON.Vector3(-2.15, 0.1727, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
+    { position: new BABYLON.Vector3(-2.45, 0.1727, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
+    { position: new BABYLON.Vector3(-2.75, 0.1727, -0.7554), rotation: EXTRA_DEFAULT_ROTATION },
   ],
 };
