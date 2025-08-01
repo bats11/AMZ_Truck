@@ -100,6 +100,12 @@ export default function VehicleLoadingUI() {
                 if (isBusy) return;
                 setIsBusy(true);
 
+                if (vehicleLoadingManager.shouldRunInitialEntry()) {
+                  const { InitialCargoAnimation } = await import("../vehicleLoadingTransform");
+                  InitialCargoAnimation();
+                  vehicleLoadingManager.markInitialEntryDone();
+                }
+
                 vehicleLoadingManager.setState("leftSideLoading");
                 setUiStage("none");
 
@@ -108,6 +114,7 @@ export default function VehicleLoadingUI() {
                   setIsBusy(false);
                 }, 500);
               }}
+
             >
               Start Loading Vehicle
             </motion.button>

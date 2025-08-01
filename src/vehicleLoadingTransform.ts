@@ -106,11 +106,6 @@ export async function runTruckTransform(label: TruckTransformLabel) {
 
   await Promise.all([fadeInPromise, transformPromise]);
 
-  if (label === "start" && vehicleLoadingManager.shouldRunInitialEntry()) {
-    await InitialCargoAnimation();
-    vehicleLoadingManager.markInitialEntryDone();
-  }
-
   console.log(`🚚 Truck transform '${label}' eseguito.`);
 }
 
