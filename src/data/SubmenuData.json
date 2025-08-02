@@ -1,6 +1,6 @@
 {
   "FRONT SIDE": {
-    "_uiHeight": "40%",
+    "_uiHeight": "50%",
     "Lights & Light Covers": {
       "_uiHeight": "",
       "details": [
@@ -30,9 +30,9 @@
     }
   },
   "DRIVER SIDE": {
-    "_uiHeight": "50%",
+    "_uiHeight": "60%",
     "Back Tire, Wheel, & Rim": {
-      "_uiHeight": "",
+      "_uiHeight": "55%",
       "details": [
         "Tire has insufficient tread (Less than 2/32/ or 1.6mm) on inner most, middle, or outer most tread",
         "Tire has objects, cuts, dents, swells, leaks, appears flat, or exposed wire on surface",
@@ -41,13 +41,13 @@
       ]
     },
     "Lights & Light Covers": {
-      "_uiHeight": "",
+      "_uiHeight": "55%",
       "details": [
         "Any lights are cracked (leaving hole or void), missing, or not working properly"
       ]
     },
     "Body & Doors": {
-      "_uiHeight": "",
+      "_uiHeight": "50%",
       "details": [
         "Items attached to the body of the vehicle (for example: side view camera or cargo steps) are missing, damaged, loose, unsecure, hanging, or held with a zip-tie, tape, or similar",
         "DOT Requirement – Amazon DOT decal (USDOT2881058) is damaged, missing, excessively dirty, or not visible, or any existing rental provider DOT decals are not covered and are visible. [DOT Only]",
@@ -55,7 +55,7 @@
       ]
     },
     "Suspension & Exhaust System": {
-      "_uiHeight": "40%",
+      "_uiHeight": "55%",
       "details": [
         "Active non-clear fluid leaking on the ground",
         "Loose or hanging objects underneath the vehicle",
@@ -63,7 +63,7 @@
       ]
     },
     "EV System": {
-      "_uiHeight": "",
+      "_uiHeight": "65%",
       "details": [
         "Orange wires are present in the charging port or cable. Warning High Voltage! Do Not Touch!",
         "Charging port cap is missing or broken"
@@ -88,9 +88,9 @@
     }
   },
   "BACK SIDE": {
-    "_uiHeight": "40%",
+    "_uiHeight": "50%",
     "Lights & Light Covers": {
-      "_uiHeight": "",
+      "_uiHeight": "50%",
       "details": [
         "Hazard light is not working",
         "License plate light is not working",
@@ -99,7 +99,7 @@
       ]
     },
     "Body & Doors": {
-      "_uiHeight": "",
+      "_uiHeight": "45%",
       "details": [
         "Items attached to the body of the vehicle (for example: bumper, back-up camera, lift gate, or rear step) are missing, damaged, loose, unsecure, hanging, or held with a zip-tie, tape, or similar"
       ]
@@ -111,7 +111,7 @@
       ]
     },
     "Suspension & Exhaust System": {
-      "_uiHeight": "",
+      "_uiHeight": "55%",
       "details": [
         "Loose or hanging objects underneath"
       ]
@@ -124,9 +124,9 @@
     }
   },
   "PASSENGER SIDE": {
-    "_uiHeight": "50%",
+    "_uiHeight": "60%",
     "Side Mirrors": {
-      "_uiHeight": "40%",
+      "_uiHeight": "55%",
       "details": [
         "Side mirror or window glass is cracked, damaged, or missing",
         "Side mirrors are loose, hanging, unsecure, or held up with a zip-tie, tape, or similar",
@@ -149,7 +149,7 @@
       ]
     },
     "Body & Doors": {
-      "_uiHeight": "",
+      "_uiHeight": "50%",
       "details": [
         "Items attached to the body of the vehicle (for example: side view camera or cargo steps) are missing, damaged, loose, unsecure, hanging, or held with a zip-tie, tape, or similar",
         "DOT Requirement – Amazon DOT decal (USDOT2881058) is damaged, missing, excessively dirty, or not visible, or any existing rental provider DOT decals are not covered and are visible. [DOT Only]",
@@ -157,7 +157,7 @@
       ]
     },
     "Suspension & Exhaust System": {
-      "_uiHeight": "",
+      "_uiHeight": "55%",
       "details": [
         "Loose or hanging objects underneath the vehicle"
       ]
@@ -169,7 +169,7 @@
       ]
     },
     "Back Tire, Wheel, & Rim": {
-      "_uiHeight": "",
+      "_uiHeight": "55%",
       "details": [
         "Tire has insufficient tread (Less than 2/32/ or 1.6mm) on inner most, middle, or outer most tread",
         "Tire has objects, cuts, dents, swells, leaks, appears flat, or exposed wire on surface",
@@ -179,7 +179,7 @@
     }
   },
   "IN CAB": {
-    "_uiHeight": "40%",
+    "_uiHeight": "50%",
     "isCustomSequence": true,
     "Body & Doors": {
       "_uiHeight": "",
