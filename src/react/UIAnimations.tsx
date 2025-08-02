@@ -47,20 +47,29 @@ export default function UIAnimations({
   }, []);
 
   useEffect(() => {
-    const handler = () => {
+    const handler = async () => {
       if (experienceType !== "cargoLoad") {
         console.warn("⛔ Ignorato 'return-to-menu': non in modalità cargoLoad.");
         return;
       }
 
       console.log("🔙 Evento 'return-to-menu' ricevuto. Resetting...");
+
+      const scene = (window as any)._BABYLON_SCENE;
+      if (scene) {
+        const { handleExitAnimations } = await import("../animatedMeshes");
+        handleExitAnimations(scene);
+      }
+
       setActiveMenu(null);
       setActiveSubmenu(null);
       resetApp();
     };
+
     window.addEventListener("return-to-menu", handler);
     return () => window.removeEventListener("return-to-menu", handler);
   }, [experienceType]);
+
 
   return (
     <>
