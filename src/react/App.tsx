@@ -57,6 +57,8 @@ export default function App() {
     setActiveMenu(null);
     setActiveSubmenu(null);
     setAppPhase("selection");
+    setEntryDone(false); // 🔒 blocca interazioni finché animazione non è completata
+
     setSelectionKey((prev) => prev + 1);
     setExperienceType(null);
 
