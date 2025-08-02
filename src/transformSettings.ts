@@ -112,7 +112,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       triggerFovAdjust: true,
       sequenceStartTransform: 
         {
-          position: new BABYLON.Vector3(0, 2.9, -5.8),
+          position: new BABYLON.Vector3(0, 3.8, -5.6),
           rotation: vec3DegToRad([0, 270, -12]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 1.0,
