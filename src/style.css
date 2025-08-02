@@ -401,14 +401,20 @@ html, body {
 }
 
 .damage-dot-absolute {
-  position: absolute;
+   position: absolute;
   right: -2rem;
   top: 50%;
   transform: translateY(-50%);
   width: 0.7rem;
   height: 0.7rem;
-  background-color: #ff8f00; /* arancione segnalazione */
+  background-color: #ff8f00;
   border-radius: 50%;
   pointer-events: none;
   box-shadow: 0 0 0.4rem rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.damage-dot-absolute.visible {
+  opacity: 1;
 }

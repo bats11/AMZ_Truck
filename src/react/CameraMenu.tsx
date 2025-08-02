@@ -249,9 +249,12 @@ export default function CameraMenu({
                   style={{ position: "relative" }}
                 >
                   {subKey}
-                  {details.some((detail) => checkedItems[detail]) && (
-                    <span className="damage-dot-absolute" />
-                  )}
+                  <span
+                    className={
+                      `damage-dot-absolute${details.some((detail) => checkedItems[detail]) ? " visible" : ""}`
+                    }
+                  />
+
                 </button>
 
                 <AnimatePresence initial={false}>
