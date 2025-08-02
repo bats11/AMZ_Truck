@@ -19,7 +19,7 @@ export default function SlotOverlay({
   slotSize = "5rem",
   positionStyle = {},
   rowGap = "0.5rem",
-  columnGap = "0.7rem",
+  columnGap = ".8rem",
   direction = "rtl",
 }: SlotOverlayProps) {
   const [occupiedSlots, setOccupiedSlots] = useState<boolean[]>(Array(slotCount).fill(false));
