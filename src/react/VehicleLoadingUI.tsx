@@ -56,10 +56,10 @@ export default function VehicleLoadingUI() {
       window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
 
       const sequence = async () => {
-        const { restoreHiddenTruckMeshes, fadeOutMeshesByName } = await import("../vehicleLoadingTransform");
+        const { restoreHiddenTruckMeshes, fadeOutMeshByName } = await import("../vehicleLoadingTransform");
         await Promise.all([
           restoreHiddenTruckMeshes(scene),
-          fadeOutMeshesByName(scene, ["SM_Cargo_Bay_cut"])
+          fadeOutMeshByName(scene, "SM_Cargo_Bay_cut")
         ]);
         
 
