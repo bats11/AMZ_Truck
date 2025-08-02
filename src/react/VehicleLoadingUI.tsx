@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { vehicleLoadingManager } from "../vehicleLoadingManager";
 import { runTruckTransform } from "../vehicleLoadingTransform";
 import { slotManager } from "../SlotManager";
+import ConfettiEffect from "./ConfettiEffect";
+
 
 type UIStage = "start" | "confirm" | "instructions" | "leftResults" | "rightResults" | "none";
 
@@ -54,8 +56,12 @@ export default function VehicleLoadingUI() {
       window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
 
       const sequence = async () => {
-        const { restoreHiddenTruckMeshes } = await import("../vehicleLoadingTransform");
-        await restoreHiddenTruckMeshes(scene);
+        const { restoreHiddenTruckMeshes, fadeOutMeshesByName } = await import("../vehicleLoadingTransform");
+        await Promise.all([
+          restoreHiddenTruckMeshes(scene),
+          fadeOutMeshesByName(scene, ["SM_Cargo_Bay_cut"])
+        ]);
+        
 
         const { getModelRoot } = await import("../MoveComponent");
         const modelRoot = getModelRoot();
@@ -260,6 +266,8 @@ export default function VehicleLoadingUI() {
             </motion.button>
           </>
         )}
+
+        {uiStage === "rightResults" && isValid && <ConfettiEffect />}
 
         {uiStage === "rightResults" && (
           <>

@@ -151,7 +151,6 @@ export async function animateCartsIn(carts: CartEntity[], scene: BABYLON.Scene) 
   await Promise.all(promises);
 }
 
-// ✅ versione estesa con supporto a alsoShowList
 export async function hideTruckSideMeshes(
   side: "left" | "right",
   scene: BABYLON.Scene,
@@ -227,4 +226,24 @@ export async function hideTruckSideMeshes(
 
   await Promise.all(promises);
   console.log(`🎭 Mesh nascoste: ${meshesToHide.length} (lato opposto + extra: [${alwaysHideList.join(", ")}])`);
+}
+
+// ✅ Funzione ausiliaria per rendere invisibile SM_Cargo_Bay_cut
+// vehicleLoadingTransform.ts
+
+export async function fadeOutMeshByName(scene: BABYLON.Scene, meshName: string) {
+  const mesh = scene.getNodeByName(meshName);
+  if (mesh && mesh instanceof BABYLON.AbstractMesh) {
+    BABYLON.Animation.CreateAndStartAnimation(
+      `fadeOut_${meshName}`,
+      mesh,
+      "visibility",
+      60,
+      30,
+      mesh.visibility,
+      0,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+    console.log(`🎭 ${meshName} nascosta con fade-out.`);
+  }
 }
