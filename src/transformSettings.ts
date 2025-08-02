@@ -74,7 +74,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       durationPosRot: 1,
       intermediate: [
         {
-          position: new BABYLON.Vector3(0, 2.5, 0),
+          position: new BABYLON.Vector3(0, 3.5, 0),
           rotation: vec3DegToRad([0, 90, 0]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
           durationScale: 0.7,
@@ -258,10 +258,10 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       durationPosRot: 1.5,
       intermediate: [
         {
-          position: new BABYLON.Vector3(0, 3.7, -5.8),
-          rotation: vec3DegToRad([0, 270, -12]),
+          position: new BABYLON.Vector3(-0.5, 3.7, 2.5),
+          rotation: vec3DegToRad([0, 265, -6]),
           scaling: new BABYLON.Vector3(1.1, 1.1, 1.1),
-          durationScale: 0.7,
+          durationScale: 0.5,
           durationPosRot: 1.5,
         },
       ],
