@@ -93,14 +93,21 @@ export default function VehicleLoadingUI() {
     <div className="vehicle-loading-ui wide">
       <AnimatePresence mode="wait">
         {uiStage === "start" && (
-          <>
+          <motion.div
+            key="start-ui"
+            initial={{ opacity: 0, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -40 }}
+            transition={{ duration: 0.6 }}
+            style={{ display: "flex", flexDirection: "column", gap: "1.5rem", alignItems: "center" }}
+          >
             <motion.button
               key="start-btn"
               className="vehicle-loading-btn primary fixed"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              transition={{ duration: 1 }}
+              initial={false}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
               disabled={isBusy}
               onClick={async () => {
                 if (isBusy) return;
@@ -120,7 +127,6 @@ export default function VehicleLoadingUI() {
                   setIsBusy(false);
                 }, 500);
               }}
-
             >
               Start Loading Vehicle
             </motion.button>
@@ -128,20 +134,28 @@ export default function VehicleLoadingUI() {
             <motion.button
               key="return-btn"
               className="vehicle-loading-btn secondary fixed"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              transition={{ duration: 1 }}
+              initial={false}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
               disabled={isBusy}
-              onClick={() => {
+              onClick={async () => {
                 if (isBusy) return;
-                window.dispatchEvent(new CustomEvent("return-to-menu"));
+                setIsBusy(true);
+                setUiStage("none");
+
+                // ⏳ Aspetta che l’uscita finisca prima di resettare
+                setTimeout(() => {
+                  window.dispatchEvent(new CustomEvent("return-to-menu"));
+                  setIsBusy(false);
+                }, 600);
               }}
             >
               Return to Activity Menu
             </motion.button>
-          </>
+          </motion.div>
         )}
+
 
         {uiStage === "confirm" && (
           <>
