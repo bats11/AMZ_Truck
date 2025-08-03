@@ -66,8 +66,9 @@
 }
 
 /* Quando lo slot è occupato → nasconde pallino */
-.slot-button.occupied .slot-dot {
+.slot-button.occupied {
   opacity: 0;
+  transition: opacity 0.6s ease;
 }
 
 /* Slot marcati come errore: bordo rosso + sfondo tenue */
@@ -75,6 +76,8 @@
   border: 3px solid #FF4C4AFF;  
   background-color: rgba(255, 255, 255, 0.5);
   position: relative;
+  transition: opacity 1s ease;
+  opacity: 1;
 }
 
 .slot-error-dot {
@@ -90,6 +93,8 @@
   align-items: center;
   justify-content: center;
   z-index: 2;
+  transition: opacity 1s ease;
+  opacity: 1;
 }
 
 .slot-error-x {
@@ -100,4 +105,6 @@
   line-height: 1;
   user-select: none;
   pointer-events: none;
+  transition: opacity 1s ease;
+  opacity: 1;
 }

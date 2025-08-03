@@ -9,7 +9,7 @@ import { slotManager } from "./SlotManager";
 const FOCUS_POS = new BABYLON.Vector3(0, 0.3, -10);
 const WAIT_POS_1 = new BABYLON.Vector3(2.5, 0.3, -10);
 const WAIT_POS_2 = new BABYLON.Vector3(5, 0.3, -10);
-const BAG_STAGING_POS = new BABYLON.Vector3(0, 4.1, -12);
+const BAG_STAGING_POS = new BABYLON.Vector3(0, 4, -12);
 const STAGING_ROTATION = new BABYLON.Vector3(
   BABYLON.Tools.ToRadians(10),
   BABYLON.Tools.ToRadians(10),
@@ -28,7 +28,7 @@ const EXTRA_BAG_STAGING_ROTATION = new BABYLON.Vector3(
   BABYLON.Tools.ToRadians(0)
 );
 
-const EXTRA_BAG_STAGING_POS = new BABYLON.Vector3(0, 4.5, -13.6);
+const EXTRA_BAG_STAGING_POS = new BABYLON.Vector3(0, 4.4, -13.6);
 
 export class LoadTruckController {
   private scene: BABYLON.Scene;
