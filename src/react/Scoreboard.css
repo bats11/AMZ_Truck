@@ -22,8 +22,10 @@
 .scoreboard-left {
   font-size: 1.4rem;
   letter-spacing: 0.05em;
-  color: #05A6E0FF;
+  color: rgb(0, 0, 0);
   text-transform: uppercase;
+  margin-left: 2rem;
+  font-size: 1.6rem;
 }
 
 /* Nuova pillola */
@@ -37,18 +39,19 @@
 
 .pill-left,
 .pill-right {
-  padding: 0.4rem 1rem;
-  font-size: 1.6rem;
+  padding: 0.4rem 0rem;
+  font-size: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 8rem;
-  height: 2.5rem; 
+  min-width: 10rem;
+  height: 2.1rem; 
 }
 
 /* Colori */
 .pill-left {
     color: #00688d;
+    background-color: #ffffff;  
 }
 
 .pill-right {
