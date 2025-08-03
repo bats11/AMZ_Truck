@@ -51,6 +51,8 @@ export default function App() {
     if (experienceType === "cargoLoad") {
       vehicleLoadingManager.exit();
       resetScore(); 
+      window.dispatchEvent(new CustomEvent("hide-scoreboard"));
+
     }
 
     resetModelTransform();
