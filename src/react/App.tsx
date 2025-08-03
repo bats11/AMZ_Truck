@@ -6,7 +6,7 @@ import { resetModelTransform, getModelRoot } from "../MoveComponent"; // ⬅️ 
 import submenuData from "../data/SubmenuData.json";
 import UIAnimations from "./UIAnimations";
 import { setUiInteractivitySetter } from "../babylonBridge";
-import { vehicleLoadingManager } from "../vehicleLoadingManager";
+import { vehicleLoadingManager, resetScore  } from "../vehicleLoadingManager";
 
 export default function App() {
   const [appPhase, setAppPhase] = useState<"loading" | "selection" | "transitioning" | "experience">("loading");
@@ -50,6 +50,7 @@ export default function App() {
   const resetApp = () => {
     if (experienceType === "cargoLoad") {
       vehicleLoadingManager.exit();
+      resetScore(); 
     }
 
     resetModelTransform();

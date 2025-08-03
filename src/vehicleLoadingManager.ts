@@ -143,3 +143,32 @@ class VehicleLoadingManager {
 }
 
 export const vehicleLoadingManager = new VehicleLoadingManager();
+
+let score = 0;
+let scoreListeners: ((newScore: number) => void)[] = [];
+
+export function resetScore() {
+  score = 0;
+  notifyScoreListeners();
+}
+
+export function addPoints(points: number) {
+  score += points;
+  notifyScoreListeners();
+}
+
+export function getScore() {
+  return score;
+}
+
+export function subscribeToScore(callback: (score: number) => void): () => void {
+  scoreListeners.push(callback);
+  return () => {
+    scoreListeners = scoreListeners.filter(fn => fn !== callback);
+  };
+}
+
+function notifyScoreListeners() {
+  for (const fn of scoreListeners) fn(score);
+}
+

@@ -90,6 +90,12 @@ class SlotManager {
       console.log(`📦 Extra bag ${bag.id} assegnata a slot ${slotIndex} → pos ${positionIndex}`);
     } else {
       this.slotMap.set(slotIndex, bag);
+      const expected = this.correctBagOrder[slotIndex];
+      if (expected?.id === bag.id) {
+        const { addPoints } = await import("./vehicleLoadingManager");
+        addPoints(10); // puoi cambiare 20 con il numero di punti che vuoi
+      }
+
       slotTransform = this.useRightSide
         ? BAG_SLOT_TRANSFORMS_RIGHT[slotIndex]
         : BAG_SLOT_TRANSFORMS_LEFT[slotIndex];
