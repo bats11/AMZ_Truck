@@ -164,9 +164,11 @@ export default function CameraMenu({
   }
 
   function toggleCheckbox(detail: string) {
+    if (!activeMenu) return;
+    const key = `${activeMenu}::${detail}`;
     setCheckedItems((prev) => ({
       ...prev,
-      [detail]: !prev[detail],
+      [key]: !prev[key],
     }));
   }
 
@@ -195,9 +197,9 @@ export default function CameraMenu({
 
               const { runExitSequenceIfNeeded } = await import("../MoveComponent");
 
-              await runExitSequenceIfNeeded(); // ✅ prima uscita animata (se serve)
+              await runExitSequenceIfNeeded();
               setTouchLocked(false);
-              resetApp();                      // ✅ poi reset completo
+              resetApp();
               hasInitializedRef.current = false;
             }}
             disabled={buttonsDisabled}
@@ -225,7 +227,6 @@ export default function CameraMenu({
             </span>
           </button>
         )}
-
       </div>
     );
   }
@@ -255,11 +256,14 @@ export default function CameraMenu({
                 >
                   {subKey}
                   <span
-                    className={
-                      `damage-dot-absolute${details.some((detail) => checkedItems[detail]) ? " visible" : ""}`
-                    }
+                    className={`damage-dot-absolute${
+                      details.some((detail) =>
+                        checkedItems[`${activeMenu}::${detail}`]
+                      )
+                        ? " visible"
+                        : ""
+                    }`}
                   />
-
                 </button>
 
                 <AnimatePresence initial={false}>
@@ -278,7 +282,7 @@ export default function CameraMenu({
                           <input
                             type="checkbox"
                             className="detail-checkbox"
-                            checked={!!checkedItems[detail]}
+                            checked={!!checkedItems[`${activeMenu}::${detail}`]}
                             onChange={() => toggleCheckbox(detail)}
                           />
                           <span>{detail}</span>
