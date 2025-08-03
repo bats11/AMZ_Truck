@@ -93,7 +93,9 @@ export default function SlotOverlay({
     };
 
     const dotOrX = isError ? (
-      <span className="slot-x">✕</span>
+      <span className="slot-error-dot">
+        <span className="slot-error-x">×</span>
+      </span>
     ) : (
       <span className="slot-dot">
         <span className="slot-dot-ring" />
@@ -120,11 +122,22 @@ export default function SlotOverlay({
     return (
       <button
         key={index}
-        className={className}
+        className={`slot-button${errorSlots.includes(index) ? " error" : ""}${occupiedSlots[index] ? " occupied" : ""}`}
         style={baseStyle}
-        onClick={handleClick}
+        onClick={() => {
+          slotManager.assignToSlot(index);
+          onClickSlot?.(index);
+        }}
       >
-        {dotOrX}
+        {errorSlots.includes(index) ? (
+          <span className="slot-error-dot">
+            <span className="slot-error-x">×</span>
+          </span>
+        ) : (
+          <span className="slot-dot">
+            <span className="slot-dot-ring" />
+          </span>
+        )}
       </button>
     );
   };
