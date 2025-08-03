@@ -230,6 +230,30 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
   });
 }
 
+export async function runExitSequenceIfNeeded(): Promise<void> {
+  if (!isInCustomSequence || !activeCustomLabel || !modelRoot || !activeCamera || initialCameraFov === null) {
+    return;
+  }
+
+  const scene = modelRoot.getScene();
+
+  await handleExitSequence(
+    scene,
+    activeCamera,
+    modelRoot,
+    activeCustomLabel,
+    initialCameraFov,
+    previouslyHiddenNodes,
+    (lbl) => transformSettings[lbl]?.settings
+  );
+
+  handleExitAnimations(scene);
+
+  isInCustomSequence = false;
+  activeCustomLabel = null;
+}
+
+
 export function resetModelTransform() {
   if (!modelRoot || !initialTransform) return;
   animationCycle++;

@@ -190,10 +190,14 @@ export default function CameraMenu({
 
         {touchLocked && (
           <button
-            onClick={() => {
+            onClick={async () => {
               if (buttonsDisabled) return;
+
+              const { runExitSequenceIfNeeded } = await import("../MoveComponent");
+
+              await runExitSequenceIfNeeded(); // ✅ prima uscita animata (se serve)
               setTouchLocked(false);
-              resetApp();
+              resetApp();                      // ✅ poi reset completo
               hasInitializedRef.current = false;
             }}
             disabled={buttonsDisabled}
@@ -221,6 +225,7 @@ export default function CameraMenu({
             </span>
           </button>
         )}
+
       </div>
     );
   }
