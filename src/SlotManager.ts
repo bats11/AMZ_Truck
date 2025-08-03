@@ -88,6 +88,13 @@ class SlotManager {
       this.extraSlotMap.set(index, list);
 
       console.log(`📦 Extra bag ${bag.id} assegnata a slot ${slotIndex} → pos ${positionIndex}`);
+      
+      const expectedType = index === 8 ? "OverszBox" : "HeavyBox";
+      if (bag.extraType === expectedType) {
+        const { addPoints } = await import("./vehicleLoadingManager");
+        addPoints(10); // o 15, se vuoi differenziare
+      }
+    
     } else {
       this.slotMap.set(slotIndex, bag);
       const expected = this.correctBagOrder[slotIndex];
