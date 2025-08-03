@@ -7,7 +7,11 @@ export default function Scoreboard() {
       <div className="scoreboard-left">BAGS LOADED</div>
       <div className="scoreboard-pill">
         <div className="pill-left">3</div>
-        <div className="pill-right">12</div>
+        <div className="pill-right">
+        <span className="pill-value">260</span>
+        <span className="pill-label">points</span>
+      </div>
+
       </div>
     </div>
   );

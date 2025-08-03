@@ -32,7 +32,7 @@
   border-radius: 999px;
   overflow: hidden;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
-  border: 0.2rem solid #00688d;
+  border: 0.4rem solid #00688d;
 }
 
 .pill-left,
@@ -42,16 +42,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 4rem;
-  height: 2rem; 
+  min-width: 8rem;
+  height: 2.5rem; 
 }
 
 /* Colori */
 .pill-left {
-    color: black;
+    color: #00688d;
 }
 
 .pill-right {
 background-color: #00688d;  
 color: white;
+}
+
+.pill-value {
+  margin-right: 0.4rem;
+}
+
+.pill-label{
+  font-size: 1rem;
 }
