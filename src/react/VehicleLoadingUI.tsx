@@ -1,7 +1,7 @@
 // src/react/VehicleLoadingUI.tsx
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { vehicleLoadingManager } from "../vehicleLoadingManager";
+import { vehicleLoadingManager, resetScore } from "../vehicleLoadingManager";
 import { runTruckTransform } from "../vehicleLoadingTransform";
 import { slotManager } from "../SlotManager";
 import ConfettiEffect from "./ConfettiEffect";
@@ -264,6 +264,9 @@ export default function VehicleLoadingUI() {
                 } else {
                   window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
                   slotManager.reset();
+                  resetScore();
+                  window.dispatchEvent(new CustomEvent("hide-scoreboard"));
+
                   setUiStage("none");
 
                   const { animateBagsExit } = await import("../animateBagsExit");
@@ -327,7 +330,6 @@ export default function VehicleLoadingUI() {
                   slotManager.reset();
                   window.dispatchEvent(new CustomEvent("return-to-menu"));
                 } else {
-                  //window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
                   slotManager.reset();
                   setUiStage("none");
 
@@ -337,14 +339,18 @@ export default function VehicleLoadingUI() {
                   const { animateCartsExit } = await import("../animateCartsExit");
                   const { runTruckTransform } = await import("../vehicleLoadingTransform");
 
-                  
                   await animateBagsExit();
                   await animateCartsExit();
+
+                  resetScore(); // ✅ azzera punteggio
+                  window.dispatchEvent(new CustomEvent("hide-scoreboard")); // ✅ nasconde scoreboard
+
                   await runTruckTransform("start");
 
                   vehicleLoadingManager.setState("startLoading");
                   setUiStage("start");
                 }
+
 
                 setIsBusy(false);
               }}
