@@ -7,6 +7,8 @@ import { vehicleLoadingManager } from "../vehicleLoadingManager";
 import { useSyncExternalStore } from "react";
 import SlotOverlay from "./SlotOverlay";
 import { runTruckTransform } from "../vehicleLoadingTransform";
+import Scoreboard from "./Scoreboard"; // ⬅️ AGGIUNTO
+
 
 export default function UIAnimations({
   appPhase,
@@ -28,6 +30,7 @@ export default function UIAnimations({
   );
 
   const [showOverlay, setShowOverlay] = useState(false);
+  const [showScoreboard, setShowScoreboard] = useState(false);
   const originalUiHeightRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -67,8 +70,21 @@ export default function UIAnimations({
     };
 
     window.addEventListener("return-to-menu", handler);
-    return () => window.removeEventListener("return-to-menu", handler);
-  }, [experienceType]);
+        return () => window.removeEventListener("return-to-menu", handler);
+      }, [experienceType]);
+
+      useEffect(() => {
+      const handler = () => setShowScoreboard(true);
+      window.addEventListener("show-scoreboard", handler);
+      return () => window.removeEventListener("show-scoreboard", handler);
+    }, []);
+
+    useEffect(() => {
+      const handler = () => setShowScoreboard(false);
+      window.addEventListener("hide-scoreboard", handler);
+      return () => window.removeEventListener("hide-scoreboard", handler);
+    }, []);
+
 
 
   return (
@@ -190,6 +206,8 @@ export default function UIAnimations({
             {experienceType === "cargoLoad" && (
               <>
                 <VehicleLoadingUI />
+
+                {showScoreboard && <Scoreboard />}
 
                 {showOverlay && (
                   <SlotOverlay

@@ -40,6 +40,9 @@ export default function VehicleLoadingUI() {
           return;
         }
 
+        // ⬅️ AGGIUNTA QUI
+        window.dispatchEvent(new CustomEvent("show-scoreboard"));
+
         const { LoadTruckController } = await import("../LoadTruckController");
         new LoadTruckController(scene, "left");
       }, 2500);
@@ -47,6 +50,7 @@ export default function VehicleLoadingUI() {
       return () => clearTimeout(timeout);
     }
   }, [uiStage]);
+
 
   useEffect(() => {
     if (uiStage === "rightResults" && isValid) {
@@ -247,6 +251,7 @@ export default function VehicleLoadingUI() {
 
                 if (isValid) {
                   window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+                  window.dispatchEvent(new CustomEvent("show-scoreboard")); // ⬅️ attiva il pannello
                   slotManager.reset();
 
                   const scene = (window as any)._BABYLON_SCENE;

@@ -1,0 +1,57 @@
+.scoreboard {
+  position: absolute;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 4rem);
+  max-width: 80rem;
+  height: 5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0 2rem;
+  font-family: 'EmberCondensedBold', sans-serif;
+  font-size: 1.6rem;
+  color: white;
+  z-index: 3000;
+  pointer-events: none;
+}
+
+.scoreboard-left {
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+  color: #05A6E0FF;
+  text-transform: uppercase;
+}
+
+/* Nuova pillola */
+.scoreboard-pill {
+  display: flex;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  border: 0.2rem solid #00688d;
+}
+
+.pill-left,
+.pill-right {
+  padding: 0.4rem 1rem;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4rem;
+  height: 2rem; 
+}
+
+/* Colori */
+.pill-left {
+    color: black;
+}
+
+.pill-right {
+background-color: #00688d;  
+color: white;
+}
