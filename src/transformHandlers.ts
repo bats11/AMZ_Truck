@@ -2,7 +2,7 @@
 import * as BABYLON from "@babylonjs/core";
 import { createAnimation } from "../src/utils";
 import { TransformSetting } from "../src/transformSettings";
-import { setUiInteractivity } from "../src/babylonBridge"; // ✅ AGGIUNTO
+import { setUiInteractivity } from "../src/babylonBridge";
 
 function createQuaternionAnimation(
   from: BABYLON.Quaternion,
@@ -38,6 +38,7 @@ export async function handleInterpolatedTransform(
     finalCameraFov?: number;
     durationCameraFov?: number;
     triggerFovAdjust?: boolean;
+    environmentIntensity?: number;
   },
   camera?: BABYLON.FreeCamera
 ): Promise<void> {
@@ -81,6 +82,25 @@ export async function handleInterpolatedTransform(
     scene.beginDirectAnimation(camera, [fovAnim], 0, fovFrames, false, 1.0);
   }
 
+  if (typeof step.environmentIntensity === "number") {
+    if (!scene.metadata) scene.metadata = {};
+
+    if (scene.metadata._originalEnvIntensity === undefined) {
+      scene.metadata._originalEnvIntensity = scene.environmentIntensity;
+      console.log("🔁 Salvato valore originale environmentIntensity:", scene.environmentIntensity);
+    }
+
+    const envAnim = createAnimation(
+      "environmentIntensity",
+      scene.environmentIntensity,
+      step.environmentIntensity,
+      0,
+      moveFrames,
+      easing
+    );
+    scene.beginDirectAnimation(scene, [envAnim], 0, moveFrames, false, 1.0);
+  }
+
   if (posRotAnims.length > 0) {
     await new Promise<void>((resolve) => {
       scene.beginDirectAnimation(node, posRotAnims, 0, moveFrames, false, 1.0, resolve);
@@ -103,6 +123,21 @@ export async function handleExitSequence(
     const settings = getTransformSetting(fromLabel);
 
     const hasExitSteps = Array.isArray(settings?.exitIntermediate) && settings.exitIntermediate.length > 0;
+
+    // ✅ Ripristina subito environmentIntensity (PRIMA di qualsiasi animazione)
+    const original = scene.metadata?._originalEnvIntensity;
+    if (typeof original === "number" && scene.environmentIntensity !== original) {
+      const envAnim = createAnimation(
+        "environmentIntensity",
+        scene.environmentIntensity,
+        original,
+        0,
+        60,
+        new BABYLON.CubicEase()
+      );
+      scene.beginDirectAnimation(scene, [envAnim], 0, 60, false);
+      console.log("🔁 Ripristino environmentIntensity IMMEDIATO:", original);
+    }
 
     if (camera.fov !== initialCameraFov) {
       const easing = new BABYLON.CubicEase();
@@ -140,6 +175,7 @@ export async function handleExitSequence(
     }
 
     previouslyHiddenNodes.clear();
+
   } finally {
     setUiInteractivity(false); // ✅ SBLOCCA UI
   }

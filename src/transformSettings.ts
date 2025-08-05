@@ -21,7 +21,8 @@ export interface TransformSetting {
     animateMeshes?: boolean;
     animatedMeshGroups?: string[];
     triggerDamage?: boolean; 
-    damageNodes?: string[];      
+    damageNodes?: string[];
+    environmentIntensity?: number;      
   };
 
   intermediate?: {
@@ -36,6 +37,7 @@ export interface TransformSetting {
     animatedMeshGroups?: string[];
     triggerDamage?: boolean;
     damageNodes?: string[];
+    environmentIntensity?: number;
   }[];
 
   exitIntermediate?: {
@@ -61,7 +63,8 @@ export interface TransformSetting {
   durationPosRot?: number;
   hideMeshes?: boolean;
   triggerDamage?: boolean;
-  damageNodes?: string[];        
+  damageNodes?: string[];
+  environmentIntensity?: number;        
 }
 
 export const transformSettings: Record<string, { settings?: TransformSetting; [subKey: string]: TransformSetting | undefined }> = {
@@ -143,6 +146,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       hiddenNodes: ["SM_Driver_Seat_Rear"],
       finalCameraFov: BABYLON.Tools.ToRadians(80),
       durationCameraFov: 2,
+      environmentIntensity: 2,
     },
      "Body & Doors": {
       position: new BABYLON.Vector3(1.7, 5, -14.6),
