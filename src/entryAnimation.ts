@@ -13,13 +13,6 @@ export function playEntryAnimation(
   const easing = new BABYLON.CubicEase();
   easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEOUT);
 
-  const posAnim = new BABYLON.Animation("appearancePos", "position", frameRate, BABYLON.Animation.ANIMATIONTYPE_VECTOR3);
-  posAnim.setKeys([
-    { frame: 0, value: node.position.clone() },
-    { frame: totalFrames, value: initialTransform.position.clone() },
-  ]);
-  posAnim.setEasingFunction(easing);
-
   const scaleAnim = new BABYLON.Animation("appearanceScale", "scaling", frameRate, BABYLON.Animation.ANIMATIONTYPE_VECTOR3);
   scaleAnim.setKeys([
     { frame: 0, value: node.scaling.clone() },
@@ -39,16 +32,17 @@ export function playEntryAnimation(
 
   scene.beginDirectAnimation(
     node,
-    [posAnim, scaleAnim, rotAnim],
+    [scaleAnim, rotAnim], // ❌ posAnim rimosso
     0,
     totalFrames,
     false,
     1.0,
     () => {
       startIdleLoopRotation(node, scene, startRot.y, endRot.y, totalFrames);
-      window.dispatchEvent(new Event("entry-animation-finished")); // ✅ notifico React
+      window.dispatchEvent(new Event("entry-animation-finished"));
     }
   );
+
 }
 
 export function startIdleLoopRotation(
