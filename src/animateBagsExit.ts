@@ -13,22 +13,19 @@ export async function animateBagsExit(): Promise<void> {
 
   const scene = modelRoot.getScene();
   const frameRate = 60;
-  const duration = 1.2; // secondi
+  const duration = 1.2;
   const totalFrames = frameRate * duration;
 
-  // ✅ Determina direzione in base al lato attivo
   const isRightSide = vehicleLoadingManager.getState?.() === "rightSideLoading";
   const exitDistance = isRightSide ? 7 : -7;
 
   const easing = new BABYLON.CubicEase();
   easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
 
-  // 🔍 Cerca bag nel truck
   const bagNodesInTruck = modelRoot.getChildren().filter((node) =>
     node.name.startsWith("BagWrapper_")
   ) as BABYLON.TransformNode[];
 
-  // 🔍 Cerca bag nei carrelli
   let bagNodesInCarts: BABYLON.TransformNode[] = [];
   const carts = (window as any)._CART_ENTITIES as any[] | undefined;
 
@@ -79,11 +76,10 @@ export async function animateBagsExit(): Promise<void> {
           scene.beginDirectAnimation(mesh, [visAnim], 0, totalFrames, false, 1);
         });
 
-        // 3️⃣ Dispose dopo animazione
+        // 3️⃣ Alla fine, disattiva ma NON dispose
         setTimeout(() => {
-          childMeshes.forEach((m) => m.dispose());
-          bagNode.dispose();
-          console.log(`🗑️ Bag ${bagNode.name} rimossa dalla scena.`);
+          bagNode.setEnabled(false); // 👈 disattiva al posto di dispose
+          console.log(`📦 Bag ${bagNode.name} disattivata (non distrutta).`);
           resolve();
         }, totalFrames * (1000 / frameRate));
       }, delay);
@@ -91,5 +87,6 @@ export async function animateBagsExit(): Promise<void> {
   });
 
   await Promise.all(promises);
-  console.log("✅ Tutte le bag (truck + carrelli) eliminate con animazione.");
+  console.log("✅ Tutte le bag disattivate con animazione.");
 }
+

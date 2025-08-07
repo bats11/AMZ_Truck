@@ -262,26 +262,32 @@ export default function VehicleLoadingUI() {
                   setUiStage("none");
                   setIsBusy(false);
                 } else {
-                  window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+                  // 🔁 Reset logico
                   slotManager.reset();
-                  resetScore();
-                  window.dispatchEvent(new CustomEvent("hide-scoreboard"));
 
+                  // 🔴 Nascondi immediatamente le X rosse
+                  window.dispatchEvent(new Event("clear-slot-errors-immediate"));
+
+                  // 🎯 Nascondi subito la UI
                   setUiStage("none");
 
+                  // 🧹 Reset punteggio
+                  resetScore();
+
+                  // 🏃 Avvia animazioni bag e carrelli
                   const { animateBagsExit } = await import("../animateBagsExit");
                   const { animateCartsExit } = await import("../animateCartsExit");
-                  const { runTruckTransform } = await import("../vehicleLoadingTransform");
 
                   await animateBagsExit();
                   await animateCartsExit();
-                  setUiStage("start");
-                  setIsBusy(false);
-                  await runTruckTransform("start");
 
-                  await vehicleLoadingManager.setState("startLoading");
-                  
+                  // 🔄 SOLO ora ripristina gli slot visivamente (cerchi)
+                  window.dispatchEvent(new Event("reset-slot-visuals"));
+
+                  // ✅ Sblocca i pulsanti
+                  setIsBusy(false);
                 }
+
               }}
             >
               {buttonText}

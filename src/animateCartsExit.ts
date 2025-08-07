@@ -1,4 +1,4 @@
-// src/animateCartsExit.ts
+// animateCartsExit.ts
 import * as BABYLON from "@babylonjs/core";
 import { createAnimation } from "./utils";
 
@@ -30,8 +30,8 @@ export async function animateCartsExit(): Promise<void> {
     return new Promise<void>((resolve) => {
       setTimeout(() => {
         scene.beginDirectAnimation(root, [anim], 0, totalFrames, false, 1, () => {
-          root.dispose();
-          console.log(`🗑️ Carrello ${root.name} rimosso dalla scena.`);
+          // 👇 NON facciamo dispose
+          console.log(`🚚 Carrello ${root.name} spostato fuori scena (non distrutto).`);
           resolve();
         });
       }, delay);
@@ -40,7 +40,5 @@ export async function animateCartsExit(): Promise<void> {
 
   await Promise.all(promises);
 
-  // Pulizia finale
-  (window as any)._CART_ENTITIES = [];
-  console.log("✅ Tutti i carrelli rimossi con animazione.");
+  console.log("✅ Tutti i carrelli sono stati spostati fuori scena (e mantenuti).");
 }

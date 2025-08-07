@@ -60,6 +60,31 @@ export default function SlotOverlay({
     return () => window.removeEventListener("clear-slot-errors", handler);
   }, []);
 
+  // 🔁 Reset visuale completo degli slot
+  useEffect(() => {
+    const handler = () => {
+      setOccupiedSlots(Array(slotCount).fill(false));
+      setErrorSlots([]);
+      setExtraFinished(false);
+      console.log("🔄 SlotOverlay: reset visuale completo eseguito.");
+    };
+
+    window.addEventListener("reset-slot-visuals", handler);
+    return () => window.removeEventListener("reset-slot-visuals", handler);
+  }, [slotCount]);
+
+  // 🔴 Nasconde SOLO le X rosse dagli slot
+  useEffect(() => {
+    const handler = () => {
+      setErrorSlots([]);
+      console.log("❌ SlotOverlay: X rosse rimosse immediatamente.");
+    };
+    window.addEventListener("clear-slot-errors-immediate", handler);
+    return () => window.removeEventListener("clear-slot-errors-immediate", handler);
+  }, []);
+
+
+
   const gridStyle: React.CSSProperties = {
     display: "grid",
     gridTemplateColumns: `repeat(6, ${slotSize})`,
