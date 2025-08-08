@@ -10,7 +10,8 @@ interface BagOptions {
   parent?: BABYLON.TransformNode;
   shadowGen?: BABYLON.ShadowGenerator;
   color?: string;
-  parentCart?: CartEntity; // ✅ aggiunto per riferimento al carrello
+  parentCart?: CartEntity;
+  localOffset?: BABYLON.Vector3; // ✅ NUOVO
 }
 
 function computeLabelUVOffset(index: number): { uOffset: number; vOffset: number } {
@@ -25,7 +26,8 @@ export class BagEntity {
   public readonly root: BABYLON.TransformNode;
   public readonly isExtra: boolean;
   public readonly extraType: "HeavyBox" | "OverszBox" | null;
-  public readonly parentCart: CartEntity | null; // ✅ nuovo campo
+  public readonly parentCart: CartEntity | null;
+  public readonly localOffset: BABYLON.Vector3; // ✅ NUOVO CAMPO
   public isLoaded: boolean = false;
 
   constructor(options: BagOptions) {
@@ -37,17 +39,20 @@ export class BagEntity {
       parent,
       shadowGen,
       color,
-      parentCart = null, // ✅ default null se non specificato
+      parentCart = null,
+      localOffset = BABYLON.Vector3.Zero(), // ✅ default sicuro
     } = options;
 
     const sourceMeshes = Array.isArray(prefab) ? prefab : [prefab];
     const scene = sourceMeshes[0].getScene();
+
     const wrapper = new BABYLON.TransformNode(`BagWrapper_${id}`, scene);
     if (parent) wrapper.parent = parent;
     wrapper.position = position.clone();
     wrapper.rotation = rotation.clone();
 
-    this.parentCart = parentCart; // ✅ salva il riferimento al carrello
+    this.parentCart = parentCart;
+    this.localOffset = localOffset.clone(); // ✅ salvataggio
 
     const bagIndex = parseInt(id.split("_")[1]);
 
@@ -108,6 +113,8 @@ export class BagEntity {
     this.root = wrapper;
     this.isExtra = id.startsWith("ExtraBag_");
     this.extraType = this.isExtra ? (id.split("_")[1] as "HeavyBox" | "OverszBox") : null;
+
+    console.log(`📦 Bag ${id} offset salvato: ${this.localOffset.toString()}`);
   }
 
   moveTo(position: BABYLON.Vector3, rotation?: BABYLON.Vector3) {

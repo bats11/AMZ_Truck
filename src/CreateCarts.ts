@@ -99,8 +99,10 @@ export class CreateCarts {
           parent: cart.root,
           shadowGen,
           color,
-          parentCart: cart, // ✅ Aggiunto riferimento al cart
+          parentCart: cart,
+          localOffset: offset, // ✅ NUOVO: salvataggio offset
         });
+
 
         cart.addBag(bag);
         this.bags.push(bag);
