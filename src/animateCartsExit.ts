@@ -2,7 +2,7 @@
 import * as BABYLON from "@babylonjs/core";
 import { createAnimation } from "./utils";
 
-/*export async function animateCartsExit(): Promise<void> {
+export async function animateCartsExit(): Promise<void> {
   const carts = (window as any)._CART_ENTITIES as any[] | undefined;
 
   if (!Array.isArray(carts) || carts.length === 0) {
@@ -41,20 +41,5 @@ import { createAnimation } from "./utils";
   await Promise.all(promises);
 
   console.log("✅ Tutti i carrelli sono stati spostati fuori scena (e mantenuti).");
-}*/
-
-export async function animateCartsExit(): Promise<void> {
-  const carts = (window as any)._CART_ENTITIES as any[] | undefined;
-
-  if (!Array.isArray(carts) || carts.length === 0) {
-    console.warn("⚠️ Nessun carrello trovato per uscita (bypass).");
-    return;
-  }
-
-  for (const cart of carts) {
-    const root = cart.root;
-    console.log(`⏭️ Carrello ${root.name} bypassato (nessuna animazione, resta attivo).`);
-  }
-
-  console.log("⏭️ animateCartsExit: bypass completo eseguito (senza disattivazione).");
 }
+
