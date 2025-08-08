@@ -1,5 +1,6 @@
 // src/BagEntity.ts
 import * as BABYLON from "@babylonjs/core";
+import type { CartEntity } from "./CartEntity"; // ✅ IMPORT necessario per associare la bag al carrello
 
 interface BagOptions {
   prefab: BABYLON.AbstractMesh | BABYLON.AbstractMesh[];
@@ -9,6 +10,7 @@ interface BagOptions {
   parent?: BABYLON.TransformNode;
   shadowGen?: BABYLON.ShadowGenerator;
   color?: string;
+  parentCart?: CartEntity; // ✅ aggiunto per riferimento al carrello
 }
 
 function computeLabelUVOffset(index: number): { uOffset: number; vOffset: number } {
@@ -23,6 +25,7 @@ export class BagEntity {
   public readonly root: BABYLON.TransformNode;
   public readonly isExtra: boolean;
   public readonly extraType: "HeavyBox" | "OverszBox" | null;
+  public readonly parentCart: CartEntity | null; // ✅ nuovo campo
   public isLoaded: boolean = false;
 
   constructor(options: BagOptions) {
@@ -34,6 +37,7 @@ export class BagEntity {
       parent,
       shadowGen,
       color,
+      parentCart = null, // ✅ default null se non specificato
     } = options;
 
     const sourceMeshes = Array.isArray(prefab) ? prefab : [prefab];
@@ -42,6 +46,8 @@ export class BagEntity {
     if (parent) wrapper.parent = parent;
     wrapper.position = position.clone();
     wrapper.rotation = rotation.clone();
+
+    this.parentCart = parentCart; // ✅ salva il riferimento al carrello
 
     const bagIndex = parseInt(id.split("_")[1]);
 

@@ -12,7 +12,7 @@ import {
 export interface ExtraBagConfig {
   meshName: string;
   count: number;
-  rotation?: BABYLON.Vector3; // ✅ nuova proprietà opzionale
+  rotation?: BABYLON.Vector3;
 }
 
 export class CreateCarts {
@@ -89,7 +89,6 @@ export class CreateCarts {
         const offset = offsetList[i];
         const id = `Bag_${bagIndex}`;
         const color = BAG_COLORS[bagIndex % BAG_COLORS.length];
-        // Passa l'intero array di mesh ad ogni BagEntity
         const prefab = prefabs;
 
         const bag = new BagEntity({
@@ -100,6 +99,7 @@ export class CreateCarts {
           parent: cart.root,
           shadowGen,
           color,
+          parentCart: cart, // ✅ Aggiunto riferimento al cart
         });
 
         cart.addBag(bag);
@@ -115,7 +115,7 @@ export class CreateCarts {
       if (bagIndex >= normalCount) break;
     }
 
-    // 2️⃣ Bag extra con mesh custom + rotazione per tipo
+    // 2️⃣ Bag extra
     if (extraConfigs?.length && this.carts.length > 0) {
       let extraIndex = 0;
       const targetCart = this.carts[this.carts.length - 1];
@@ -140,9 +140,10 @@ export class CreateCarts {
             rotation,
             parent: targetCart.root,
             shadowGen,
+            parentCart: targetCart, // ✅ anche per le extra bag
           });
 
-          targetCart.addBag(bag); // ✅ registra anche le extra nel carrello
+          targetCart.addBag(bag);
           this.bags.push(bag);
 
           console.log(
