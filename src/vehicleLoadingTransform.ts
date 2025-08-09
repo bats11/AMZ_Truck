@@ -34,7 +34,7 @@ const truckTransformPresets: Record<TruckTransformLabel, {
   opening: {
     position: new BABYLON.Vector3(0, 4.7, 1.5),
     rotation: vec3DegToRad([0, 270, 5]),
-    scaling: new BABYLON.Vector3(1.7, 1.7, 1.7),
+    scaling: new BABYLON.Vector3(1.6, 1.6, 1.6),
     durationScale: 1.8,
     durationPosRot: 2.5,
   },
