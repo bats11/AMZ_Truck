@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from "react";
 import LoadingOverlay from "./LoadingOverlay";
 import { setTouchLockedGetter } from "../babylonBridge";
-import { resetModelTransform, getModelRoot } from "../MoveComponent"; // ⬅️ aggiunto getModelRoot
+import { resetModelTransform, getModelRoot } from "../MoveComponent";
 import submenuData from "../data/SubmenuData.json";
 import UIAnimations from "./UIAnimations";
 import { setUiInteractivitySetter } from "../babylonBridge";
-import { vehicleLoadingManager, resetScore  } from "../vehicleLoadingManager";
+import { vehicleLoadingManager, resetScore } from "../vehicleLoadingManager";
 
 export default function App() {
   const [appPhase, setAppPhase] = useState<"loading" | "selection" | "transitioning" | "experience">("loading");
@@ -50,12 +50,14 @@ export default function App() {
   const resetApp = () => {
     if (experienceType === "cargoLoad") {
       vehicleLoadingManager.exit();
-      resetScore(); 
+      resetScore();
       window.dispatchEvent(new CustomEvent("hide-scoreboard"));
-
     }
 
+    // 1) Reset modello
     resetModelTransform();
+
+    // 2) Stato UI → selection
     setTouchLocked(false);
     setActiveMenu(null);
     setActiveSubmenu(null);
@@ -68,12 +70,12 @@ export default function App() {
       container.style.setProperty("--ui-height", initialUiHeight);
     }
 
-    // ✅ Pulizia wrapper bag residui
+    // 3) Pulizia wrapper residui
     const modelRoot = getModelRoot();
     if (modelRoot) {
-      const orphanWrappers = modelRoot.getChildren().filter((n) =>
-        n.name.startsWith("BagWrapper_")
-      );
+      const orphanWrappers = modelRoot
+        .getChildren()
+        .filter((n) => n.name.startsWith("BagWrapper_"));
       for (const w of orphanWrappers) {
         w.getChildMeshes(false).forEach((m) => m.dispose());
         w.dispose();
@@ -82,6 +84,27 @@ export default function App() {
         console.log(`🧹 resetApp: rimossi ${orphanWrappers.length} wrapper residuali`);
       }
     }
+
+    // 4) Avvio spin “soft” dopo delay esterno (2.5s) dal reset
+    setTimeout(async () => {
+      const scene = (window as any)._BABYLON_SCENE as import("@babylonjs/core").Scene | undefined;
+      const root = getModelRoot();
+      if (!scene || !root) return;
+
+      const { startIdleSpinFromSelection, stopIdleSpin } = await import("../entryAnimation");
+
+      stopIdleSpin(root, scene); // pulizia eventuali spin precedenti
+
+      startIdleSpinFromSelection(root, scene, {
+        delaySec: 0,           // nessun delay interno, già gestito fuori
+        accelAngleDeg: 12,
+        accelDurationSec: 0.9,
+        constAngleDeg: 8,
+        constDurationSec: 0.5,
+        direction: 1,
+        space: "world"
+      });
+    }, 2500);
   };
 
   return (

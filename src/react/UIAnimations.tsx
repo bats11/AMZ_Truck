@@ -120,10 +120,10 @@ export default function UIAnimations({
               className="vehicle-loading-btn secondary"
               onClick={() => {
                 const scene = (window as any)._BABYLON_SCENE;
-                if (scene) fadeOutShadow(scene, 0.5);
-                startExperience("cargoLoad");
+                if (scene) startExperience("cargoLoad");
                 vehicleLoadingManager.enter();
-              }}
+                fadeOutShadow(scene, 0.5);
+                }}
               disabled={buttonsDisabled}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
