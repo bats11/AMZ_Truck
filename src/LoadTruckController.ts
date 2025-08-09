@@ -315,7 +315,7 @@ export class LoadTruckController {
       scene.beginDirectAnimation(root, [anim], 0, 60, false, 1, () => {
         // Calcolo PARK dinamico: spawn + (5,0,0)
         const spawn = this.cartSpawnPos.get(cart.id) ?? root.position.clone();
-        const parkPos = spawn.add(new BABYLON.Vector3(5, 0, 0));
+        const parkPos = spawn.add(new BABYLON.Vector3(6, 0, 0));
         root.position.copyFrom(parkPos);
         console.log(`🅿️ Carrello ${cart.id} parcheggiato in ${parkPos.toString()} (spawn + (5,0,0)).`);
         resolve();

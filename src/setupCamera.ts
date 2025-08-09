@@ -18,7 +18,7 @@ export function setupCamera(scene: BABYLON.Scene, canvas: HTMLCanvasElement): BA
   camera.attachControl(canvas, true);
 
     // 🎯 Imposta il Field of View in radianti (es. 0.6 ≈ 34.3°, 1.0 ≈ 57.3°, 1.5 ≈ 85.9°)
-  camera.fov = BABYLON.Tools.ToRadians(60);
+  camera.fov = BABYLON.Tools.ToRadians(80);
 
   // Disattiva input (rotazione/movimento)
   camera.inputs.clear();
