@@ -8,6 +8,7 @@ import { useSyncExternalStore } from "react";
 import SlotOverlay from "./SlotOverlay";
 import { runTruckTransform } from "../vehicleLoadingTransform";
 import Scoreboard from "./Scoreboard"; // ⬅️ AGGIUNTO
+import { fadeOutShadow } from "../setupBackground";
 
 
 export default function UIAnimations({
@@ -62,6 +63,9 @@ export default function UIAnimations({
       if (scene) {
         const { handleExitAnimations } = await import("../animatedMeshes");
         handleExitAnimations(scene);
+        // ⬅️ Fade-in ombra sul background
+        const { fadeInShadow } = await import("../setupBackground");
+        fadeInShadow(scene, 0.5);
       }
 
       setActiveMenu(null);
@@ -115,6 +119,8 @@ export default function UIAnimations({
             <motion.button
               className="vehicle-loading-btn secondary"
               onClick={() => {
+                const scene = (window as any)._BABYLON_SCENE;
+                if (scene) fadeOutShadow(scene, 0.5);
                 startExperience("cargoLoad");
                 vehicleLoadingManager.enter();
               }}
