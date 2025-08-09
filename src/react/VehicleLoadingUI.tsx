@@ -281,6 +281,13 @@ export default function VehicleLoadingUI() {
                   await animateBagsExit({ truckBags: true, cartBags: false, isDestroying: false });
                   await animateCartsExit();
 
+                  const exitedBags = (window as any)._LAST_ANIMATED_BAGS || [];
+                  const scene = (window as any)._BABYLON_SCENE;
+                  const { BagRestorer } = await import("../BagRestorer");
+                  const restorer = new BagRestorer(scene);
+                  restorer.restoreBagsToCarts(exitedBags);
+
+
                   // 🔄 SOLO ora ripristina gli slot visivamente (cerchi)
                   window.dispatchEvent(new Event("reset-slot-visuals"));
 
