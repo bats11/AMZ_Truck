@@ -101,7 +101,7 @@ export default function UIAnimations({
             style={{ pointerEvents: entryDone ? "auto" : "none" }}
           >
             <motion.button
-              className="exp-btn active"
+              className="vehicle-loading-btn primary"
               onClick={() => startExperience("dvic")}
               disabled={buttonsDisabled}
               initial={{ scale: 0 }}
@@ -113,7 +113,7 @@ export default function UIAnimations({
             </motion.button>
 
             <motion.button
-              className="exp-btn"
+              className="vehicle-loading-btn secondary"
               onClick={() => {
                 startExperience("cargoLoad");
                 vehicleLoadingManager.enter();

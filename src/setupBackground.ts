@@ -19,7 +19,7 @@ export function setupBackground(scene: BABYLON.Scene): BABYLON.Mesh {
   shadowOnlyMat.shadowColor = new BABYLON.Color3(0, 0, 0);
 
   ground.material = shadowOnlyMat;
-  ground.receiveShadows = true;
+  ground.receiveShadows = false;
 
   // 🔧 Trasformazioni
   ground.position = new BABYLON.Vector3(0, 0, 6);

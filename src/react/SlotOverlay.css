@@ -90,21 +90,23 @@
   border-radius: 50%;
   transform: translate(-50%, -50%);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: center;    /* centra verticalmente */
+  justify-content: center;/* centra orizzontalmente */
   z-index: 2;
-  transition: opacity 1s ease;
-  opacity: 1;
 }
 
 .slot-error-x {
   color: #fff;
-  font-size: 3rem;
-  font-weight: 400; /* più sottile */
+  font-size: 2.4rem;      /* o la dimensione che preferisci */
+  font-weight: 200;
   font-family: 'EmberCondensedBold', sans-serif;
   line-height: 1;
   user-select: none;
   pointer-events: none;
-  transition: opacity 1s ease;
-  opacity: 1;
+  margin: 0;              /* assicurati che non ci siano margini */
+  padding: 0;             /* assicurati che non ci siano padding */
+  display: flex;          /* opzionale, aiuta su alcuni browser */
+  align-items: center;    /* opzionale, aiuta su alcuni browser */
+  justify-content: center;/* opzionale, aiuta su alcuni browser */
+  height: 100%;           /* opzionale, aiuta su alcuni browser */
 }

@@ -265,11 +265,13 @@ html, body {
 .experience-selection {
   position: absolute;
   top: 50%;
-  right: 9rem;
+  right: 18rem;
+  left: 18rem;
+  margin: 0 auto;
   z-index: 900;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center; /* centra orizzontalmente */
   gap: 2rem;
   pointer-events: none;
 }

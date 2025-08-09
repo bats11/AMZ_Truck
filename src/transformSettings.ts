@@ -154,8 +154,8 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
     },
       "Brakes": {
-      position: new BABYLON.Vector3(-0.3, 5.7, -16.8),
-      rotation: vec3DegToRad([0, 289, -5]),
+      position: new BABYLON.Vector3(-0.3, 5.5, -16.8),
+      rotation: vec3DegToRad([0, 289, 0]),
       scaling: new BABYLON.Vector3(1.1, 1.1, 1.1)
     },
       "Wipers": {
@@ -271,7 +271,7 @@ export const transformSettings: Record<string, { settings?: TransformSetting; [s
       ],
     },
   "Lights & Light Covers": {
-  position: new BABYLON.Vector3(0, 3.5, 0),
+  position: new BABYLON.Vector3(0, 3.5, 2.5),
   rotation: vec3DegToRad([0, 270, 0]),
   scaling: new BABYLON.Vector3(2, 2, 2)
 },
