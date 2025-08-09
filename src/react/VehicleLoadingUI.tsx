@@ -278,7 +278,7 @@ export default function VehicleLoadingUI() {
                   const { animateBagsExit } = await import("../animateBagsExit");
                   const { animateCartsExit } = await import("../animateCartsExit");
 
-                  await animateBagsExit({ truckBags: true, cartBags: false });
+                  await animateBagsExit({ truckBags: true, cartBags: false, isDestroying: false });
                   await animateCartsExit();
 
                   // 🔄 SOLO ora ripristina gli slot visivamente (cerchi)

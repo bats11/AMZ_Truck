@@ -111,6 +111,13 @@ export class BagEntity {
 
     this.id = id;
     this.root = wrapper;
+
+    // ✅ collega il wrapper alla sua BagEntity per lookup diretto
+    (this.root as any).metadata = {
+      ...(this.root as any).metadata,
+      bagEntityRef: this,
+    };
+
     this.isExtra = id.startsWith("ExtraBag_");
     this.extraType = this.isExtra ? (id.split("_")[1] as "HeavyBox" | "OverszBox") : null;
 

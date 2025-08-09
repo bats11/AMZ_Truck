@@ -29,17 +29,13 @@ export async function animateCartsExit(): Promise<void> {
 
     return new Promise<void>((resolve) => {
       setTimeout(() => {
-        scene.beginDirectAnimation(root, [anim], 0, totalFrames, false, 1, () => {
-          // 👇 NON facciamo dispose
-          console.log(`🚚 Carrello ${root.name} spostato fuori scena (non distrutto).`);
-          resolve();
-        });
+        // DEBUG: salta animazione ma risolvi comunque
+        console.log(`⏭️ Carrello ${root.name} bypassato (nessuna animazione).`);
+        resolve();
       }, delay);
     });
   });
 
   await Promise.all(promises);
-
-  console.log("✅ Tutti i carrelli sono stati spostati fuori scena (e mantenuti).");
+  console.log("⏭️ animateCartsExit: animazione saltata per debug (tutti i carrelli).");
 }
-
