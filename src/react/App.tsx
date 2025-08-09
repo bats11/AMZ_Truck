@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import LoadingOverlay from "./LoadingOverlay";
 import { setTouchLockedGetter } from "../babylonBridge";
 import { resetModelTransform, getModelRoot } from "../MoveComponent";
-import submenuData from "../data/SubmenuData.json";
 import UIAnimations from "./UIAnimations";
 import { setUiInteractivitySetter } from "../babylonBridge";
 import { vehicleLoadingManager, resetScore } from "../vehicleLoadingManager";
@@ -54,7 +53,7 @@ export default function App() {
       window.dispatchEvent(new CustomEvent("hide-scoreboard"));
     }
 
-    // 1) Reset modello
+    // 1) Reset modello (torna alla posa iniziale)
     resetModelTransform();
 
     // 2) Stato UI → selection
@@ -73,9 +72,7 @@ export default function App() {
     // 3) Pulizia wrapper residui
     const modelRoot = getModelRoot();
     if (modelRoot) {
-      const orphanWrappers = modelRoot
-        .getChildren()
-        .filter((n) => n.name.startsWith("BagWrapper_"));
+      const orphanWrappers = modelRoot.getChildren().filter((n) => n.name.startsWith("BagWrapper_"));
       for (const w of orphanWrappers) {
         w.getChildMeshes(false).forEach((m) => m.dispose());
         w.dispose();
@@ -85,26 +82,32 @@ export default function App() {
       }
     }
 
-    // 4) Avvio spin “soft” dopo delay esterno (2.5s) dal reset
+    // 4) Avvio spin DOPO qualche secondo dal reset (per garantire la posa stabile)
     setTimeout(async () => {
       const scene = (window as any)._BABYLON_SCENE as import("@babylonjs/core").Scene | undefined;
       const root = getModelRoot();
       if (!scene || !root) return;
 
+      // NB: entryAnimation è nello stesso folder di App.tsx
       const { startIdleSpinFromSelection, stopIdleSpin } = await import("../entryAnimation");
 
-      stopIdleSpin(root, scene); // pulizia eventuali spin precedenti
+      // stop di eventuali loop attivi prima di riattaccare
+      stopIdleSpin(root, scene);
 
+      // avvio con parametri soft:
+      // - accelerazione con ease-in
+      // - breve tratto costante lineare
+      // - poi loop manuale a ω costante
       startIdleSpinFromSelection(root, scene, {
-        delaySec: 0,           // nessun delay interno, già gestito fuori
-        accelAngleDeg: 12,
-        accelDurationSec: 0.9,
-        constAngleDeg: 8,
-        constDurationSec: 0.5,
+        delaySec: 0,           // il delay lo gestiamo già qui fuori (timer di 2.5s)
+        accelAngleDeg: 12,     // angolo “rampa”
+        accelDurationSec: 0.9, // durata “rampa”
+        constAngleDeg: 8,      // angolo del tratto costante
+        constDurationSec: 0.5, // durata tratto costante
         direction: 1,
-        space: "world"
+        space: "world",
       });
-    }, 2500);
+    }, 2500); // ⬅️ parte solo "dopo qualche secondo" dalla fine del reset
   };
 
   return (

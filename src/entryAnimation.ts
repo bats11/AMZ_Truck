@@ -1,10 +1,8 @@
-// src/logic/entryAnimation.ts
+// src/entryAnimation.ts
 import * as BABYLON from "@babylonjs/core";
-import { createQuaternionAnimation, degToRad } from "./utils";
 
 /* ────────────────────────────────────────────────────────────────────────────
-   ENTRY ORIGINALE (lasciata invariata)
-   - Alla fine richiama il "legacy" startIdleLoopRotation su rotation.y
+   ENTRY ORIGINALE (invariata)
    -------------------------------------------------------------------------- */
 export function playEntryAnimation(
   node: BABYLON.TransformNode,
@@ -60,7 +58,7 @@ export function playEntryAnimation(
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
-   LEGACY — loop su rotation.y (usato solo dall'entry originale)
+   LEGACY loop su rotation.y (invariato)
    -------------------------------------------------------------------------- */
 export function startIdleLoopRotation(
   node: BABYLON.TransformNode,
@@ -110,13 +108,8 @@ export function startIdleLoopRotation(
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
-   NUOVO SPIN: Accelerazione (ease-in) → Tratto a velocità costante → Loop
-   - lavoriamo su rotationQuaternion per evitare gimbal
-   - usiamo il tratto costante per definire ω (come nel caso che funziona già)
-   - opzione space: "world" (qΔ * q) o "local" (q * qΔ)
-   - normalizzazione periodica per stabilità numerica
+   LOOP MANUALE SU QUATERNION
    -------------------------------------------------------------------------- */
-
 type IdleLoopState = {
   observer: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>>;
   angularSpeed: number; // rad/sec
@@ -144,63 +137,46 @@ function startManualQuaternionLoop(
 
   let tick = 0;
   const obs = scene.onBeforeRenderObservable.add(() => {
-    const dt = scene.getEngine().getDeltaTime() / 1000; // sec
+    const dt = scene.getEngine().getDeltaTime() / 1000;
     const yawStep = angularSpeedRadSec * dt;
     const qDelta = BABYLON.Quaternion.FromEulerAngles(0, yawStep, 0);
     node.rotationQuaternion =
       space === "world"
         ? qDelta.multiply(node.rotationQuaternion!)
         : node.rotationQuaternion!.multiply(qDelta);
-
-    // micro drift guard
+    // normalizziamo ogni tanto per stabilità numerica
     if ((++tick & 63) === 0) node.rotationQuaternion!.normalize();
   });
 
   _idleLoopByNode.set(node, { observer: obs, angularSpeed: angularSpeedRadSec, space });
 }
 
-/**
- * Ripartenza spin dopo il rientro in Selection, stile “accel → costante → loop”.
- *
- * Fasi:
- *  A) Accelerazione (ease-in) su un piccolo Δθ_accel
- *  B) Tratto a velocità costante (easing lineare) su Δθ_const, durata T_const
- *     ⇒ velocità del loop ω = Δθ_const / T_const
- *  C) Avvio del loop manuale con la stessa ω (seamless)
- *
- * Valori “soft” default pensati per essere discreti:
- *  - delaySec: 2.5  (attesa prima di iniziare qualsiasi cosa)
- *  - accelAngleDeg: 12°
- *  - accelDurationSec: 0.9s
- *  - constAngleDeg: 8°
- *  - constDurationSec: 0.5s
- *  - direction: +1
- *  - space: "world"
- */
+/* ────────────────────────────────────────────────────────────────────────────
+   START IDLE SPIN — fisico (accel costante) → costante → loop
+   Nessun easing/keyframe: integrazione per-frame, 100% controllo della velocità.
+   -------------------------------------------------------------------------- */
 export function startIdleSpinFromSelection(
   node: BABYLON.TransformNode,
   scene: BABYLON.Scene,
   options?: {
     delaySec?: number;
-    accelAngleDeg?: number;
-    accelDurationSec?: number;
-    constAngleDeg?: number;
-    constDurationSec?: number;
+    accelDurationSec?: number;   // durata fase A (accelerazione)
+    constDurationSec?: number;   // durata fase B (costante, pre-loop) — opzionale
+    constAngleDeg?: number;      // angolo percorso nella fase costante (per ricavare ω_target)
     direction?: 1 | -1;
     space?: "world" | "local";
   }
 ) {
   const {
     delaySec = 2.5,
-    accelAngleDeg = 12,
     accelDurationSec = 0.9,
-    constAngleDeg = 8,
     constDurationSec = 0.5,
+    constAngleDeg = 8,          // useremo questo + constDurationSec per ricavare ω_target
     direction = 1,
     space = "world",
   } = options ?? {};
 
-  // Preparazione
+  // fermiamo tutto ciò che potrebbe interferire
   scene.stopAnimation(node);
   stopIdleSpin(node, scene);
 
@@ -208,57 +184,77 @@ export function startIdleSpinFromSelection(
     node.rotationQuaternion = BABYLON.Quaternion.FromEulerVector(node.rotation.clone());
   }
 
-  // Timer esterno (partenza “dopo qualche secondo”)
+  // ω_target (rad/sec): da “angolo percorso nel tratto costante / durata tratto costante”
+  const omegaTarget = (BABYLON.Tools.ToRadians(constAngleDeg) * direction) / Math.max(constDurationSec, 0.0001);
+  const accelTime = Math.max(accelDurationSec, 0.0001);
+  const alpha = omegaTarget / accelTime; // accelerazione angolare costante (rad/sec^2)
+
   setTimeout(() => {
-    const frameRate = 60;
+    let phase: "accel" | "constant" = "accel";
+    let elapsed = 0;
+    let omega = 0; // rad/sec
+    let constElapsed = 0;
 
-    // Stato iniziale
-    const q0 = node.rotationQuaternion!.clone();
+    // assicuriamo un solo observer alla volta
+    const existing = _idleLoopByNode.get(node);
+    if (existing?.observer) {
+      scene.onBeforeRenderObservable.remove(existing.observer);
+      _idleLoopByNode.delete(node);
+    }
 
-    // === Fase A: Accelerazione (ease-in su quaternion)
-    const deltaYawA = degToRad(accelAngleDeg) * direction;
-    const qA = BABYLON.Quaternion.FromEulerAngles(0, deltaYawA, 0);
-    const q1 = qA.multiply(q0);
+    const obs = scene.onBeforeRenderObservable.add(() => {
+      const dt = scene.getEngine().getDeltaTime() / 1000;
+      if (dt <= 0) return;
 
-    const easeIn = new BABYLON.CubicEase();
-    easeIn.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
+      if (phase === "accel") {
+        elapsed += dt;
+        // ω cresce linearmente: ω = α * t  (limitato a ω_target)
+        omega = Math.min(alpha * elapsed, Math.abs(omegaTarget)) * Math.sign(omegaTarget);
 
-    const framesA = Math.max(1, Math.round(accelDurationSec * frameRate));
-    const animA = createQuaternionAnimation(q0, q1, 0, framesA, easeIn);
+        // integrazione angolare
+        const yawStep = omega * dt;
+        const qDelta = BABYLON.Quaternion.FromEulerAngles(0, yawStep, 0);
+        node.rotationQuaternion =
+          space === "world"
+            ? qDelta.multiply(node.rotationQuaternion!)
+            : node.rotationQuaternion!.multiply(qDelta);
 
-    // === Fase B: Tratto a velocità costante (lineare)
-    const deltaYawB = degToRad(constAngleDeg) * direction;
-    const qB = BABYLON.Quaternion.FromEulerAngles(0, deltaYawB, 0);
-    const q2 = qB.multiply(q1);
-
-    const linear = new BABYLON.PowerEase(1); // lineare
-    linear.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
-
-    const framesB = Math.max(1, Math.round(constDurationSec * frameRate));
-    const animB = createQuaternionAnimation(q1, q2, 0, framesB, linear);
-
-    // Sequenza: A poi B, poi loop con ω = Δθ_const / T_const
-    scene.beginDirectAnimation(
-      node,
-      [animA],
-      0,
-      framesA,
-      false,
-      1.0,
-      () => {
-        scene.beginDirectAnimation(
-          node,
-          [animB],
-          0,
-          framesB,
-          false,
-          1.0,
-          () => {
-            const omega = deltaYawB / constDurationSec; // rad/sec dal tratto costante
-            startManualQuaternionLoop(node, scene, omega, space);
-          }
-        );
+        if (elapsed >= accelTime) {
+          // clamp finale
+          omega = omegaTarget;
+          phase = constDurationSec > 0 ? "constant" : "accel"; // se 0, passeremo subito al loop
+          elapsed = accelTime;
+        }
       }
-    );
-  }, Math.max(0, delaySec) * 1000);
+
+      if (phase === "constant") {
+        constElapsed += dt;
+
+        const yawStep = omegaTarget * dt;
+        const qDelta = BABYLON.Quaternion.FromEulerAngles(0, yawStep, 0);
+        node.rotationQuaternion =
+          space === "world"
+            ? qDelta.multiply(node.rotationQuaternion!)
+            : node.rotationQuaternion!.multiply(qDelta);
+
+        if (constElapsed >= constDurationSec) {
+          // chiudiamo il preview costante e partiamo col loop alla stessa ω
+          scene.onBeforeRenderObservable.remove(obs);
+          startManualQuaternionLoop(node, scene, omegaTarget, space);
+        }
+      }
+    });
+
+    // se constDurationSec è 0, passiamo al loop appena finita l'accelerazione
+    if (constDurationSec <= 0) {
+      // usiamo un piccolo timeout per lasciare eseguire almeno un frame di accel finale
+      setTimeout(() => {
+        scene.onBeforeRenderObservable.remove(obs);
+        startManualQuaternionLoop(node, scene, omegaTarget, space);
+      }, 0);
+    }
+
+    // manteniamo traccia (utile per eventuale stop esterno)
+    _idleLoopByNode.set(node, { observer: obs, angularSpeed: omegaTarget, space });
+  }, delaySec * 1000);
 }
