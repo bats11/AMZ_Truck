@@ -163,9 +163,10 @@ export default function CameraMenu({
     }
   }
 
-  function toggleCheckbox(detail: string) {
+  // ✅ ora la chiave include anche il subKey per evitare collisioni tra label uguali
+  function toggleCheckbox(subKey: string, detail: string) {
     if (!activeMenu) return;
-    const key = `${activeMenu}::${detail}`;
+    const key = `${activeMenu}::${subKey}::${detail}`;
     setCheckedItems((prev) => ({
       ...prev,
       [key]: !prev[key],
@@ -246,6 +247,9 @@ export default function CameraMenu({
               ? content
               : (content as SubmenuDetails).details;
 
+            // ✅ chiave-prefix per questo subsubmenu
+            const keyPrefix = `${activeMenu}::${subKey}::`;
+
             return (
               <div key={subKey}>
                 <button
@@ -257,9 +261,7 @@ export default function CameraMenu({
                   {subKey}
                   <span
                     className={`damage-dot-absolute${
-                      details.some((detail) =>
-                        checkedItems[`${activeMenu}::${detail}`]
-                      )
+                      details.some((detail) => checkedItems[`${keyPrefix}${detail}`])
                         ? " visible"
                         : ""
                     }`}
@@ -277,17 +279,20 @@ export default function CameraMenu({
                       transition={{ duration: 0.4, ease: [0.65, 0, 0.35, 1] }}
                       style={{ overflow: "hidden" }}
                     >
-                      {details.map((detail: string) => (
-                        <label key={detail} className="detail-item">
-                          <input
-                            type="checkbox"
-                            className="detail-checkbox"
-                            checked={!!checkedItems[`${activeMenu}::${detail}`]}
-                            onChange={() => toggleCheckbox(detail)}
-                          />
-                          <span>{detail}</span>
-                        </label>
-                      ))}
+                      {details.map((detail: string) => {
+                        const key = `${keyPrefix}${detail}`;
+                        return (
+                          <label key={detail} className="detail-item">
+                            <input
+                              type="checkbox"
+                              className="detail-checkbox"
+                              checked={!!checkedItems[key]}
+                              onChange={() => toggleCheckbox(subKey, detail)}
+                            />
+                            <span>{detail}</span>
+                          </label>
+                        );
+                      })}
                     </motion.div>
                   )}
                 </AnimatePresence>
