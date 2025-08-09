@@ -8,7 +8,7 @@ export function setupLighting(scene: BABYLON.Scene): BABYLON.CascadedShadowGener
   // === Directional Light === //
   const directionalLight = new BABYLON.DirectionalLight(
     "mainDirectionalLight",
-    new BABYLON.Vector3(0.1, -0.8, 1.8).normalize(),
+    new BABYLON.Vector3(0.3, -0.8, 1.8).normalize(),
     scene
   );
   directionalLight.intensity = 4;
