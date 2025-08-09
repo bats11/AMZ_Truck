@@ -1,4 +1,4 @@
-// src/App.tsx
+// src/react/App.tsx
 import React, { useEffect, useState } from "react";
 import LoadingOverlay from "./LoadingOverlay";
 import { setTouchLockedGetter } from "../babylonBridge";
@@ -53,7 +53,7 @@ export default function App() {
       window.dispatchEvent(new CustomEvent("hide-scoreboard"));
     }
 
-    // 1) Reset modello (torna alla posa iniziale)
+    // 1) Reset modello
     resetModelTransform();
 
     // 2) Stato UI → selection
@@ -82,32 +82,28 @@ export default function App() {
       }
     }
 
-    // 4) Avvio spin DOPO qualche secondo dal reset (per garantire la posa stabile)
+    // 4) Avvio spin DOPO qualche secondo dal reset (posa stabile)
     setTimeout(async () => {
       const scene = (window as any)._BABYLON_SCENE as import("@babylonjs/core").Scene | undefined;
       const root = getModelRoot();
       if (!scene || !root) return;
 
-      // NB: entryAnimation è nello stesso folder di App.tsx
+      // Import dal livello superiore (file in src/entryAnimation.ts)
       const { startIdleSpinFromSelection, stopIdleSpin } = await import("../entryAnimation");
 
-      // stop di eventuali loop attivi prima di riattaccare
+      // Stop di eventuali loop attivi prima di riattaccare
       stopIdleSpin(root, scene);
 
-      // avvio con parametri soft:
-      // - accelerazione con ease-in
-      // - breve tratto costante lineare
-      // - poi loop manuale a ω costante
+      // Avvio “soft”: accel. costante → breve tratto costante → loop (nessuna frenata)
       startIdleSpinFromSelection(root, scene, {
-        delaySec: 0,           // il delay lo gestiamo già qui fuori (timer di 2.5s)
-        accelAngleDeg: 12,     // angolo “rampa”
-        accelDurationSec: 0.9, // durata “rampa”
-        constAngleDeg: 8,      // angolo del tratto costante
-        constDurationSec: 0.5, // durata tratto costante
+        delaySec: 0,            // il delay è già qui (timer 2.5s)
+        accelDurationSec: 0.9,  // durata accelerazione
+        constDurationSec: 0.5,  // preview costante prima del loop
+        constAngleDeg: 8,       // usato per ricavare ω_target = angolo / durata
         direction: 1,
         space: "world",
       });
-    }, 2500); // ⬅️ parte solo "dopo qualche secondo" dalla fine del reset
+    }, 2500); // parte solo "dopo qualche secondo" dalla fine del reset
   };
 
   return (
