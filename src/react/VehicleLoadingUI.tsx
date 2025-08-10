@@ -7,7 +7,15 @@ import { slotManager } from "../SlotManager";
 import ConfettiEffect from "./ConfettiEffect";
 
 
-type UIStage = "start" | "confirm" | "instructions" | "leftResults" | "rightResults" | "none";
+type UIStage =
+  | "start"
+  | "confirm"
+  | "instructions"
+  | "leftResults"
+  | "rightResults"
+  | "driverSide"
+  | "passengerSide"
+  | "none";
 
 export default function VehicleLoadingUI() {
   const [uiStage, setUiStage] = useState<UIStage>("start");
@@ -288,6 +296,67 @@ export default function VehicleLoadingUI() {
             </motion.button>
           </>
         )}
+
+        {uiStage === "driverSide" && (
+          <motion.div
+            key="driver-side"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ duration: 0.5 }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.5rem",
+              alignItems: "center",
+            }}
+          >
+            <motion.button
+              className="vehicle-loading-btn primary fixed"
+              initial={false}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              disabled={isBusy}
+              onClick={() => {
+                console.log("📦 Driver Side button clicked");
+              }}
+            >
+              Loading Driver Side
+            </motion.button>
+          </motion.div>
+        )}
+
+        {uiStage === "passengerSide" && (
+          <motion.div
+            key="passenger-side"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ duration: 0.5 }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.5rem",
+              alignItems: "center",
+            }}
+          >
+            <motion.button
+              className="vehicle-loading-btn secondary fixed"
+              initial={false}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              disabled={isBusy}
+              onClick={() => {
+                console.log("📦 Passenger Side button clicked");
+              }}
+            >
+              Loading Passenger Side
+            </motion.button>
+          </motion.div>
+        )}
+
 
         {uiStage === "rightResults" && isValid && <ConfettiEffect />}
 

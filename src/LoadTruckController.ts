@@ -38,6 +38,13 @@ export class LoadTruckController {
   constructor(scene: BABYLON.Scene, side: "left" | "right") {
     this.scene = scene;
     this.side = side;
+      // Imposta lo UI stage in base al lato
+      if (side === "left") {
+        (window as any).setVehicleUiStage?.("driverSide");
+      } else {
+        (window as any).setVehicleUiStage?.("passengerSide");
+      }
+
     this.begin();
   }
 
