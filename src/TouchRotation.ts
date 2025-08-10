@@ -1,6 +1,7 @@
 // src/TouchRotation.ts
 import * as BABYLON from "@babylonjs/core";
 import { getTouchLocked } from "./babylonBridge";
+import { stopIdleSpin } from "./entryAnimation"; // ⬅️ import per fermare loop
 
 let rootNode: BABYLON.TransformNode | null = null;
 let isDragging = false;
@@ -37,6 +38,9 @@ function onPointerDown(e: PointerEvent) {
   const pickResult = scene.pick(x, y);
 
   if (!pickResult?.hit || !isDescendantOf(pickResult.pickedMesh, rootNode)) return;
+
+  // ⬅️ Interrompe subito qualsiasi loop idle in corso
+  stopIdleSpin(rootNode, scene);
 
   scene.stopAnimation(rootNode);
 
