@@ -10,9 +10,9 @@ type UIStage =
   | "start"
   | "confirm"
   | "instructions"
-  | "leftLoading"   // ⬅️ nuovo
+  | "leftLoading"
   | "leftResults"
-  | "rightLoading"  // ⬅️ nuovo
+  | "rightLoading"
   | "rightResults"
   | "none";
 
@@ -97,288 +97,309 @@ export default function VehicleLoadingUI() {
   const errorCount = validation?.errorCount ?? 0;
   const buttonText = isValid ? "Start Passenger Side" : "Try Again?";
 
+  // Funzioni per Reset
+  const handleLeftReset = async () => {
+    if (isBusy) return;
+    setIsBusy(true);
+
+    window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+    slotManager.reset();
+    resetScore();
+    window.dispatchEvent(new CustomEvent("hide-scoreboard"));
+
+    setUiStage("none");
+
+    const { animateBagsExit } = await import("../animateBagsExit");
+    const { animateCartsExit } = await import("../animateCartsExit");
+    const { runTruckTransform } = await import("../vehicleLoadingTransform");
+
+    await animateBagsExit();
+    await animateCartsExit();
+    setUiStage("start");
+    setIsBusy(false);
+    await runTruckTransform("start");
+    await vehicleLoadingManager.setState("startLoading");
+  };
+
+  const handleRightReset = async () => {
+    if (isBusy) return;
+    setIsBusy(true);
+
+    slotManager.reset();
+    setUiStage("none");
+
+    window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+
+    const { animateBagsExit } = await import("../animateBagsExit");
+    const { animateCartsExit } = await import("../animateCartsExit");
+    const { runTruckTransform } = await import("../vehicleLoadingTransform");
+
+    await animateBagsExit();
+    await animateCartsExit();
+
+    resetScore();
+    window.dispatchEvent(new CustomEvent("hide-scoreboard"));
+
+    await runTruckTransform("start");
+
+    vehicleLoadingManager.setState("startLoading");
+    setUiStage("start");
+
+    setIsBusy(false);
+  };
+
   return (
-    <div className="vehicle-loading-ui wide">
-      <AnimatePresence mode="wait">
-
-        {/* nuovo stato leftLoading */}
-        {uiStage === "leftLoading" && (
-          <motion.button
-            key="left-reset-btn"
-            className="vehicle-loading-btn primary reset-btn"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.5 }}
-            onClick={() => {
-              console.log("🔄 Reset LEFT clicked");
-            }}
-          >
-            Reset
-          </motion.button>
-        )}
-
-        {/* nuovo stato rightLoading */}
-        {uiStage === "rightLoading" && (
-          <motion.button
-            key="right-reset-btn"
-            className="vehicle-loading-btn primary reset-btn"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.5 }}
-            onClick={() => {
-              console.log("🔄 Reset RIGHT clicked");
-            }}
-          >
-            Reset
-          </motion.button>
-        )}
-
-        {uiStage === "start" && (
-          <motion.div
-            key="start-ui"
-            initial={{ opacity: 0, y: 0 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -40 }}
-            transition={{ duration: 0.6 }}
-            style={{ display: "flex", flexDirection: "column", gap: "1.5rem", alignItems: "center" }}
-          >
+    <>
+      {/* Overlay Reset */}
+      <div className="reset-overlay">
+        <AnimatePresence mode="wait">
+          {uiStage === "leftLoading" && (
             <motion.button
-              key="start-btn"
-              className="vehicle-loading-btn primary fixed"
-              initial={false}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              disabled={isBusy}
-              onClick={async () => {
-                if (isBusy) return;
-                setIsBusy(true);
-
-                if (vehicleLoadingManager.shouldRunInitialEntry()) {
-                  const { InitialCargoAnimation } = await import("../vehicleLoadingTransform");
-                  InitialCargoAnimation();
-                  vehicleLoadingManager.markInitialEntryDone();
-                }
-
-                vehicleLoadingManager.setState("leftSideLoading");
-                setUiStage("none");
-
-                setTimeout(() => {
-                  setUiStage("confirm");
-                  setIsBusy(false);
-                }, 500);
-              }}
+              className="vehicle-loading-btn primary reset-btn"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ duration: 0.5 }}
+              onClick={handleLeftReset}
             >
-              Start Loading Vehicle
+              Reset
             </motion.button>
-
+          )}
+          {uiStage === "rightLoading" && (
             <motion.button
-              key="return-btn"
-              className="vehicle-loading-btn secondary fixed"
-              initial={false}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              disabled={isBusy}
-              onClick={async () => {
-                if (isBusy) return;
-                setIsBusy(true);
-                setUiStage("none");
-                setTimeout(() => {
-                  window.dispatchEvent(new CustomEvent("return-to-menu"));
-                  setIsBusy(false);
-                }, 600);
-              }}
+              className="vehicle-loading-btn primary reset-btn"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ duration: 0.5 }}
+              onClick={handleRightReset}
             >
-              Return to Activity Menu
+              Reset
             </motion.button>
-          </motion.div>
-        )}
+          )}
+        </AnimatePresence>
+      </div>
 
-        {uiStage === "confirm" && (
-          <>
+      {/* UI normale */}
+      <div className="vehicle-loading-ui wide">
+        <AnimatePresence mode="wait">
+          {uiStage === "start" && (
             <motion.div
-              key="instruction-box"
-              className="vehicle-loading-textbox"
-              initial={{ opacity: 0, y: 40 }}
+              key="start-ui"
+              initial={{ opacity: 0, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              transition={{ duration: 0.5 }}
+              exit={{ opacity: 0, y: -40 }}
+              transition={{ duration: 0.6 }}
+              style={{ display: "flex", flexDirection: "column", gap: "1.5rem", alignItems: "center" }}
             >
-              You have 3 carts to load into your vehicle. Check the carts below to see what’s coming next. Bags will come off the cart from left to right on each row.
+              <motion.button
+                key="start-btn"
+                className="vehicle-loading-btn primary fixed"
+                initial={false}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                disabled={isBusy}
+                onClick={async () => {
+                  if (isBusy) return;
+                  setIsBusy(true);
+
+                  if (vehicleLoadingManager.shouldRunInitialEntry()) {
+                    const { InitialCargoAnimation } = await import("../vehicleLoadingTransform");
+                    InitialCargoAnimation();
+                    vehicleLoadingManager.markInitialEntryDone();
+                  }
+
+                  vehicleLoadingManager.setState("leftSideLoading");
+                  setUiStage("none");
+
+                  setTimeout(() => {
+                    setUiStage("confirm");
+                    setIsBusy(false);
+                  }, 500);
+                }}
+              >
+                Start Loading Vehicle
+              </motion.button>
+
+              <motion.button
+                key="return-btn"
+                className="vehicle-loading-btn secondary fixed"
+                initial={false}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                disabled={isBusy}
+                onClick={async () => {
+                  if (isBusy) return;
+                  setIsBusy(true);
+                  setUiStage("none");
+
+                  setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent("return-to-menu"));
+                    setIsBusy(false);
+                  }, 600);
+                }}
+              >
+                Return to Activity Menu
+              </motion.button>
             </motion.div>
+          )}
 
-            <motion.button
-              key="confirm-btn"
-              className="vehicle-loading-btn primary fixed"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              transition={{ duration: 0.5 }}
-              disabled={isBusy}
-              onClick={async () => {
-                if (isBusy) return;
-                setIsBusy(true);
-                console.log("📨 Conferma → transizione a 'instructions'");
-                const scene = (window as any)._BABYLON_SCENE;
-                if (scene) {
-                  runTruckTransform("confirm");
-                }
-                setUiStage("instructions");
-                setIsBusy(false);
-              }}
-            >
-              Start Loading Vehicle
-            </motion.button>
-          </>
-        )}
+          {uiStage === "confirm" && (
+            <>
+              <motion.div
+                key="instruction-box"
+                className="vehicle-loading-textbox"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 40 }}
+                transition={{ duration: 0.5 }}
+              >
+                You have 3 carts to load into your vehicle. Check the carts below to see what’s coming next. Bags will come off the cart from left to right on each row.
+              </motion.div>
 
-        {uiStage === "instructions" && (
-          <motion.div
-            key="auto-instructions"
-            className="vehicle-loading-textbox"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.5 }}
-          >
-            Tap to select where the first bag should go.
-          </motion.div>
-        )}
-
-        {uiStage === "leftResults" && (
-          <>
-            <motion.div
-              key="result-box"
-              className="vehicle-loading-textbox"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              transition={{ duration: 0.5 }}
-            >
-              {isValid ? (
-                "Great job! You loaded the driver side perfectly! Let’s finish the last two carts on the passenger side."
-              ) : (
-                <>
-                  Not quite. You have{" "}
-                  <span className="validation-error-count">
-                    {errorCount} bag{errorCount !== 1 ? "s" : ""}
-                  </span>{" "}
-                  out of place. Remember, lower numbers should be closest to the driver’s seat.
-                </>
-              )}
-            </motion.div>
-
-            <motion.button
-              key="result-btn"
-              className="vehicle-loading-btn primary fixed"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              transition={{ duration: 0.5 }}
-              disabled={isBusy}
-              onClick={async () => {
-                if (isBusy) return;
-                setIsBusy(true);
-
-                if (isValid) {
-                  window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
-                  window.dispatchEvent(new CustomEvent("show-scoreboard"));
-                  slotManager.reset();
+              <motion.button
+                key="confirm-btn"
+                className="vehicle-loading-btn primary fixed"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 40 }}
+                transition={{ duration: 0.5 }}
+                disabled={isBusy}
+                onClick={async () => {
+                  if (isBusy) return;
+                  setIsBusy(true);
                   const scene = (window as any)._BABYLON_SCENE;
                   if (scene) {
-                    vehicleLoadingManager.setState("rightSideLoading");
+                    runTruckTransform("confirm");
                   }
-                  setUiStage("none");
+                  setUiStage("instructions");
                   setIsBusy(false);
-                } else {
-                  window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
-                  slotManager.reset();
-                  resetScore();
-                  window.dispatchEvent(new CustomEvent("hide-scoreboard"));
-                  setUiStage("none");
-                  const { animateBagsExit } = await import("../animateBagsExit");
-                  const { animateCartsExit } = await import("../animateCartsExit");
-                  const { runTruckTransform } = await import("../vehicleLoadingTransform");
-                  await animateBagsExit();
-                  await animateCartsExit();
-                  setUiStage("start");
-                  setIsBusy(false);
-                  await runTruckTransform("start");
-                  await vehicleLoadingManager.setState("startLoading");
-                }
-              }}
-            >
-              {buttonText}
-            </motion.button>
-          </>
-        )}
+                }}
+              >
+                Start Loading Vehicle
+              </motion.button>
+            </>
+          )}
 
-        {uiStage === "rightResults" && isValid && <ConfettiEffect />}
-
-        {uiStage === "rightResults" && (
-          <>
+          {uiStage === "instructions" && (
             <motion.div
-              key="right-result-box"
+              key="auto-instructions"
               className="vehicle-loading-textbox"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 40 }}
               transition={{ duration: 0.5 }}
             >
-              {isValid ? (
-                "Great job! You loaded both sides perfectly!"
-              ) : (
-                <>
-                  Not quite! You have{" "}
-                  <span className="validation-error-count">
-                    {errorCount} item{errorCount !== 1 ? "s" : ""}
-                  </span>{" "}
-                  out of place. Remember, heavy boxes with red stickers should be placed on the floor of the vehicle.
-                </>
-              )}
+              Tap to select where the first bag should go.
             </motion.div>
+          )}
 
-            <motion.button
-              key="right-result-btn"
-              className="vehicle-loading-btn primary fixed"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              transition={{ duration: 0.5 }}
-              disabled={isBusy}
-              onClick={async () => {
-                if (isBusy) return;
-                setIsBusy(true);
+          {uiStage === "leftResults" && (
+            <>
+              <motion.div
+                key="result-box"
+                className="vehicle-loading-textbox"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 40 }}
+                transition={{ duration: 0.5 }}
+              >
+                {isValid
+                  ? "Great job! You loaded the driver side perfectly! Let’s finish the last two carts on the passenger side."
+                  : <>
+                      Not quite. You have{" "}
+                      <span className="validation-error-count">
+                        {errorCount} bag{errorCount !== 1 ? "s" : ""}
+                      </span>{" "}
+                      out of place. Remember, lower numbers should be closest to the driver’s seat.
+                    </>}
+              </motion.div>
 
-                if (isValid) {
-                  slotManager.reset();
-                  window.dispatchEvent(new CustomEvent("return-to-menu"));
-                } else {
-                  slotManager.reset();
-                  setUiStage("none");
-                  window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
-                  const { animateBagsExit } = await import("../animateBagsExit");
-                  const { animateCartsExit } = await import("../animateCartsExit");
-                  const { runTruckTransform } = await import("../vehicleLoadingTransform");
-                  await animateBagsExit();
-                  await animateCartsExit();
-                  resetScore();
-                  window.dispatchEvent(new CustomEvent("hide-scoreboard"));
-                  await runTruckTransform("start");
-                  vehicleLoadingManager.setState("startLoading");
-                  setUiStage("start");
-                }
-                setIsBusy(false);
-              }}
-            >
-              {isValid ? "Return to Activity Menu" : "Try Again?"}
-            </motion.button>
-          </>
-        )}
-      </AnimatePresence>
-    </div>
+              <motion.button
+                key="result-btn"
+                className="vehicle-loading-btn primary fixed"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 40 }}
+                transition={{ duration: 0.5 }}
+                disabled={isBusy}
+                onClick={async () => {
+                  if (isBusy) return;
+                  setIsBusy(true);
+
+                  if (isValid) {
+                    window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+                    window.dispatchEvent(new CustomEvent("show-scoreboard"));
+                    slotManager.reset();
+                    const scene = (window as any)._BABYLON_SCENE;
+                    if (scene) {
+                      vehicleLoadingManager.setState("rightSideLoading");
+                    }
+                    setUiStage("none");
+                    setIsBusy(false);
+                  } else {
+                    await handleLeftReset();
+                  }
+                }}
+              >
+                {buttonText}
+              </motion.button>
+            </>
+          )}
+
+          {uiStage === "rightResults" && isValid && <ConfettiEffect />}
+
+          {uiStage === "rightResults" && (
+            <>
+              <motion.div
+                key="right-result-box"
+                className="vehicle-loading-textbox"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 40 }}
+                transition={{ duration: 0.5 }}
+              >
+                {isValid
+                  ? "Great job! You loaded both sides perfectly!"
+                  : <>
+                      Not quite! You have{" "}
+                      <span className="validation-error-count">
+                        {errorCount} item{errorCount !== 1 ? "s" : ""}
+                      </span>{" "}
+                      out of place. Remember, heavy boxes with red stickers should be placed on the floor of the vehicle.
+                    </>}
+              </motion.div>
+
+              <motion.button
+                key="right-result-btn"
+                className="vehicle-loading-btn primary fixed"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 40 }}
+                transition={{ duration: 0.5 }}
+                disabled={isBusy}
+                onClick={async () => {
+                  if (isBusy) return;
+                  setIsBusy(true);
+
+                  if (isValid) {
+                    slotManager.reset();
+                    window.dispatchEvent(new CustomEvent("return-to-menu"));
+                  } else {
+                    await handleRightReset();
+                  }
+
+                  setIsBusy(false);
+                }}
+              >
+                {isValid ? "Return to Activity Menu" : "Try Again?"}
+              </motion.button>
+            </>
+          )}
+        </AnimatePresence>
+      </div>
+    </>
   );
 }

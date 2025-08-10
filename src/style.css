@@ -397,11 +397,23 @@ html, body {
   text-align: center;
 }
 
-.vehicle-loading-btn.primary.reset-btn {
-  margin-top: 0rem; /* distanza dall'elemento precedente */
-  align-self: flex-end; /* spinge a destra se nel flex container */
-  background-color: #d2a130;
+.reset-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* non blocca click sugli altri elementi */
+  z-index: 20; /* sopra la UI normale */
 }
+
+.reset-overlay .reset-btn {
+  width:10rem;
+  height: auto;
+  position: absolute;
+  bottom: 3rem;
+  left: 3rem;
+  pointer-events: auto; /* il pulsante è cliccabile */
+  padding: 1rem 0 1rem 0;
+}
+
 
 .validation-error-count {
   color: #c40000;
