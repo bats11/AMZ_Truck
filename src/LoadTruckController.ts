@@ -46,11 +46,6 @@ export class LoadTruckController {
   constructor(scene: BABYLON.Scene, side: "left" | "right") {
     this.scene = scene;
     this.side = side;
-
-    // ⬅️ Imposta subito lo stage UI in base al lato
-    (window as any).setVehicleUiStage?.(
-      side === "left" ? "leftLoading" : "rightLoading"
-    );
     
     // 🆕 Salva riferimento globale al controller
     (window as any)._LOAD_TRUCK_CONTROLLER = this;
@@ -73,6 +68,10 @@ export class LoadTruckController {
       if (this.carts[2]) animations.push(this.moveCartTo(this.carts[2], WAIT_POS_2));
       await Promise.all(animations);
     }
+
+    (window as any).setVehicleUiStage?.(
+      this.side === "left" ? "leftLoading" : "rightLoading"
+    );
 
     window.dispatchEvent(new CustomEvent("show-slot-overlay"));
     await this.iterateBagsInCart(this.carts[0]);
