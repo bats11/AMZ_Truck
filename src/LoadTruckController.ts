@@ -35,6 +35,14 @@ export class LoadTruckController {
   private side: "left" | "right";
   private carts: CartEntity[] = [];
 
+  // 🆕 Bag attualmente in staging (sul tavolo)
+  private stagingBag: BagEntity | null = null;
+
+  // 🆕 Getter per sapere quale bag è in staging
+  public getStagingBag(): BagEntity | null {
+    return this.stagingBag;
+  }
+
   constructor(scene: BABYLON.Scene, side: "left" | "right") {
     this.scene = scene;
     this.side = side;
@@ -43,6 +51,9 @@ export class LoadTruckController {
     (window as any).setVehicleUiStage?.(
       side === "left" ? "leftLoading" : "rightLoading"
     );
+    
+    // 🆕 Salva riferimento globale al controller
+    (window as any)._LOAD_TRUCK_CONTROLLER = this;
 
     this.begin();
   }
@@ -71,6 +82,8 @@ export class LoadTruckController {
     const bags = cart.getLoadedBags().filter(b => !b.isExtra).slice().reverse();
 
     for (const bag of bags) {
+      // 🆕 Registra la bag come quella in staging
+      this.stagingBag = bag;
       const worldMatrix = bag.root.getWorldMatrix();
       const worldPos = worldMatrix.getTranslation();
       bag.root.setParent(null);
@@ -82,6 +95,8 @@ export class LoadTruckController {
       slotManager.registerCorrectBag(bag);
       slotManager.setActiveBag(bag);
       await slotManager.waitForAssignment();
+      // 🆕 Reset dopo piazzamento nello slot
+      this.stagingBag = null;
 
       if (slotManager.isFull()) {
         const result = slotManager.validate();
@@ -137,6 +152,8 @@ export class LoadTruckController {
     const bags = cart.getLoadedBags().filter(b => b.isExtra).slice().reverse();
 
     for (const bag of bags) {
+      // 🆕 Registra la bag extra come quella in staging
+      this.stagingBag = bag;
       const worldMatrix = bag.root.getWorldMatrix();
       const worldPos = worldMatrix.getTranslation();
       bag.root.setParent(null);
@@ -147,6 +164,8 @@ export class LoadTruckController {
 
       slotManager.setActiveBag(bag);
       await slotManager.waitForAssignment();
+      // 🆕 Reset dopo piazzamento nello slot
+      this.stagingBag = null;
     }
 
     const removedCart = this.carts.shift()!;

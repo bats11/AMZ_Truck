@@ -44,6 +44,13 @@ export async function animateBagsExit(): Promise<void> {
 
   const allBagNodes = [...bagNodesInTruck, ...bagNodesInCarts];
 
+  // 🆕 Includi la bag in staging se presente
+  const controller = (window as any)._LOAD_TRUCK_CONTROLLER as import("./LoadTruckController").LoadTruckController | undefined;
+  if (controller?.getStagingBag()) {
+    allBagNodes.push(controller.getStagingBag()!.root);
+  }
+
+
   if (allBagNodes.length === 0) {
     console.log("ℹ️ Nessuna bag trovata da animare.");
     return;
