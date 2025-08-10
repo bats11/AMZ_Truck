@@ -397,6 +397,12 @@ html, body {
   text-align: center;
 }
 
+.vehicle-loading-btn.primary.reset-btn {
+  margin-top: 0rem; /* distanza dall'elemento precedente */
+  align-self: flex-end; /* spinge a destra se nel flex container */
+  background-color: #d2a130;
+}
+
 .validation-error-count {
   color: #c40000;
   font-weight: bold;

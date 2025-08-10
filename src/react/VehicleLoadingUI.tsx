@@ -105,7 +105,7 @@ export default function VehicleLoadingUI() {
         {uiStage === "leftLoading" && (
           <motion.button
             key="left-reset-btn"
-            className="vehicle-loading-btn primary fixed"
+            className="vehicle-loading-btn primary reset-btn"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
@@ -122,7 +122,7 @@ export default function VehicleLoadingUI() {
         {uiStage === "rightLoading" && (
           <motion.button
             key="right-reset-btn"
-            className="vehicle-loading-btn primary fixed"
+            className="vehicle-loading-btn primary reset-btn"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}

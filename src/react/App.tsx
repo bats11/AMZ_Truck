@@ -35,6 +35,19 @@ export default function App() {
     return () => window.removeEventListener("entry-animation-finished", onEntryDone);
   }, []);
 
+  // 🆕 Ferma idle spin quando esci da "selection"
+  useEffect(() => {
+    if (appPhase !== "selection") {
+      const scene = (window as any)._BABYLON_SCENE;
+      const root = getModelRoot();
+      if (scene && root) {
+        import("../entryAnimation").then(({ stopIdleSpin }) => {
+          stopIdleSpin(root, scene); // ✅ solo due argomenti
+        });
+      }
+    }
+  }, [appPhase]);
+
   const startExperience = (type: "dvic" | "cargoLoad") => {
     setExperienceType(type);
     setAppPhase("transitioning");
@@ -53,10 +66,7 @@ export default function App() {
       window.dispatchEvent(new CustomEvent("hide-scoreboard"));
     }
 
-    // 1) Reset modello
     resetModelTransform();
-
-    // 2) Stato UI → selection
     setTouchLocked(false);
     setActiveMenu(null);
     setActiveSubmenu(null);
@@ -69,7 +79,6 @@ export default function App() {
       container.style.setProperty("--ui-height", initialUiHeight);
     }
 
-    // 3) Pulizia wrapper residui
     const modelRoot = getModelRoot();
     if (modelRoot) {
       const orphanWrappers = modelRoot.getChildren().filter((n) => n.name.startsWith("BagWrapper_"));
@@ -82,28 +91,22 @@ export default function App() {
       }
     }
 
-    // 4) Avvio spin DOPO qualche secondo dal reset (posa stabile)
     setTimeout(async () => {
       const scene = (window as any)._BABYLON_SCENE as import("@babylonjs/core").Scene | undefined;
       const root = getModelRoot();
       if (!scene || !root) return;
 
-      // Import dal livello superiore (file in src/entryAnimation.ts)
       const { startIdleSpinFromSelection, stopIdleSpin } = await import("../entryAnimation");
-
-      // Stop di eventuali loop attivi prima di riattaccare
       stopIdleSpin(root, scene);
-
-      // Avvio “soft”: accel. costante → breve tratto costante → loop (nessuna frenata)
       startIdleSpinFromSelection(root, scene, {
-        delaySec: 0,            // il delay è già qui (timer 2.5s)
-        accelDurationSec: 0.9,  // durata accelerazione
-        constDurationSec: 0.5,  // preview costante prima del loop
-        constAngleDeg: 8,       // usato per ricavare ω_target = angolo / durata
+        delaySec: 0,
+        accelDurationSec: 0.9,
+        constDurationSec: 0.5,
+        constAngleDeg: 8,
         direction: 1,
         space: "world",
       });
-    }, 2500); // parte solo "dopo qualche secondo" dalla fine del reset
+    }, 2500);
   };
 
   return (

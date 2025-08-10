@@ -117,7 +117,7 @@ export default function UIAnimations({
             </motion.button>
 
             <motion.button
-              className="vehicle-loading-btn secondary"
+              className="vehicle-loading-btn primary"
               onClick={() => {
                 const scene = (window as any)._BABYLON_SCENE;
                 if (scene) startExperience("cargoLoad");
