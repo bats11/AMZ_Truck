@@ -6,8 +6,15 @@ import { runTruckTransform } from "../vehicleLoadingTransform";
 import { slotManager } from "../SlotManager";
 import ConfettiEffect from "./ConfettiEffect";
 
-
-type UIStage = "start" | "confirm" | "instructions" | "leftResults" | "rightResults" | "none";
+type UIStage =
+  | "start"
+  | "confirm"
+  | "instructions"
+  | "leftLoading"   // ⬅️ nuovo
+  | "leftResults"
+  | "rightLoading"  // ⬅️ nuovo
+  | "rightResults"
+  | "none";
 
 export default function VehicleLoadingUI() {
   const [uiStage, setUiStage] = useState<UIStage>("start");
@@ -40,7 +47,6 @@ export default function VehicleLoadingUI() {
           return;
         }
 
-        // ⬅️ AGGIUNTA QUI
         window.dispatchEvent(new CustomEvent("show-scoreboard"));
 
         const { LoadTruckController } = await import("../LoadTruckController");
@@ -50,7 +56,6 @@ export default function VehicleLoadingUI() {
       return () => clearTimeout(timeout);
     }
   }, [uiStage]);
-
 
   useEffect(() => {
     if (uiStage === "rightResults" && isValid) {
@@ -65,7 +70,6 @@ export default function VehicleLoadingUI() {
           restoreHiddenTruckMeshes(scene),
           fadeOutMeshByName(scene, "SM_Cargo_Bay_cut")
         ]);
-        
 
         const { getModelRoot } = await import("../MoveComponent");
         const modelRoot = getModelRoot();
@@ -96,6 +100,41 @@ export default function VehicleLoadingUI() {
   return (
     <div className="vehicle-loading-ui wide">
       <AnimatePresence mode="wait">
+
+        {/* nuovo stato leftLoading */}
+        {uiStage === "leftLoading" && (
+          <motion.button
+            key="left-reset-btn"
+            className="vehicle-loading-btn primary fixed"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ duration: 0.5 }}
+            onClick={() => {
+              console.log("🔄 Reset LEFT clicked");
+            }}
+          >
+            Reset
+          </motion.button>
+        )}
+
+        {/* nuovo stato rightLoading */}
+        {uiStage === "rightLoading" && (
+          <motion.button
+            key="right-reset-btn"
+            className="vehicle-loading-btn primary fixed"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ duration: 0.5 }}
+            onClick={() => {
+              console.log("🔄 Reset RIGHT clicked");
+            }}
+          >
+            Reset
+          </motion.button>
+        )}
+
         {uiStage === "start" && (
           <motion.div
             key="start-ui"
@@ -147,8 +186,6 @@ export default function VehicleLoadingUI() {
                 if (isBusy) return;
                 setIsBusy(true);
                 setUiStage("none");
-
-                // ⏳ Aspetta che l’uscita finisca prima di resettare
                 setTimeout(() => {
                   window.dispatchEvent(new CustomEvent("return-to-menu"));
                   setIsBusy(false);
@@ -159,7 +196,6 @@ export default function VehicleLoadingUI() {
             </motion.button>
           </motion.div>
         )}
-
 
         {uiStage === "confirm" && (
           <>
@@ -185,13 +221,11 @@ export default function VehicleLoadingUI() {
               onClick={async () => {
                 if (isBusy) return;
                 setIsBusy(true);
-
                 console.log("📨 Conferma → transizione a 'instructions'");
                 const scene = (window as any)._BABYLON_SCENE;
                 if (scene) {
                   runTruckTransform("confirm");
                 }
-
                 setUiStage("instructions");
                 setIsBusy(false);
               }}
@@ -251,14 +285,12 @@ export default function VehicleLoadingUI() {
 
                 if (isValid) {
                   window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
-                  window.dispatchEvent(new CustomEvent("show-scoreboard")); // ⬅️ attiva il pannello
+                  window.dispatchEvent(new CustomEvent("show-scoreboard"));
                   slotManager.reset();
-
                   const scene = (window as any)._BABYLON_SCENE;
                   if (scene) {
                     vehicleLoadingManager.setState("rightSideLoading");
                   }
-
                   setUiStage("none");
                   setIsBusy(false);
                 } else {
@@ -266,21 +298,16 @@ export default function VehicleLoadingUI() {
                   slotManager.reset();
                   resetScore();
                   window.dispatchEvent(new CustomEvent("hide-scoreboard"));
-
                   setUiStage("none");
-
                   const { animateBagsExit } = await import("../animateBagsExit");
                   const { animateCartsExit } = await import("../animateCartsExit");
                   const { runTruckTransform } = await import("../vehicleLoadingTransform");
-
                   await animateBagsExit();
                   await animateCartsExit();
                   setUiStage("start");
                   setIsBusy(false);
                   await runTruckTransform("start");
-
                   await vehicleLoadingManager.setState("startLoading");
-                  
                 }
               }}
             >
@@ -332,26 +359,18 @@ export default function VehicleLoadingUI() {
                 } else {
                   slotManager.reset();
                   setUiStage("none");
-
                   window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
-
                   const { animateBagsExit } = await import("../animateBagsExit");
                   const { animateCartsExit } = await import("../animateCartsExit");
                   const { runTruckTransform } = await import("../vehicleLoadingTransform");
-
                   await animateBagsExit();
                   await animateCartsExit();
-
-                  resetScore(); // ✅ azzera punteggio
-                  window.dispatchEvent(new CustomEvent("hide-scoreboard")); // ✅ nasconde scoreboard
-
+                  resetScore();
+                  window.dispatchEvent(new CustomEvent("hide-scoreboard"));
                   await runTruckTransform("start");
-
                   vehicleLoadingManager.setState("startLoading");
                   setUiStage("start");
                 }
-
-
                 setIsBusy(false);
               }}
             >
