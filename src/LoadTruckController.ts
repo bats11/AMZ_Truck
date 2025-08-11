@@ -34,37 +34,27 @@ export class LoadTruckController {
   private scene: BABYLON.Scene;
   private side: "left" | "right";
   private carts: CartEntity[] = [];
-  // Variabile condivisa per sapere quale bag è in staging
   private static currentStagingBag: BagEntity | null = null;
 
-  // Getter pubblico per leggere da altre classi
   public static getCurrentStagingBag(): BagEntity | null {
     return LoadTruckController.currentStagingBag;
   }
 
-  // Setter privato per aggiornare dall’interno
   private static setCurrentStagingBag(bag: BagEntity | null) {
     LoadTruckController.currentStagingBag = bag;
     console.log(`📍 Bag in staging: ${bag ? bag.id : "nessuna"}`);
   }
 
-
   constructor(scene: BABYLON.Scene, side: "left" | "right") {
     this.scene = scene;
     this.side = side;
-      // Imposta lo UI stage in base al lato
-      if (side === "left") {
-        (window as any).setVehicleUiStage?.("driverSide");
-      } else {
-        (window as any).setVehicleUiStage?.("passengerSide");
-      }
-
     this.begin();
   }
 
   private async begin() {
     slotManager.setRightSide(this.side === "right");
     await hideTruckSideMeshes(this.side, this.scene, [], ["SM_Cargo_Bay_cut"]);
+
     const allCarts = (window as any)._CART_ENTITIES as CartEntity[] | undefined;
     if (!allCarts || allCarts.length === 0) return;
     this.carts = allCarts;
@@ -77,7 +67,15 @@ export class LoadTruckController {
       await Promise.all(animations);
     }
 
+    // ⬅️ Mostra overlay e poi imposta UIStage in base al lato
     window.dispatchEvent(new CustomEvent("show-slot-overlay"));
+
+    if (this.side === "left") {
+      (window as any).setVehicleUiStage?.("driverSide");
+    } else {
+      (window as any).setVehicleUiStage?.("passengerSide");
+    }
+
     await this.iterateBagsInCart(this.carts[0]);
   }
 
@@ -91,15 +89,13 @@ export class LoadTruckController {
       bag.root.position.copyFrom(worldPos);
       cart.removeBag(bag);
 
-      // 🔹 Imposta bag corrente
       LoadTruckController.setCurrentStagingBag(bag);
-
       await this.moveBagTo(bag, BAG_STAGING_POS);
 
       slotManager.registerCorrectBag(bag);
       slotManager.setActiveBag(bag);
       await slotManager.waitForAssignment();
-       // 🔹 Resetta dopo assegnazione
+
       LoadTruckController.setCurrentStagingBag(null);
 
       if (slotManager.isFull()) {
@@ -161,14 +157,13 @@ export class LoadTruckController {
       bag.root.setParent(null);
       bag.root.position.copyFrom(worldPos);
       cart.removeBag(bag);
-      // 🔹 Imposta bag corrente
-      LoadTruckController.setCurrentStagingBag(bag);
 
+      LoadTruckController.setCurrentStagingBag(bag);
       await this.moveBagTo(bag, EXTRA_BAG_STAGING_POS, EXTRA_BAG_STAGING_ROTATION);
 
       slotManager.setActiveBag(bag);
       await slotManager.waitForAssignment();
-      // 🔹 Resetta dopo assegnazione
+
       LoadTruckController.setCurrentStagingBag(null);
     }
 
