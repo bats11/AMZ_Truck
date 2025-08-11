@@ -14,7 +14,7 @@ export async function animateCartsExit(): Promise<void> {
   const frameRate = 60;
   const duration = 1.2;
   const totalFrames = frameRate * duration;
-  const exitOffset = new BABYLON.Vector3(15, 0, 0); // verso lo sfondo
+  const exitOffset = new BABYLON.Vector3(-15, 0, 0); // verso lo sfondo
 
   const easing = new BABYLON.CubicEase();
   easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
