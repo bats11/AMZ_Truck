@@ -6,7 +6,6 @@ import { runTruckTransform } from "../vehicleLoadingTransform";
 import { slotManager } from "../SlotManager";
 import ConfettiEffect from "./ConfettiEffect";
 
-
 type UIStage =
   | "start"
   | "confirm"
@@ -48,7 +47,7 @@ export default function VehicleLoadingUI() {
           return;
         }
 
-        // ⬅️ AGGIUNTA QUI
+        // ⬅️ mostra il punteggio
         window.dispatchEvent(new CustomEvent("show-scoreboard"));
 
         const { LoadTruckController } = await import("../LoadTruckController");
@@ -58,7 +57,6 @@ export default function VehicleLoadingUI() {
       return () => clearTimeout(timeout);
     }
   }, [uiStage]);
-
 
   useEffect(() => {
     if (uiStage === "rightResults" && isValid) {
@@ -73,7 +71,6 @@ export default function VehicleLoadingUI() {
           restoreHiddenTruckMeshes(scene),
           fadeOutMeshByName(scene, "SM_Cargo_Bay_cut")
         ]);
-        
 
         const { getModelRoot } = await import("../MoveComponent");
         const modelRoot = getModelRoot();
@@ -101,6 +98,90 @@ export default function VehicleLoadingUI() {
   const errorCount = validation?.errorCount ?? 0;
   const buttonText = isValid ? "Start Passenger Side" : "Try Again?";
 
+  /* ──────────────────────────────────────────────────────────
+     STAGE: DRIVER SIDE → contenitore separato (fuori da .vehicle-loading-ui)
+     ────────────────────────────────────────────────────────── */
+  if (uiStage === "driverSide") {
+    return (
+      <div className="vehicle-loading-reset">
+        <motion.button
+          className="vehicle-loading-btn primary reset"
+          initial={false}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+          disabled={isBusy}
+          onClick={async () => {
+            window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+            slotManager.reset();
+            resetScore();
+            window.dispatchEvent(new CustomEvent("hide-scoreboard"));
+
+            setUiStage("none");
+
+            const { animateBagsExit } = await import("../animateBagsExit");
+            const { animateCartsExit } = await import("../animateCartsExit");
+            const { runTruckTransform } = await import("../vehicleLoadingTransform");
+
+            await animateBagsExit();
+            await animateCartsExit();
+            setUiStage("start");
+            setIsBusy(false);
+            await runTruckTransform("start");
+
+            await vehicleLoadingManager.setState("startLoading");
+          }}
+        >
+          Reset
+        </motion.button>
+      </div>
+    );
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     STAGE: PASSENGER SIDE → contenitore separato (fuori da .vehicle-loading-ui)
+     ────────────────────────────────────────────────────────── */
+  if (uiStage === "passengerSide") {
+    return (
+      <div className="vehicle-loading-reset">
+        <motion.button
+          className="vehicle-loading-btn secondary fixed"
+          initial={false}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+          disabled={isBusy}
+          onClick={async () => {
+            slotManager.reset();
+            setUiStage("none");
+
+            window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+
+            const { animateBagsExit } = await import("../animateBagsExit");
+            const { animateCartsExit } = await import("../animateCartsExit");
+            const { runTruckTransform } = await import("../vehicleLoadingTransform");
+
+            await animateBagsExit();
+            await animateCartsExit();
+
+            resetScore(); // ✅ azzera punteggio
+            window.dispatchEvent(new CustomEvent("hide-scoreboard")); // ✅ nasconde scoreboard
+
+            await runTruckTransform("start");
+
+            vehicleLoadingManager.setState("startLoading");
+            setUiStage("start");
+          }}
+        >
+          Reset
+        </motion.button>
+      </div>
+    );
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     TUTTI GLI ALTRI STAGE → dentro .vehicle-loading-ui wide (invariato)
+     ────────────────────────────────────────────────────────── */
   return (
     <div className="vehicle-loading-ui wide">
       <AnimatePresence mode="wait">
@@ -156,7 +237,7 @@ export default function VehicleLoadingUI() {
                 setIsBusy(true);
                 setUiStage("none");
 
-                // ⏳ Aspetta che l’uscita finisca prima di resettare
+                // ⏳ aspetta l’uscita prima di resettare
                 setTimeout(() => {
                   window.dispatchEvent(new CustomEvent("return-to-menu"));
                   setIsBusy(false);
@@ -167,7 +248,6 @@ export default function VehicleLoadingUI() {
             </motion.button>
           </motion.div>
         )}
-
 
         {uiStage === "confirm" && (
           <>
@@ -281,14 +361,13 @@ export default function VehicleLoadingUI() {
                   const { animateCartsExit } = await import("../animateCartsExit");
                   const { runTruckTransform } = await import("../vehicleLoadingTransform");
 
-                  await animateBagsExit(false);
+                  await animateBagsExit();
                   await animateCartsExit();
                   setUiStage("start");
                   setIsBusy(false);
                   await runTruckTransform("start");
 
                   await vehicleLoadingManager.setState("startLoading");
-                  
                 }
               }}
             >
@@ -296,102 +375,6 @@ export default function VehicleLoadingUI() {
             </motion.button>
           </>
         )}
-
-        {uiStage === "driverSide" && (
-          <motion.div
-            key="driver-side"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.5 }}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
-              alignItems: "center",
-            }}
-          >
-            <motion.button
-              className="vehicle-loading-btn primary fixed"
-              initial={false}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              disabled={isBusy}
-              onClick={async () => {
-                window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
-                  slotManager.reset();
-                  resetScore();
-                  window.dispatchEvent(new CustomEvent("hide-scoreboard"));
-
-                  setUiStage("none");
-
-                  const { animateBagsExit } = await import("../animateBagsExit");
-                  const { animateCartsExit } = await import("../animateCartsExit");
-                  const { runTruckTransform } = await import("../vehicleLoadingTransform");
-
-                  await animateBagsExit(false);
-                  await animateCartsExit();
-                  setUiStage("start");
-                  setIsBusy(false);
-                  await runTruckTransform("start");
-
-                  await vehicleLoadingManager.setState("startLoading");
-              }}
-            >
-              Loading Driver Side
-            </motion.button>
-          </motion.div>
-        )}
-
-        {uiStage === "passengerSide" && (
-          <motion.div
-            key="passenger-side"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.5 }}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
-              alignItems: "center",
-            }}
-          >
-            <motion.button
-              className="vehicle-loading-btn secondary fixed"
-              initial={false}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              disabled={isBusy}
-              onClick={async () => {
-                slotManager.reset();
-                setUiStage("none");
-
-                 window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
-
-                  const { animateBagsExit } = await import("../animateBagsExit");
-                  const { animateCartsExit } = await import("../animateCartsExit");
-                  const { runTruckTransform } = await import("../vehicleLoadingTransform");
-
-                  await animateBagsExit(true);
-                  await animateCartsExit();
-
-                  resetScore(); // ✅ azzera punteggio
-                  window.dispatchEvent(new CustomEvent("hide-scoreboard")); // ✅ nasconde scoreboard
-
-                  await runTruckTransform("start");
-
-                  vehicleLoadingManager.setState("startLoading");
-                  setUiStage("start");
-              }}
-            >
-              Loading Passenger Side
-            </motion.button>
-          </motion.div>
-        )}
-
 
         {uiStage === "rightResults" && isValid && <ConfettiEffect />}
 
@@ -443,7 +426,7 @@ export default function VehicleLoadingUI() {
                   const { animateCartsExit } = await import("../animateCartsExit");
                   const { runTruckTransform } = await import("../vehicleLoadingTransform");
 
-                  await animateBagsExit(true);
+                  await animateBagsExit();
                   await animateCartsExit();
 
                   resetScore(); // ✅ azzera punteggio
@@ -454,7 +437,6 @@ export default function VehicleLoadingUI() {
                   vehicleLoadingManager.setState("startLoading");
                   setUiStage("start");
                 }
-
 
                 setIsBusy(false);
               }}
