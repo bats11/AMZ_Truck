@@ -35,6 +35,19 @@ export default function App() {
     return () => window.removeEventListener("entry-animation-finished", onEntryDone);
   }, []);
 
+  // 🆕 Ferma idle spin quando esci da "selection"
+  useEffect(() => {
+    if (appPhase !== "selection") {
+      const scene = (window as any)._BABYLON_SCENE;
+      const root = getModelRoot();
+      if (scene && root) {
+        import("../entryAnimation").then(({ stopIdleSpin }) => {
+          stopIdleSpin(root, scene);
+        });
+      }
+    }
+  }, [appPhase]);
+
   const startExperience = (type: "dvic" | "cargoLoad") => {
     setExperienceType(type);
     setAppPhase("transitioning");
@@ -88,22 +101,21 @@ export default function App() {
       const root = getModelRoot();
       if (!scene || !root) return;
 
-      // Import dal livello superiore (file in src/entryAnimation.ts)
       const { startIdleSpinFromSelection, stopIdleSpin } = await import("../entryAnimation");
 
-      // Stop di eventuali loop attivi prima di riattaccare
+      // Stop eventuali loop attivi prima di riattaccare
       stopIdleSpin(root, scene);
 
-      // Avvio “soft”: accel. costante → breve tratto costante → loop (nessuna frenata)
+      // Avvio “soft”
       startIdleSpinFromSelection(root, scene, {
-        delaySec: 0,            // il delay è già qui (timer 2.5s)
-        accelDurationSec: 0.9,  // durata accelerazione
-        constDurationSec: 0.5,  // preview costante prima del loop
-        constAngleDeg: 8,       // usato per ricavare ω_target = angolo / durata
+        delaySec: 0,
+        accelDurationSec: 0.9,
+        constDurationSec: 0.5,
+        constAngleDeg: 8,
         direction: 1,
         space: "world",
       });
-    }, 2500); // parte solo "dopo qualche secondo" dalla fine del reset
+    }, 2500);
   };
 
   return (
