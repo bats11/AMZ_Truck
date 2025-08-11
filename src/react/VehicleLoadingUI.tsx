@@ -281,7 +281,7 @@ export default function VehicleLoadingUI() {
                   const { animateCartsExit } = await import("../animateCartsExit");
                   const { runTruckTransform } = await import("../vehicleLoadingTransform");
 
-                  await animateBagsExit();
+                  await animateBagsExit(false);
                   await animateCartsExit();
                   setUiStage("start");
                   setIsBusy(false);
@@ -318,8 +318,25 @@ export default function VehicleLoadingUI() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
               disabled={isBusy}
-              onClick={() => {
-                console.log("📦 Driver Side button clicked");
+              onClick={async () => {
+                window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+                  slotManager.reset();
+                  resetScore();
+                  window.dispatchEvent(new CustomEvent("hide-scoreboard"));
+
+                  setUiStage("none");
+
+                  const { animateBagsExit } = await import("../animateBagsExit");
+                  const { animateCartsExit } = await import("../animateCartsExit");
+                  const { runTruckTransform } = await import("../vehicleLoadingTransform");
+
+                  await animateBagsExit(false);
+                  await animateCartsExit();
+                  setUiStage("start");
+                  setIsBusy(false);
+                  await runTruckTransform("start");
+
+                  await vehicleLoadingManager.setState("startLoading");
               }}
             >
               Loading Driver Side
@@ -348,8 +365,26 @@ export default function VehicleLoadingUI() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
               disabled={isBusy}
-              onClick={() => {
-                console.log("📦 Passenger Side button clicked");
+              onClick={async () => {
+                slotManager.reset();
+                setUiStage("none");
+
+                 window.dispatchEvent(new CustomEvent("hide-slot-overlay"));
+
+                  const { animateBagsExit } = await import("../animateBagsExit");
+                  const { animateCartsExit } = await import("../animateCartsExit");
+                  const { runTruckTransform } = await import("../vehicleLoadingTransform");
+
+                  await animateBagsExit(true);
+                  await animateCartsExit();
+
+                  resetScore(); // ✅ azzera punteggio
+                  window.dispatchEvent(new CustomEvent("hide-scoreboard")); // ✅ nasconde scoreboard
+
+                  await runTruckTransform("start");
+
+                  vehicleLoadingManager.setState("startLoading");
+                  setUiStage("start");
               }}
             >
               Loading Passenger Side
@@ -408,7 +443,7 @@ export default function VehicleLoadingUI() {
                   const { animateCartsExit } = await import("../animateCartsExit");
                   const { runTruckTransform } = await import("../vehicleLoadingTransform");
 
-                  await animateBagsExit();
+                  await animateBagsExit(true);
                   await animateCartsExit();
 
                   resetScore(); // ✅ azzera punteggio

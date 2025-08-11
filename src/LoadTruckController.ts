@@ -34,6 +34,20 @@ export class LoadTruckController {
   private scene: BABYLON.Scene;
   private side: "left" | "right";
   private carts: CartEntity[] = [];
+  // Variabile condivisa per sapere quale bag è in staging
+  private static currentStagingBag: BagEntity | null = null;
+
+  // Getter pubblico per leggere da altre classi
+  public static getCurrentStagingBag(): BagEntity | null {
+    return LoadTruckController.currentStagingBag;
+  }
+
+  // Setter privato per aggiornare dall’interno
+  private static setCurrentStagingBag(bag: BagEntity | null) {
+    LoadTruckController.currentStagingBag = bag;
+    console.log(`📍 Bag in staging: ${bag ? bag.id : "nessuna"}`);
+  }
+
 
   constructor(scene: BABYLON.Scene, side: "left" | "right") {
     this.scene = scene;
@@ -77,11 +91,16 @@ export class LoadTruckController {
       bag.root.position.copyFrom(worldPos);
       cart.removeBag(bag);
 
+      // 🔹 Imposta bag corrente
+      LoadTruckController.setCurrentStagingBag(bag);
+
       await this.moveBagTo(bag, BAG_STAGING_POS);
 
       slotManager.registerCorrectBag(bag);
       slotManager.setActiveBag(bag);
       await slotManager.waitForAssignment();
+       // 🔹 Resetta dopo assegnazione
+      LoadTruckController.setCurrentStagingBag(null);
 
       if (slotManager.isFull()) {
         const result = slotManager.validate();
@@ -142,11 +161,15 @@ export class LoadTruckController {
       bag.root.setParent(null);
       bag.root.position.copyFrom(worldPos);
       cart.removeBag(bag);
+      // 🔹 Imposta bag corrente
+      LoadTruckController.setCurrentStagingBag(bag);
 
       await this.moveBagTo(bag, EXTRA_BAG_STAGING_POS, EXTRA_BAG_STAGING_ROTATION);
 
       slotManager.setActiveBag(bag);
       await slotManager.waitForAssignment();
+      // 🔹 Resetta dopo assegnazione
+      LoadTruckController.setCurrentStagingBag(null);
     }
 
     const removedCart = this.carts.shift()!;
