@@ -145,7 +145,7 @@ export default function VehicleLoadingUI() {
     return (
       <div className="vehicle-loading-reset">
         <motion.button
-          className="vehicle-loading-btn secondary fixed"
+          className="vehicle-loading-btn primary reset"
           initial={false}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

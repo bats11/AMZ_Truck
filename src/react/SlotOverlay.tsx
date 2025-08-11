@@ -94,7 +94,6 @@ export default function SlotOverlay({
 
     const dotOrX = isError ? (
       <span className="slot-error-dot">
-        <span className="slot-error-x">×</span>
       </span>
     ) : (
       <span className="slot-dot">
