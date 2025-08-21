@@ -25,7 +25,7 @@ export async function animateCartsExit(): Promise<void> {
     const end = start.add(exitOffset);
 
     const anim = createAnimation("position", start, end, 0, totalFrames, easing);
-    const delay = i * 400; // Ogni carrello parte 400ms dopo il precedente
+    const delay = i * 300; // Ogni carrello parte 400ms dopo il precedente
 
 
     return new Promise<void>((resolve) => {
