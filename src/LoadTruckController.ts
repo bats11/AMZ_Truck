@@ -34,6 +34,16 @@ export class LoadTruckController {
   private scene: BABYLON.Scene;
   private side: "left" | "right";
   private carts: CartEntity[] = [];
+  private static currentStagingBag: BagEntity | null = null;
+
+  public static getCurrentStagingBag(): BagEntity | null {
+    return LoadTruckController.currentStagingBag;
+  }
+
+  private static setCurrentStagingBag(bag: BagEntity | null) {
+    LoadTruckController.currentStagingBag = bag;
+    console.log(`📍 Bag in staging: ${bag ? bag.id : "nessuna"}`);
+  }
 
   // 🆕 Bag attualmente in staging (sul tavolo)
   private stagingBag: BagEntity | null = null;
@@ -69,11 +79,15 @@ export class LoadTruckController {
       await Promise.all(animations);
     }
 
-    (window as any).setVehicleUiStage?.(
-      this.side === "left" ? "leftLoading" : "rightLoading"
-    );
-
+    // ⬅️ Mostra overlay e poi imposta UIStage in base al lato
     window.dispatchEvent(new CustomEvent("show-slot-overlay"));
+
+    if (this.side === "left") {
+      (window as any).setVehicleUiStage?.("driverSide");
+    } else {
+      (window as any).setVehicleUiStage?.("passengerSide");
+    }
+
     await this.iterateBagsInCart(this.carts[0]);
   }
 
@@ -89,6 +103,7 @@ export class LoadTruckController {
       bag.root.position.copyFrom(worldPos);
       cart.removeBag(bag);
 
+      LoadTruckController.setCurrentStagingBag(bag);
       await this.moveBagTo(bag, BAG_STAGING_POS);
 
       slotManager.registerCorrectBag(bag);
@@ -96,6 +111,8 @@ export class LoadTruckController {
       await slotManager.waitForAssignment();
       // 🆕 Reset dopo piazzamento nello slot
       this.stagingBag = null;
+
+      LoadTruckController.setCurrentStagingBag(null);
 
       if (slotManager.isFull()) {
         const result = slotManager.validate();
@@ -159,12 +176,15 @@ export class LoadTruckController {
       bag.root.position.copyFrom(worldPos);
       cart.removeBag(bag);
 
+      LoadTruckController.setCurrentStagingBag(bag);
       await this.moveBagTo(bag, EXTRA_BAG_STAGING_POS, EXTRA_BAG_STAGING_ROTATION);
 
       slotManager.setActiveBag(bag);
       await slotManager.waitForAssignment();
+
       // 🆕 Reset dopo piazzamento nello slot
       this.stagingBag = null;
+      LoadTruckController.setCurrentStagingBag(null);
     }
 
     const removedCart = this.carts.shift()!;

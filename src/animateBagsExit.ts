@@ -2,9 +2,10 @@
 import * as BABYLON from "@babylonjs/core";
 import { createAnimation } from "./utils";
 import { getModelRoot } from "./MoveComponent";
-import { vehicleLoadingManager } from "./vehicleLoadingManager"; // ✅ import diretto
+import { vehicleLoadingManager } from "./vehicleLoadingManager";
+import { LoadTruckController } from "./LoadTruckController"; // ⬅️ aggiunto
 
-export async function animateBagsExit(): Promise<void> {
+export async function animateBagsExit(isRightSide?: boolean): Promise<void> {
   const modelRoot = getModelRoot();
   if (!modelRoot) {
     console.warn("⛔ ModelRoot (truck) non trovato.");
@@ -16,59 +17,67 @@ export async function animateBagsExit(): Promise<void> {
   const duration = 1.2; // secondi
   const totalFrames = frameRate * duration;
 
-  // ✅ Determina direzione in base al lato attivo
-  const isRightSide = vehicleLoadingManager.getState?.() === "rightSideLoading";
-  const exitDistance = isRightSide ? 7 : -7;
+  if (isRightSide === undefined) {
+    isRightSide = vehicleLoadingManager.getState?.() === "rightSideLoading";
+  }
 
   const easing = new BABYLON.CubicEase();
   easing.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
 
-  // 🔍 Cerca bag nel truck
+  // 🔍 Bag sul truck
   const bagNodesInTruck = modelRoot.getChildren().filter((node) =>
     node.name.startsWith("BagWrapper_")
   ) as BABYLON.TransformNode[];
 
-  // 🔍 Cerca bag nei carrelli
+  // 🔍 Bag nei carrelli
   let bagNodesInCarts: BABYLON.TransformNode[] = [];
   const carts = (window as any)._CART_ENTITIES as any[] | undefined;
-
   if (Array.isArray(carts)) {
     for (const cart of carts) {
       const root = cart?.root as BABYLON.TransformNode;
       if (root) {
-        const bags = root.getChildren().filter((n) => n.name.startsWith("BagWrapper_")) as BABYLON.TransformNode[];
+        const bags = root.getChildren().filter((n) =>
+          n.name.startsWith("BagWrapper_")
+        ) as BABYLON.TransformNode[];
         bagNodesInCarts.push(...bags);
       }
     }
   }
 
-  const allBagNodes = [...bagNodesInTruck, ...bagNodesInCarts];
-
-  // 🆕 Includi la bag in staging se presente
-  const controller = (window as any)._LOAD_TRUCK_CONTROLLER as import("./LoadTruckController").LoadTruckController | undefined;
-  if (controller?.getStagingBag()) {
-    allBagNodes.push(controller.getStagingBag()!.root);
+  // 🔍 Bag in staging
+  const stagingBag = LoadTruckController.getCurrentStagingBag();
+  let bagNodesInStaging: BABYLON.TransformNode[] = [];
+  if (stagingBag) {
+    bagNodesInStaging.push(stagingBag.root);
+    console.log(`📍 Bag in staging aggiunta all'uscita: ${stagingBag.id}`);
   }
 
-
-  if (allBagNodes.length === 0) {
+  if (
+    bagNodesInTruck.length +
+      bagNodesInCarts.length +
+      bagNodesInStaging.length ===
+    0
+  ) {
     console.log("ℹ️ Nessuna bag trovata da animare.");
     return;
   }
 
-  const promises = allBagNodes.map((bagNode) => {
+  // 👉 Direzioni separate
+  const exitDistanceTruck = isRightSide ? 7 : -7; // Truck
+  const exitDistanceCart = -7; // Carrelli
+  const exitDistanceStaging = -7; // Staging → stessa dei carrelli
+
+  // Funzione interna per animare e fare dispose
+  const animateBagNode = (bagNode: BABYLON.TransformNode, exitDistance: number) => {
     const start = bagNode.position.clone();
     const end = start.add(new BABYLON.Vector3(0, 0, exitDistance));
-
     const anim = createAnimation("position", start, end, 0, totalFrames, easing);
     const delay = Math.random() * 600;
 
     return new Promise<void>((resolve) => {
       setTimeout(() => {
-        // 1️⃣ Sposta wrapper
         scene.beginDirectAnimation(bagNode, [anim], 0, totalFrames, false, 1);
 
-        // 2️⃣ Fade out delle mesh
         const childMeshes = bagNode.getChildMeshes(false);
         childMeshes.forEach((mesh) => {
           const visAnim = new BABYLON.Animation(
@@ -86,7 +95,6 @@ export async function animateBagsExit(): Promise<void> {
           scene.beginDirectAnimation(mesh, [visAnim], 0, totalFrames, false, 1);
         });
 
-        // 3️⃣ Dispose dopo animazione
         setTimeout(() => {
           childMeshes.forEach((m) => m.dispose());
           bagNode.dispose();
@@ -95,8 +103,24 @@ export async function animateBagsExit(): Promise<void> {
         }, totalFrames * (1000 / frameRate));
       }, delay);
     });
-  });
+  };
 
-  await Promise.all(promises);
-  console.log("✅ Tutte le bag (truck + carrelli) eliminate con animazione.");
+  // Anima tutte le bag
+  const promisesTruck = bagNodesInTruck.map((node) =>
+    animateBagNode(node, exitDistanceTruck)
+  );
+  const promisesCarts = bagNodesInCarts.map((node) =>
+    animateBagNode(node, exitDistanceCart)
+  );
+  const promisesStaging = bagNodesInStaging.map((node) =>
+    animateBagNode(node, exitDistanceStaging)
+  );
+
+  await Promise.all([...promisesTruck, ...promisesCarts, ...promisesStaging]);
+
+  console.log(
+    `✅ Tutte le bag eliminate. Truck lato ${
+      isRightSide ? "RIGHT" : "LEFT"
+    }, carrelli direzione standard, staging incluso.`
+  );
 }

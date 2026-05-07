@@ -1,5 +1,5 @@
 // src/react/App.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import LoadingOverlay from "./LoadingOverlay";
 import { setTouchLockedGetter } from "../babylonBridge";
 import { resetModelTransform, getModelRoot } from "../MoveComponent";
@@ -17,6 +17,9 @@ export default function App() {
   const [selectionKey, setSelectionKey] = useState(0);
   const [buttonsDisabled, setButtonsDisabled] = useState(false);
   const initialUiHeight = "50%";
+
+  const spinTimeoutRef = useRef<number | null>(null);
+
 
   useEffect(() => {
     setTouchLockedGetter(() => touchLocked);
@@ -45,6 +48,12 @@ export default function App() {
           stopIdleSpin(root, scene);
         });
       }
+      // 🆕 Cancella timeout spin se ancora pendente
+      if (spinTimeoutRef.current) {
+        clearTimeout(spinTimeoutRef.current);
+        spinTimeoutRef.current = null;
+        console.log("🛑 Spin timeout cancellato: uscita da selection.");
+      }
     }
   }, [appPhase]);
 
@@ -66,10 +75,7 @@ export default function App() {
       window.dispatchEvent(new CustomEvent("hide-scoreboard"));
     }
 
-    // 1) Reset modello
     resetModelTransform();
-
-    // 2) Stato UI → selection
     setTouchLocked(false);
     setActiveMenu(null);
     setActiveSubmenu(null);
@@ -82,7 +88,6 @@ export default function App() {
       container.style.setProperty("--ui-height", initialUiHeight);
     }
 
-    // 3) Pulizia wrapper residui
     const modelRoot = getModelRoot();
     if (modelRoot) {
       const orphanWrappers = modelRoot.getChildren().filter((n) => n.name.startsWith("BagWrapper_"));
@@ -95,8 +100,8 @@ export default function App() {
       }
     }
 
-    // 4) Avvio spin DOPO qualche secondo dal reset (posa stabile)
-    setTimeout(async () => {
+    // ⏱️ Spin delay (cancellabile)
+    spinTimeoutRef.current = setTimeout(async () => {
       const scene = (window as any)._BABYLON_SCENE as import("@babylonjs/core").Scene | undefined;
       const root = getModelRoot();
       if (!scene || !root) return;
@@ -115,6 +120,8 @@ export default function App() {
         direction: 1,
         space: "world",
       });
+
+      spinTimeoutRef.current = null;
     }, 2500);
   };
 

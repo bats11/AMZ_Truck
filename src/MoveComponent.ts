@@ -232,6 +232,13 @@ export function setupMovementControls(scene: BABYLON.Scene, camera?: BABYLON.Fre
 
 export async function runExitSequenceIfNeeded(): Promise<void> {
   if (!isInCustomSequence || !activeCustomLabel || !modelRoot || !activeCamera || initialCameraFov === null) {
+    // 🔄 Anche se non siamo in una custom sequence, resettiamo le damage mesh
+    const scene = modelRoot?.getScene();
+    if (scene) {
+      const { resetDamageVisibility } = await import("./damageManager");
+      resetDamageVisibility(scene);
+    }
+    lastDamageNodes = [];
     return;
   }
 
@@ -249,9 +256,15 @@ export async function runExitSequenceIfNeeded(): Promise<void> {
 
   handleExitAnimations(scene);
 
+  // 🔄 Reset damage mesh anche dopo una exit sequence vera e propria
+  const { resetDamageVisibility } = await import("./damageManager");
+  resetDamageVisibility(scene);
+  lastDamageNodes = [];
+
   isInCustomSequence = false;
   activeCustomLabel = null;
 }
+
 
 
 export function resetModelTransform() {

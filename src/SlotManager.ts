@@ -72,7 +72,6 @@ class SlotManager {
     const inverseWorld = modelRoot.getWorldMatrix().clone();
     inverseWorld.invert();
     const localPos = BABYLON.Vector3.TransformCoordinates(worldPos, inverseWorld);
-
     bag.root.position.copyFrom(localPos);
 
     let slotTransform;
@@ -81,26 +80,33 @@ class SlotManager {
       const index = slotIndex as 8 | 9;
       const list = this.extraSlotMap.get(index) ?? [];
       const slotTransforms = EXTRA_SLOT_TRANSFORMS[index];
-      const positionIndex = Math.min(list.length, slotTransforms.length - 1);
+
+      // ✅ BLOCCO ANTI-OVERFLOW
+      if (list.length >= slotTransforms.length) {
+        console.warn(`⛔ Slot extra ${slotIndex} ha raggiunto la capacità massima (${slotTransforms.length}). Bag ${bag.id} rifiutata.`);
+        return;
+      }
+
+      const positionIndex = list.length;
       slotTransform = slotTransforms[positionIndex];
 
       list.push(bag);
       this.extraSlotMap.set(index, list);
 
       console.log(`📦 Extra bag ${bag.id} assegnata a slot ${slotIndex} → pos ${positionIndex}`);
-      
+
       const expectedType = index === 8 ? "OverszBox" : "HeavyBox";
       if (bag.extraType === expectedType) {
         const { addPoints } = await import("./vehicleLoadingManager");
-        addPoints(10); // o 15, se vuoi differenziare
+        addPoints(10);
       }
-    
+
     } else {
       this.slotMap.set(slotIndex, bag);
       const expected = this.correctBagOrder[slotIndex];
       if (expected?.id === bag.id) {
         const { addPoints } = await import("./vehicleLoadingManager");
-        addPoints(10); // puoi cambiare 20 con il numero di punti che vuoi
+        addPoints(10);
       }
 
       slotTransform = this.useRightSide
@@ -120,7 +126,6 @@ class SlotManager {
     await handleInterpolatedTransform(bag.root, scene, transform);
 
     console.log(`✅ Bag ${bag.id} animata verso slot ${slotIndex}`);
-
     this.notifySlotAssigned(slotIndex);
 
     if (this.slotAssignedResolver) {
